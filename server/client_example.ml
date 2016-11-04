@@ -8,7 +8,9 @@ open Cohttp_lwt_unix
  * server
  * decode the body
  * find type of header: XML or JSON = method data cache.
- *  - can inspect element -> ex: content-type: text/html *)
+ *  - can inspect element -> ex: content-type: text/html
+ * to build: ocamlbuild -pkg cohttp.lwt client_example.native
+ * to run: ./client_example.native *)
 
 (* >>= is "bind" for call back function (async program)
  * note: async != multithread
