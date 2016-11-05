@@ -65,6 +65,7 @@ type effect =
  * consequence = None
  * environment = None *)
 type spell = {
+  spid : int;
   spincant: string;
   spdescr : string;
   speffect : effect;
@@ -75,6 +76,7 @@ type spell = {
 (* A potion is used for a specific purpose [poeffect] on an object although
  * it could have a consequence [poconseq] on the user *)
 type potion = {
+  poid : int;
   poname : string;
   podescr : string;
   poeffect : potion_effect;
@@ -87,10 +89,10 @@ type attack = {
   ateffect : effect;
 }
 
-(* types of items that can be stored in an inventory *)
+(* types of items id that can be stored in an inventory *)
 type inventory_item =
-  | IVSpell of spell
-  | IVPotion of potion
+  | IVSpell of int
+  | IVPotion of int
 
 (* player of the game *)
 type player = {
@@ -120,6 +122,7 @@ type players = User of player | AI of player
 
 (* animal or fantastic beast *)
 type animal = {
+  aid : int;
   aname : string;
   adescr : string;
   aattacks : attack list;
@@ -127,6 +130,7 @@ type animal = {
 
 (* policeman who is trying to catch players *)
 type policeman = {
+  plmid : int;
   plmspells : spell list;
 }
 
@@ -140,6 +144,14 @@ type item =
   | IPolice of policeman
   | ISpell of spell
   | IPotion of potion
+
+(* possible types of items in a room *)
+type item_id =
+  | IIDPlayer of int
+  | IIDAnimal of int
+  | IIDPolice of int
+  | IIDSpell of int
+  | IIDPotion of int
 
 (* Explanation:
  * [world] represents a game state
@@ -163,7 +175,7 @@ type world =  {
  * Invariant: [dplayers] and [ditems] only store players and rooms that change.
  * Steady rooms and players must not be included in a [diff]. *)
 type diff = {
-  dplayers : player_diff list;
-  ditems : room_loc * (item list) list;
+  dplayers : player_diff list option;
+  ditems : room_loc * (item_id list) list option;
 }
 
