@@ -1,6 +1,6 @@
 open model  
 open Controller
-open Server
+
 
 (* [translate_to_json d] returns a json based on a diff *)
 val translate_to_json: diff -> json
