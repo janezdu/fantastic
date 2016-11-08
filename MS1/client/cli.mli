@@ -1,4 +1,4 @@
-open model
+open Model
 open Controller
 
 (* directive is what the player types into the command line*)

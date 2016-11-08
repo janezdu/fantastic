@@ -1,6 +1,5 @@
-open model  
+open Model
 open Controller
-
 
 (* [translate_to_json d] returns a json based on a diff *)
 val translate_to_json: diff -> json

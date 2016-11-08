@@ -118,6 +118,8 @@ type id =
   | IDPotion of int
   | IDSpell of int
 
+(* difference that can occur in inventory
+ * When the player  *)
 type diff_inv = Remove of inventory_item | Add of inventory_item
 
 type mut_AI = {

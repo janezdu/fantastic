@@ -1,8 +1,7 @@
 open Model
 open Changer
-open Viewer
 
-
+(* identification of each client *)
 type clientid = int
 
 (* Explanation:
@@ -20,6 +19,7 @@ type serverstate = {
   client_diffs: (diff list) list;
 }
 
+(* client of server *)
 type client = {
   clientid : clientid
 }
