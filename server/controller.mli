@@ -33,6 +33,6 @@ val validate : diff -> diff
 val step : world -> diff -> world
 
 (* returns the diff for a client when it asks for an update *)
-val update : serverstate -> client -> diff
+val update : serverstate -> client -> diff list
 
 

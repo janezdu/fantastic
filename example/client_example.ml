@@ -19,7 +19,7 @@ open Cohttp_lwt_unix
  * for functions that takes time -> let other thread to compute and will
  * come back to get the results later *)
 let body =
-  Client.get (Uri.of_string "http://0.0.0.0:8000") >>= fun (resp, body) ->
+  Client.get (Uri.of_string "http://10.132.1.9:8000") >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   (* below is the function of the client call *)
   Printf.printf "Response code: %d\n" code;
