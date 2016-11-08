@@ -111,6 +111,7 @@ type policeman = {
   plmspells : spell list;
 }
 
+(* types of an item's id *)
 type id =
   | IDPolice of int
   | IDAnimal of int
@@ -118,10 +119,10 @@ type id =
   | IDPotion of int
   | IDSpell of int
 
-(* difference that can occur in inventory
- * When the player  *)
+(* difference that can occur in inventory *)
 type diff_inv = Remove of inventory_item | Add of inventory_item
 
+(* fields that can be updated in a move *)
 type mut_AI = {
   id : id;
   newloc : room_loc;
@@ -134,12 +135,13 @@ type mut_AI = {
 
 (* possible types of items in a room *)
 type item =
-  | DIPlayer of mut_AI
-  | DIAnimal of mut_AI
-  | DIPolice of mut_AI
-  | DISpell of int
-  | DIPotion of int
+  | IPlayer of mut_AI
+  | IAnimal of mut_AI
+  | IPolice of mut_AI
+  | ISpell of int
+  | IPotion of int
 
+(* difference that can occur in a room *)
 type diff_item = Remove of id | Add of id | Change of item
 
 module LibMap = Map.Make (
