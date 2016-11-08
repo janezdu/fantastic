@@ -1,5 +1,7 @@
-open model
+open Model
 open Changer
+open Viewer
+
 
 type clientid = int
 
