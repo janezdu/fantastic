@@ -32,7 +32,6 @@ type emotion = Happy | Sad | Angry | Scared
  * The description includes how the room looks like but not the items
  * in the room. *)
 type room = {
-  rloc : room_loc;
   rdescr : string;
   rexits : exit list;
 }
@@ -42,8 +41,6 @@ type room = {
  * [effect] on hint takes string hint input and print it to the player who
  * calls. For example,
  * EHP 10 represents increase 10 hp
- * ETurn 1 represents the player gets 1 more turn added to how many turns
- *   the player has left
  * EPrecision 10 represents the player's spell will be 10% more accurate
  *   than what it already is. If the precision is 50, it increases to 60%.
  * EHint "Use Patronas Charm" represents that the string hint will
@@ -51,7 +48,6 @@ type room = {
  * EEmotion Happy represents the player's emotion will be changed to Happy *)
 type effect =
   | EHP of hp
-  | ETurn of int
   | EPrecision of precision
   | EHint of string
   | EEmotion of emotion
@@ -70,7 +66,7 @@ type spell = {
   spdescr : string;
   speffect : effect;
   spconseq: effect option;
-  spenv : emotion option;
+  spcond : emotion option;
 }
 
 (* A potion is used for a specific purpose [poeffect] on an object although
@@ -79,7 +75,7 @@ type potion = {
   poid : int;
   poname : string;
   podescr : string;
-  poeffect : potion_effect;
+  poeffect : effect;
   poconseq : effect option;
 }
 
@@ -99,26 +95,7 @@ type player = {
   pid : int;
   pname : string;
   pdescr : string;
-  ploc : room_loc;
-  php : hp;
-  pemotion : emotion;
-  pscore : score;
-  pinventory : inventory_item list;
 }
-
-(* mutable properties of player that could be changed in a turn.
- * Properties that are not changed are of type None. *)
-type player_diff = {
-  pdid : int option;
-  pdloc : room_loc option;
-  pdhp : hp option;
-  pdemotion : emotion option;
-  pdscore : score option;
-  pdinventory : inventory_item list option;
-}
-
-(* types of players in the game. AI for one-player mode. *)
-type players = User of player | AI of player
 
 (* animal or fantastic beast *)
 type animal = {
@@ -134,24 +111,49 @@ type policeman = {
   plmspells : spell list;
 }
 
-(* types of AIs in the game *)
-type AI = Animal of animal | Police of policeman
+type id =
+  | IDPolice of int
+  | IDAnimal of int
+  | IDPlayer of int
+  | IDPotion of int
+  | IDSpell of int
+
+type diff_inv = Remove of inventory_item | Add of inventory_item
+
+type mut_AI = {
+  id : id;
+  newloc : room_loc;
+  hp : hp;
+  emotion : emotion option;
+  score : score;
+  inventory : diff_inv list;
+  precision : int;
+}
 
 (* possible types of items in a room *)
 type item =
-  | IPlayer of player
-  | IAnimal of animal
-  | IPolice of policeman
-  | ISpell of spell
-  | IPotion of potion
+  | DIPlayer of mut_AI
+  | DIAnimal of mut_AI
+  | DIPolice of mut_AI
+  | DISpell of int
+  | DIPotion of int
 
-(* possible types of items in a room *)
-type item_id =
-  | IIDPlayer of int
-  | IIDAnimal of int
-  | IIDPolice of int
-  | IIDSpell of int
-  | IIDPotion of int
+type diff_item = Remove of id | Add of id | Change of item
+
+module LibMap = Map.Make (
+    struct
+      type t = int
+      let compare e1 e2 = compare e1 e2
+    end )
+
+module RoomMap = Map.Make (
+    struct
+      type t = room_loc
+      let compare (x1,x2) (y1,y2) = compare x1 y1
+    end )
+
+open LibMap
+open RoomMap
 
 (* Explanation:
  * [world] represents a game state
@@ -162,20 +164,19 @@ type item_id =
  * and dictionary of room associated with items in the room [witems] *)
 type world =  {
   wid : timeid;
-  wrooms : room list;
-  wspells : spell list;
-  wpotions : potion list;
-  wanimals : animal list;
-  wpolice : policeman list;
-  wplayers : players list;
-  witems : room_loc * (item list) list;
+  wrooms : room RoomMap.t;
+  wspells : spell LibMap.t;
+  wpotions : potion LibMap.t;
+  wanimals : animal LibMap.t;
+  wpolice : policeman LibMap.t;
+  wplayers : players LibMap.t;
+  witems : (item list) RoomMap.t;
 }
 
 (* [diff] represents changes that are made in a player's turn.
  * Invariant: [dplayers] and [ditems] only store players and rooms that change.
  * Steady rooms and players must not be included in a [diff]. *)
 type diff = {
-  dplayers : player_diff list option;
-  ditems : room_loc * (item_id list) list option;
+  ditems : room_loc * (diff_item list) list option;
 }
 
