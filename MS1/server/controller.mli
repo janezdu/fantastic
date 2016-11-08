@@ -19,22 +19,13 @@ type serverstate = {
   client_diffs: (diff list) list;
 }
 
-(* client of server *)
-type client = {
-  clientid : clientid
-}
-
 (* returns the most up-to-date timestamp based on the server state *)
 val curtime : serverstate -> timeid
 
-(* input diff is a change that needs to be validated; returns a no-change
- * diff if it is invalid *)
-val validate : diff -> diff
-
-(* changes the world by one step, where the difference is the diff *)
-val step : world -> diff -> world
-
 (* returns the diff for a client when it asks for an update *)
-val update : serverstate -> client -> diff list
+val getClientUpdate : serverstate -> clientid -> diff list
 
+(* tries to change the model based on a client's request. Returns true
+ * if change was successful, false o/w. *)
+val pushClientUpdate: serverstate -> diff -> bool
 

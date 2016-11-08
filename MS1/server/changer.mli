@@ -4,6 +4,5 @@ open Model
  * from the diff *)
 val applydiff : world -> diff -> world
 
-(* Update the lists of diffs that each client has with the server;
- * contains all info necessary for clients to request update *)
-val updateClientDiffs: diff -> diff list -> diff list
+(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
+val validate: world -> diff -> bool
