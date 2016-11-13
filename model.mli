@@ -1,5 +1,5 @@
 (* [timeid] is timestamp of a gamestate aka [world]
- * the inital world has timeid 0. When the first player makes a change, the
+ * the initial world has timeid 0. When the first player makes a change, the
  * most up-to-date world has timestamp 1, and so on *)
 type timeid = int;
 
@@ -162,7 +162,7 @@ module LibMap = Map.Make (
 module RoomMap = Map.Make (
     struct
       type t = room_loc
-      let compare (x1,x2) (y1,y2) = compare x1 y1
+      let compare (x1,x2) (y1,y2) = if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
     end )
 
 open LibMap
@@ -182,7 +182,7 @@ type world =  {
   wpotions : potion LibMap.t;
   wanimals : animal LibMap.t;
   wpolice : policeman LibMap.t;
-  wplayers : players LibMap.t;
+  wplayers : player LibMap.t;
   witems : (item list) RoomMap.t;
 }
 

@@ -1,4 +1,3 @@
-open Model
 open Controller
 
 (* recieves a status from the serverhttp, which indicates if the
@@ -9,7 +8,7 @@ open Controller
 val receive_status: status -> bool
 
 (* [translate_to_json d] returns a json based on diffs *)
-val translate_to_json: diff list -> json
+val translate_to_json: diff -> json
 
 (* [translate_to_diff j] returns diffs based on a json *)
 val translate_to_diff: json -> diff list
