@@ -9,6 +9,7 @@ type serverstate = {
   client_diffs: (diff list ref) list;
 }
 
+exception IllegalMove
 
 let state = {flatworld = init (); client_diffs = []} in
 
@@ -28,8 +29,20 @@ let rec step cid diffs = match diffs with
  * throws "illegalmove" error *)
 let validate cid state cmd = 
   match cmd with
-  | Move new -> 
+  | Move (nx, ny) -> 
     begin
+      let (ox, oy) = List.assoc cid flatworld.client_locs in
+
+      if (abs (ox - nx) + abs (oy - ny) = 1) 
+        && (nx < 50 && nx >= 0 && ny < 50 && ny >= 0)
+        then
+        [
+          ((ox, oy), [Remove cid]); 
+          ((nx, ny), [Add cid])
+        ]
+
+      else raise IllegalMove
+
       (* check if new is legal position: consecutive and in world *)
       (* return diff list *)
     end
