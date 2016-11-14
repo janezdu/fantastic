@@ -8,8 +8,6 @@ type diff = {
   ditems : room_loc * (diff_item list) list option;
 }
 
-(* The main "copy" of the world kept here *)
-let world = failwith "unimplemented"
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
