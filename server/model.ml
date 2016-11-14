@@ -1,13 +1,13 @@
 (* [timeid] is timestamp of a gamestate aka [world]
  * the initial world has timeid 0. When the first player makes a change, the
  * most up-to-date world has timestamp 1, and so on *)
-type timeid = int;
+type timeid = int
 
 (* [hp] stands for healthpoint *)
-type hp = int;
+type hp = int
 
 (* score of a player *)
-type score = int;
+type score = int
 
 (* [precision] is the confidence level of hitting the target when
  * casting a spell
@@ -17,13 +17,13 @@ type score = int;
  * works.
  * Invariants: 0 < precision < 100
  * and by default, precision is 50. *)
-type precision = int;
+type precision = int
 
 (* exit of each room in 50x50 grids *)
 type exit = North | East | South | West
 
 (* location of a room in grid system *)
-type room_loc = int * int;
+type room_loc = int * int
 
 (* emotion of a player *)
 type emotion = Happy | Sad | Angry | Scared
@@ -186,10 +186,5 @@ type world =  {
   witems : (item list) RoomMap.t;
 }
 
-(* [diff] represents changes that are made in a player's turn.
- * Invariant: [dplayers] and [ditems] only store players and rooms that change.
- * Steady rooms and players must not be included in a [diff]. *)
-type diff = {
-  ditems : room_loc * (diff_item list) list option;
-}
+
 

@@ -1,11 +1,6 @@
-open Controller
-
-(* recieves a status from the serverhttp, which indicates if the
- * user's command was valid or not. If the status is Okay, then
- * that means the user's command was valid, so returns true,
- * else if the statis is Invalid, then the command was invalid, so
- * returns false. *)
-val receive_status: status -> bool
+(* The json type used to pass information in the body fo the client *)
+type json 
+type diff
 
 (* [translate_to_json d] returns a json based on diffs *)
 val translate_to_json: diff -> json

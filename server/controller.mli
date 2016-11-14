@@ -1,8 +1,10 @@
-open Model
-open Changer
-
 (* identification of each client *)
-type clientid = int
+type clientid
+
+(* [diff] represents changes that are made in a player's turn.
+ * Invariant: [dplayers] and [ditems] only store players and rooms that change.
+ * Steady rooms and players must not be included in a [diff]. *)
+type diff
 
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not
@@ -14,13 +16,10 @@ type clientid = int
  * to each client's diff list. Whenever a client successfully updates, its
  * entire diff list is flushed. An empty diff list for a client indicates that
  * it is up to date with [flatworld]. *)
-type serverstate = {
-  flatworld : world;
-  client_diffs: (diff list) list;
-}
+type serverstate
 
 (* returns the most up-to-date timestamp based on the server state *)
-val curtime : serverstate -> timeid
+val curtime : serverstate -> Model.timeid
 
 (* returns the diff for a client when it asks for an update *)
 val getClientUpdate : serverstate -> clientid -> diff list

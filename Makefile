@@ -1,11 +1,11 @@
-test:
-    ocamlbuild -pkgs oUnit,yojson,str,ANSITerminal game_test.byte && ./game_test.byte
+build: 
+	$(MAKE) -C client && $(MAKE) -C server
 
-server:
-    ocamlbuild server/* -pkgs oUnit,yojson,str,ANSITerminal main.byte && ./main.byte
+ser:
+	$(MAKE) -C server
 
-client:
-    ocamlbuild client/* -pkgs oUnit,yojson,str,ANSITerminal main.byte && ./main.byte
+cli: 
+	$(MAKE) -C client
 
 clean:
-    ocamlbuild -clean
+	ocamlbuild -clean
