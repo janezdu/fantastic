@@ -7,5 +7,11 @@ ser:
 cli: 
 	$(MAKE) -C client
 
+host:
+	$(MAKE) -C server && ./server/serverhttp.byte
+
+play:
+	$(MAKE) -C client && ./client/clienthttp.byte
+
 clean:
 	ocamlbuild -clean
