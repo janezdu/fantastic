@@ -1,10 +1,9 @@
 (* identification of each client *)
 type clientid
 
-(* [diff] represents changes that are made in a player's turn.
- * Invariant: [dplayers] and [ditems] only store players and rooms that change.
- * Steady rooms and players must not be included in a [diff]. *)
-type diff
+type diff = {
+  ditems : room_loc * (diff_item list) list option;
+}
 
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not
@@ -18,8 +17,8 @@ type diff
  * it is up to date with [flatworld]. *)
 type serverstate
 
-(* returns the most up-to-date timestamp based on the server state *)
-val curtime : serverstate -> Model.timeid
+(* Returns an integer that represents the most up-to-date timestamp *)
+val curtime : serverstate -> int
 
 (* returns the diff for a client when it asks for an update *)
 val getClientUpdate : serverstate -> clientid -> diff list
