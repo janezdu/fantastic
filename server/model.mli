@@ -1,7 +1,7 @@
 (* [timeid] is timestamp of a gamestate aka [world]
  * the initial world has timeid 0. When the first player makes a change, the
  * most up-to-date world has timestamp 1, and so on *)
-type timeid 
+type timeid
 
 (* location of a room in grid system *)
 type room_loc
@@ -29,4 +29,3 @@ type diff = {
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 val apply_diff: diff -> world
-
