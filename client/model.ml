@@ -186,8 +186,6 @@ type world =  {
   witems : (item list) RoomMap.t;
 }
 
-
-<<<<<<< HEAD
 type diff = {
   ditems : room_loc * (diff_item list) list option;
 }

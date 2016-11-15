@@ -191,12 +191,6 @@ type diff = {
 }
 
 
-type diff = {
-  ditems : room_loc * (diff_item list) list option;
-}
-
-
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 let apply_diff d = failwith "unimplemented"
-

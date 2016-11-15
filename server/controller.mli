@@ -1,5 +1,6 @@
 (* identification of each client *)
 type clientid
+type diff
 
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not
