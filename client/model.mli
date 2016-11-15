@@ -18,8 +18,3 @@ type diff_item
  * and dictionary of room associated with items in the room [witems] *)
 type world
 
-(* [diff] represents changes that are made in a player's turn.
- * Invariant: [dplayers] and [ditems] only store players and rooms that change.
- * Steady rooms and players must not be included in a [diff]. *)
-type diff
-
