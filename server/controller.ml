@@ -2,11 +2,7 @@ open Model
 
 (* identification of each client *)
 type clientid = int
-
-
-type diff = {
-  ditems : room_loc * (diff_item list) list option;
-}
+type diff = Model.diff
 
 
 type serverstate = {
