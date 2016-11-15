@@ -17,3 +17,15 @@ type diff_item
  * police library [wpolice], player library [wplayers],
  * and dictionary of room associated with items in the room [witems] *)
 type world
+
+(* [diff] represents changes that are made in a player's turn.
+ * Invariant: [dplayers] and [ditems] only store players and rooms that change.
+ * Steady rooms and players must not be included in a [diff]. *)
+type diff = {
+  ditems : room_loc * (diff_item list) list option;
+}
+
+
+(* [apply_diff d] takes in a difference and returns an updated
+ * minimodel based on the diff.*)
+val apply_diff: diff -> world
