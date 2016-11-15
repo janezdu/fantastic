@@ -1,5 +1,5 @@
 (* [timeid] is timestamp of a gamestate aka [world]
- * the inital world has timeid 0. When the first player makes a change, the
+ * the initial world has timeid 0. When the first player makes a change, the
  * most up-to-date world has timestamp 1, and so on *)
 type timeid = int;
 
@@ -111,6 +111,7 @@ type policeman = {
   plmspells : spell list;
 }
 
+(* types of an item's id *)
 type id =
   | IDPolice of int
   | IDAnimal of int
@@ -118,8 +119,10 @@ type id =
   | IDPotion of int
   | IDSpell of int
 
+(* difference that can occur in inventory *)
 type diff_inv = Remove of inventory_item | Add of inventory_item
 
+(* fields that can be updated in a move *)
 type mut_AI = {
   id : id;
   newloc : room_loc;
@@ -130,26 +133,36 @@ type mut_AI = {
   precision : int;
 }
 
-(* possible types of items in a room *)
+(* A type that is one of several records, all of which contain enough 
+ * information to represent both the static and dynamic parts of an item.
+ * For a spell, for example, it is sufficient to know what type of spell it is; 
+ * all spells with the same int identifier have the same effect.. 
+ * For an animal, it is necessary to know the static info like its starting HP, 
+ * and dynamic info, like its current HP. See type [mut_AI] for more. *)
 type item =
-  | DIPlayer of mut_AI
-  | DIAnimal of mut_AI
-  | DIPolice of mut_AI
-  | DISpell of int
-  | DIPotion of int
+  | IPlayer of mut_AI
+  | IAnimal of mut_AI
+  | IPolice of mut_AI
+  | ISpell of int
+  | IPotion of int
 
+(* difference that can occur in a room *)
 type diff_item = Remove of id | Add of id | Change of item
 
+(* A map module that uses the id to lookup static things and properties, 
+ * like spell effects. *)
 module LibMap = Map.Make (
     struct
       type t = int
       let compare e1 e2 = compare e1 e2
     end )
 
+(* A map module that uses room locations to look up properties of and contents 
+ * of a room. See [type world] for more details. *)
 module RoomMap = Map.Make (
     struct
       type t = room_loc
-      let compare (x1,x2) (y1,y2) = compare x1 y1
+      let compare (x1,x2) (y1,y2) = if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
     end )
 
 open LibMap
@@ -169,7 +182,7 @@ type world =  {
   wpotions : potion LibMap.t;
   wanimals : animal LibMap.t;
   wpolice : policeman LibMap.t;
-  wplayers : players LibMap.t;
+  wplayers : player LibMap.t;
   witems : (item list) RoomMap.t;
 }
 

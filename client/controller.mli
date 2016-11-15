@@ -1,7 +1,4 @@
-open model 
-
-
-
+open Model
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
