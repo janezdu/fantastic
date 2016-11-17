@@ -12,6 +12,8 @@ open Cohttp_lwt_unix
  * to build: ocamlbuild -pkg cohttp.lwt client_example.native
  * to run: ./client_example.native *)
 
+let json = "{world:{player:A},diff:{hi: true}}"
+
 (* >>= is "bind" for call back function (async program)
  * note: async != multithread
  * multithread = two separate programs run parallel, independently
@@ -19,7 +21,8 @@ open Cohttp_lwt_unix
  * for functions that takes time -> let other thread to compute and will
  * come back to get the results later *)
 let body =
-  Client.get (Uri.of_string "http://10.132.1.9:8000") >>= fun (resp, body) ->
+  Client.post ~body:([json] |> Lwt_stream.of_list |> Cohttp_lwt_body.of_stream)
+  (Uri.of_string "http://0.0.0.0:8000") >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   (* below is the function of the client call *)
   Printf.printf "Response code: %d\n" code;
