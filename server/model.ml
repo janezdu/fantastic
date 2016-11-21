@@ -88,3 +88,8 @@ type diff = (room_loc * (diff_item list)) list;
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 let apply_diff d = failwith "unimplemented"
+
+(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
+let validate w d: world -> diff -> bool =
+    failwith "unimplemented"
+

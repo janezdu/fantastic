@@ -2,7 +2,6 @@
 type clientid
 type diff
 
-
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not
  * involve any diffs; that is, accessing info from the record is just an access,

@@ -18,7 +18,6 @@ type diff_item
  * and dictionary of room associated with items in the room [witems] *)
 
 
-
 type world = room RoomMap.t
 
 type inventorylib = inv Libmap.t
@@ -38,3 +37,10 @@ val apply_diff: diff -> world
 
 (* creates initial  empty world *)
 val init: () -> world
+
+(* Takes in a diff and a world, and updates the world by applying the changes
+ * from the diff *)
+val applydiff : world -> diff -> world
+
+(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
+val validate: world -> diff -> bool
