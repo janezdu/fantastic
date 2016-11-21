@@ -187,7 +187,7 @@ type world =  {
 }
 
 type diff = {
-  ditems : room_loc * (diff_item list) list option;
+  ditems : (room_loc * (diff_item list)) list;
 }
 
 (* [apply_diff d] takes in a difference and returns an updated

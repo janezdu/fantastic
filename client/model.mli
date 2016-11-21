@@ -22,7 +22,7 @@ type world
  * Invariant: [dplayers] and [ditems] only store players and rooms that change.
  * Steady rooms and players must not be included in a [diff]. *)
 type diff = {
-  ditems : room_loc * (diff_item list) list option;
+  ditems : (room_loc * (diff_item list)) list ;
 }
 
 

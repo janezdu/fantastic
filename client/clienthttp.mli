@@ -1,5 +1,5 @@
-(* The json type used to pass information in the body fo the client *)
-type json 
+(* The json type used to pass information in the body of the client *)
+type json
 type diff
 
 (* [translate_to_json d] returns a json based on diffs *)
