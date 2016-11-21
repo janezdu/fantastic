@@ -1,6 +1,6 @@
 (* The json type used to pass information in the body of the client *)
 type json
-type diff
+type diff = Controller.diff
 
 (* [translate_to_json d] returns a json based on diffs *)
 val translate_to_json: diff -> json

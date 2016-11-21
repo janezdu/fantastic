@@ -25,8 +25,6 @@ type diff = {
   ditems : (room_loc * (diff_item list)) list ;
 }
 
-
-
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 val apply_diff: diff -> world
