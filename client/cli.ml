@@ -35,7 +35,7 @@ let parse_command lst=
         Inventory
     | h::[] when (String.trim h="View")-> ViewState
     | h::[] when (String.trim h="Help") -> Help
-    | h::[] -> Go (String.trim h)(*new stuff*)
+    | h::[] -> Move (String.trim h)(*new stuff*)
     | _ -> raise (Illegal)
 
 
