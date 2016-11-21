@@ -2,7 +2,6 @@ open Model
 
 (* identification of each client *)
 type clientid = int
-type diff = Model.diff
 
 type serverstate = {
   flatworld : world;

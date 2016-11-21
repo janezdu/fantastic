@@ -88,4 +88,3 @@ type diff = (room_loc * (diff_item list)) list;
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 let apply_diff d = failwith "unimplemented"
-
