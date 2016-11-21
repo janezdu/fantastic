@@ -36,7 +36,7 @@ let parse_command lst=
     | h::[] when (String.trim h="View")-> ViewState
     | h::[] when (String.trim h="Help") -> Help
     | h::[] -> Move (String.trim h)(*new stuff*)
-    | _ -> raise (Illegal)
+    | _ -> failwith "Illegal"
 
 
 (* [split_to_list str] is a string that results from splitting [str] into a 
@@ -80,7 +80,7 @@ let sep_dir lst =
     | h::t when (h = "move" || h = "take" || h = "drop" || h = "spell" || h = "drink")-> 
         h::(String.trim (list_concat t))::[]
     | h::t -> (String.trim (list_concat lst))::[]
-    | _ -> raise (Illegal)
+    | _ -> failwith "Illegal"
 
 (* [parse_c command] parses the command [command] into a command variant
  * raises Illegal if [command] not in the form of a valid command
