@@ -2,12 +2,7 @@ open Model
 
 (* identification of each client *)
 type clientid = int
-
-
-type diff = {
-  ditems : room_loc * (diff_item list) list option;
-}
-
+type diff = Model.diff
 
 type serverstate = {
   flatworld : world;
@@ -15,7 +10,7 @@ type serverstate = {
 }
 
 (* returns the most up-to-date timestamp based on the server state *)
-let curtime state  = failwith "unimplemented" 
+let curtime state  = failwith "unimplemented"
 
 (* returns the diff for a client when it asks for an update *)
 let getClientUpdate state cid = failwith "unimplemented"

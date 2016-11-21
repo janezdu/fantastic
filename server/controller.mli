@@ -1,9 +1,5 @@
 (* identification of each client *)
 type clientid
-
-(* [diff] represents changes that are made in a player's turn.
- * Invariant: [dplayers] and [ditems] only store players and rooms that change.
- * Steady rooms and players must not be included in a [diff]. *)
 type diff
 
 (* Explanation:

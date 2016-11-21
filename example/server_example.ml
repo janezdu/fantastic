@@ -14,7 +14,8 @@ let server =
     let meth = req |> Request.meth |> Code.string_of_method in
     let headers = req |> Request.headers |> Header.to_string in
     body |> Cohttp_lwt_body.to_string >|= (fun body ->
-      (Printf.sprintf "We're fantastic!"))
+      (Printf.sprintf "Uri: %s\nMethod: %s\nHeaders\nHeaders: %s\nBody: %s"
+         uri meth headers body))
     >>= (fun body -> Server.respond_string ~status:`OK ~body ())
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
