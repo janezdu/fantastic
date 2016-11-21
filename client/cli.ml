@@ -77,7 +77,7 @@ let rec list_concat lst =
 let sep_dir lst = 
     match lst with 
     | h::[] -> h::[]
-    | h::t when (h = "go" || h = "take" || h = "drop")-> 
+    | h::t when (h = "move" || h = "take" || h = "drop" || h = "spell" || h = "drink")-> 
         h::(String.trim (list_concat t))::[]
     | h::t -> (String.trim (list_concat lst))::[]
     | _ -> raise (Illegal)
