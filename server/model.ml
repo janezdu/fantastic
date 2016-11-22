@@ -42,7 +42,7 @@ type player = {
   id : int;
   hp : int;
   score : int;
-  inventory : inv list;
+  inventory : int list;
 }
 
 type ai = {
@@ -50,7 +50,7 @@ type ai = {
   name : string;
   descr : string;
   hp : int;
-  spells : spell list;
+  spells : int list;
 }
 
 (* A type that is one of several records, all of which contain enough
@@ -70,20 +70,18 @@ type item =
  * The description includes how the room looks like but not the items
  * in the room. *)
 type room = {
-  rdescr : string;
-  ritems : item list;
+  descr : string;
+  items : int list;
 }
 
 
 type world = {
   rooms: room RoomMap.t;
-  client_locs: (int * room_loc) list;
+  player: (int * room_loc) list;
+  items: item LibMap.t
 }
 
-(* difference that can occur in a room *)
-type diff_item = Remove of id | Add of id
-
-type diff = (room_loc * (diff_item list)) list;
+type diff = json;
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)

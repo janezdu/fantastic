@@ -22,16 +22,19 @@ let rec step cid diffs = match diffs with
     ()
   end 
 
-
+let rec remove x l = match l with 
+  | [] -> failwith "no such element"
+  | h::t -> if h = x then t
+            else h::(remove x t)
 
 (* returns list of diffs to apply to model
  * throws "illegalmove" error *)
 let validate cid state cmd = 
+  let {flatworld; client_diffs} = state in
   match cmd with
   | Move (nx, ny) -> 
     begin
       let (ox, oy) = List.assoc cid flatworld.client_locs in
-
       if (abs (ox - nx) + abs (oy - ny) = 1) 
         && (nx < 50 && nx >= 0 && ny < 50 && ny >= 0)
         then
@@ -39,7 +42,6 @@ let validate cid state cmd =
           ((ox, oy), [Remove cid]); 
           ((nx, ny), [Add cid])
         ]
-
       else raise IllegalMove
 
       (* check if new is legal position: consecutive and in world *)
@@ -47,11 +49,18 @@ let validate cid state cmd =
     end
   | Use id -> 
     begin
-      (* check if int is in inventory. *)
+
     end 
   | Take id -> 
     begin
-      (* check if id is in room *)
+      let cur_loc = List.assoc cid flatworld.client_locs in
+      let items = (Map.find cur_loc flatworld.rooms).items in
+      try 
+        let new_items' = remove id items in
+        let IPlayer player = Map.find cid flatworld.items in
+        let updated_player = {player with inventory = id::inventory}
+        [(cur_loc, [Remove cid; Remove id; Add )])] 
+      with _ ->  
     end
   | Drop id ->
     begin
@@ -71,7 +80,7 @@ let getClientUpdate cid =
     let diff = !diff_ref in
     diff_ref := [];
     diff
-  with failwith "illegal client" 
+  with _ -> failwith "illegal client" 
 
 (* tries to change the model based on a client's request. Returns true
  * if change was successful, false o/w. *)
