@@ -23,19 +23,17 @@ module LibMap = Map.Make (
  * consequence = None
  * environment = None *)
 type spell = {
+  id : int;
   incant: string;
   descr : string;
   effect : int;
 }
 
 type potion = {
+  id : int;
   descr : string;
   effect : int;
 }
-
-type inv =
-  | IVSpell of spell
-  | IVPotion of potion
 
 (* fields that can be updated in a move *)
 type player = {

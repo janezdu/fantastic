@@ -7,7 +7,12 @@ module RoomMap = Map.Make (
       if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
   end )
 
-open RoomMap
+module LibMap = Map.Make (
+    struct
+      type t = int
+      let compare e1 e2 = compare e1 e2
+    end )
+
 
 (* A spell is casted to act on an object. However, there are consequences of
  * casting specific spells.
@@ -18,26 +23,24 @@ open RoomMap
  * consequence = None
  * environment = None *)
 type spell = {
+  id : int;
   incant: string;
   descr : string;
   effect : int;
 }
 
 type potion = {
+  id : int;
   descr : string;
   effect : int;
 }
-
-type inv =
-  | IVSpell of spell
-  | IVPotion of potion
 
 (* fields that can be updated in a move *)
 type player = {
   id : int;
   hp : int;
   score : int;
-  inventory : inv list;
+  inventory : int list;
 }
 
 type ai = {
@@ -45,7 +48,7 @@ type ai = {
   name : string;
   descr : string;
   hp : int;
-  spells : spell list;
+  spells : int list;
 }
 
 (* A type that is one of several records, all of which contain enough
@@ -57,7 +60,7 @@ type ai = {
 type item =
   | IPlayer of player
   | IAnimal of ai
-  | IPolice of policeman
+  | IPolice of ai
   | ISpell of spell
   | IPotion of potion
 
@@ -65,20 +68,29 @@ type item =
  * The description includes how the room looks like but not the items
  * in the room. *)
 type room = {
-  rdescr : string;
-  ritems : item list;
+  descr : string;
+  items : int list;
 }
 
-type world = room RoomMap.t
 
-(* difference that can occur in a room *)
-type diff_item = Remove of item | Add of item
-
-type diff = {
-  ditems : (room_loc * (diff_item list)) list;
+type world = {
+  rooms: room RoomMap.t;
+  player: (int * room_loc) list;
+  items: item LibMap.t
 }
+
+type diffparam = {loc : room_loc; item : item};
+
+type diff = 
+  | Add of diffparam
+  | Remove of diffparam
+  | Change of diffparam
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 let apply_diff d = failwith "unimplemented"
+
+(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
+let validate w d: world -> diff -> bool =
+    failwith "unimplemented"
 
