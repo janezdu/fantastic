@@ -13,7 +13,7 @@ val translate_to_diff: json -> Controller.diff list
 val translate_to_json: Controller.diff list -> json
 
 (* [send_response j status] sends an http response to the clients *)
-val send_respoonse: json -> status -> unit
+val send_response: json -> status -> unit
 
 (* [send_status] sense a response without a body*)
 val send_status: status -> unit

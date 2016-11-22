@@ -16,7 +16,12 @@ type diff_item
  * spell library [wspells], potion library [wpotions], animal library [animals],
  * police library [wpolice], player library [wplayers],
  * and dictionary of room associated with items in the room [witems] *)
-type world
+
+
+type world = room RoomMap.t
+
+type inventorylib = inv Libmap.t
+
 
 (* [diff] represents changes that are made in a player's turn.
  * Invariant: [dplayers] and [ditems] only store players and rooms that change.
@@ -29,3 +34,13 @@ type diff = {
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 val apply_diff: diff -> world
+
+(* creates initial  empty world *)
+val init: () -> world
+
+(* Takes in a diff and a world, and updates the world by applying the changes
+ * from the diff *)
+val applydiff : world -> diff -> world
+
+(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
+val validate: world -> diff -> bool
