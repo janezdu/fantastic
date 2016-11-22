@@ -1,3 +1,5 @@
+type room_loc = int * int
+
 (* A map module that uses room locations to look up properties of and contents
  * of a room. See [type world] for more details. *)
 module RoomMap = Map.Make (
@@ -57,7 +59,7 @@ type ai = {
 type item =
   | IPlayer of player
   | IAnimal of ai
-  | IPolice of policeman
+  | IPolice of ai
   | ISpell of spell
   | IPotion of potion
 

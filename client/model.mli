@@ -1,13 +1,51 @@
 (* [timeid] is timestamp of a gamestate aka [world]
  * the initial world has timeid 0. When the first player makes a change, the
  * most up-to-date world has timestamp 1, and so on *)
-type timeid
+(* type timeid *)
 
 (* location of a room in grid system *)
-type room_loc
+type room_loc = int * int
+
+type spell = {
+  incant: string;
+  descr : string;
+  effect : int;
+}
+
+type potion = {
+  descr : string;
+  effect : int;
+}
+
+type inv =
+  | IVSpell of spell
+  | IVPotion of potion
+
+(* fields that can be updated in a move *)
+type player = {
+  id : int;
+  hp : int;
+  score : int;
+  inventory : inv list;
+}
+
+type ai = {
+  id : int;
+  name : string;
+  descr : string;
+  hp : int;
+  spells : spell list;
+}
+
+type item =
+  | IPlayer of player
+  | IAnimal of ai
+  | IPolice of ai
+  | ISpell of spell
+  | IPotion of potion
 
 (* difference that can occur in a room *)
-type diff_item
+type diff_item = Remove of item | Add of item
 
 (* Explanation:
  * [world] represents a game state
