@@ -17,4 +17,4 @@ val translate_to_json: diff -> json
 val translate_to_diff: json -> diff list
 
 (* [send_json j} sends a json to the servers. Returns unit *)
-val send_json: json -> unit
+val send_json: string -> unit

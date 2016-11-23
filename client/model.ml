@@ -80,7 +80,17 @@ type diff = {
   ditems : (room_loc * (diff_item list)) list;
 }
 
+let update_room h =
+  (* put stuff / delete stuff from the room *)
+  failwith "unimplemented"
+
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
-let apply_diff d = failwith "unimplemented"
+let rec apply_diff d =
+  (* get room # *)
+  match d with
+  | [] -> curr_world
+  | h::t -> RoomMap.add h (update_room h) curr_world  (*plus doing something here with the tail*)
+
+
 

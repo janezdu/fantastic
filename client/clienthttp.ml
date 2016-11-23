@@ -58,7 +58,7 @@ let translate_to_diff j =
  * async = one program, but runs everything at the same time.
  * for functions that takes time -> let other thread to compute and will
  * come back to get the results later *)
-let body =
+let body j =
   Client.post ~body:([j] |> Lwt_stream.of_list |> Cohttp_lwt_body.of_stream)
   (Uri.of_string "http://0.0.0.0:8000") >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
@@ -71,5 +71,8 @@ let body =
 
 (* [send_json j} sends a json to the servers. Returns unit *)
 let send_json j =
-  let body = Lwt_main.run body in
+  let body = Lwt_main.run (body j) in
   print_endline ("Received body\n" ^ body)
+
+let () =
+  send_json j
