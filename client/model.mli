@@ -3,7 +3,6 @@
 module RoomMap
 module LibMap
 
-
 (* A spell is casted to act on an object. However, there are consequences of
  * casting specific spells.
  * An example of a spell:
@@ -62,17 +61,15 @@ type room = {
   items : int list;
 }
 
-
 type world = {
   rooms: room RoomMap.t;
   player: (int * room_loc) list;
   items: item LibMap.t
 }
 
-
 type diffparam = {loc : room_loc; newitem : item};
 
-type diff = 
+type diff =
   | Add of diffparam
   | Remove of diffparam
   | Change of diffparam
