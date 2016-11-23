@@ -15,7 +15,6 @@ module LibMap = Map.Make (
       let compare e1 e2 = compare e1 e2
     end )
 
-
 (* A spell is casted to act on an object. However, there are consequences of
  * casting specific spells.
  * An example of a spell:
@@ -95,8 +94,6 @@ let rec apply_diff d =
   match d with
   | [] -> curr_world
   | h::t -> RoomMap.add h (update_room h) curr_world  (*plus doing something here with the tail*)
-
-
 
 (* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
 let validate w d: world -> diff -> bool =
