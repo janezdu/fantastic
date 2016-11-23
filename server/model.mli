@@ -113,15 +113,15 @@ type item =
   | IPolice of ai
   | ISpell of spell
   | IPotion of potion
+  | IVoid
 
 (* each room has location row by column based on 50x50 system.
  * The description includes how the room looks like but not the items
  * in the room. *)
 type room = {
   descr : string;
-  items : int list;
+  items : item list;
 }
-
 
 type world = {
   rooms: room RoomMap.t;
@@ -129,12 +129,16 @@ type world = {
   items: item LibMap.t
 }
 
-type json = string
+type diffparam = {loc: room_loc; id: int; newitem: item}
 
-type diff = json
+type diff =
+  | Add of diffparam
+  | Remove of diffparam
+  | Change of diffparam
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
-val apply_diff: diff -> world
+val apply_diff: diff -> world -> world
 
-
+(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
+val validate: world -> diff -> bool

@@ -15,7 +15,6 @@ module LibMap = Map.Make (
       let compare e1 e2 = compare e1 e2
     end )
 
-
 (* A spell is casted to act on an object. However, there are consequences of
  * casting specific spells.
  * An example of a spell:
@@ -65,15 +64,15 @@ type item =
   | IPolice of ai
   | ISpell of spell
   | IPotion of potion
+  | IVoid
 
 (* each room has location row by column based on 50x50 system.
  * The description includes how the room looks like but not the items
  * in the room. *)
 type room = {
   descr : string;
-  items : int list;
+  items : item list;
 }
-
 
 type world = {
   rooms: room RoomMap.t;
@@ -81,9 +80,12 @@ type world = {
   items: item LibMap.t
 }
 
-type json = string
+type diffparam = {loc: room_loc; id: int; newitem: item}
 
-type diff = json
+type diff =
+  | Add of diffparam
+  | Remove of diffparam
+  | Change of diffparam
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
