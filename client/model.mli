@@ -111,15 +111,15 @@ type item =
   | IPlayer of player
   | IAnimal of ai
   | IPolice of ai
-  | ISpell of spell
-  | IPotion of potion
+  | ISpell of int
+  | IPotion of int
 
 (* each room has location row by column based on 50x50 system.
  * The description includes how the room looks like but not the items
  * in the room. *)
 type room = {
   descr : string;
-  items : int list;
+  items : item list;
 }
 
 type world = {
@@ -137,6 +137,6 @@ type diff =
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
-val apply_diff: diff -> world
+val apply_diff: diff -> world -> world
 
 
