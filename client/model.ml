@@ -62,8 +62,9 @@ type item =
   | IPlayer of player
   | IAnimal of ai
   | IPolice of ai
-  | ISpell of int
-  | IPotion of int
+  | ISpell of spell
+  | IPotion of potion
+  | IVoid
 
 (* each room has location row by column based on 50x50 system.
  * The description includes how the room looks like but not the items
@@ -79,14 +80,14 @@ type world = {
   items: item LibMap.t
 }
 
-type diffparam = {loc: room_loc; newitem: item}
+type diffparam = {loc: room_loc; id: int; newitem: item}
 
 type diff =
   | Add of diffparam
   | Remove of diffparam
   | Change of diffparam
 
-let is_same_kind_item (x: item) (y: item) : bool =
+let is_same_kind_item_id (x: item) (y: item) : bool =
   match x with
   | IPlayer x' ->
     begin
@@ -108,8 +109,9 @@ let is_same_kind_item (x: item) (y: item) : bool =
     end
   | ISpell _ | IPotion _ -> x <> y
 
+(* review if this is efficient *)
 let remove_id_of_same_kind_from_list (x:item) (lst: item list) : item list =
-  List.filter (fun i -> is_same_kind_item x i) lst
+  List.filter (fun i -> is_same_kind_item_id x i) lst
 
 let remove_item_from_list (x:item) (lst: item list) : item list =
   List.filter (fun i -> i <> x) lst

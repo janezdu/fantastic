@@ -111,8 +111,9 @@ type item =
   | IPlayer of player
   | IAnimal of ai
   | IPolice of ai
-  | ISpell of int
-  | IPotion of int
+  | ISpell of spell
+  | IPotion of potion
+  | IVoid
 
 (* each room has location row by column based on 50x50 system.
  * The description includes how the room looks like but not the items
@@ -128,7 +129,7 @@ type world = {
   items: item LibMap.t
 }
 
-type diffparam = {loc: room_loc; newitem: item}
+type diffparam = {loc: room_loc; id: int; newitem: item}
 
 type diff =
   | Add of diffparam

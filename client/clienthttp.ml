@@ -108,23 +108,42 @@ let make_query action cid =
   | "drop" -> make_query_helper "drop" cid
   | _ -> failwith "invalid command"
 
-let body jstr query =
+let post_body jstr query callback =
   Client.post ~body:([jstr] |> Lwt_stream.of_list |> Cohttp_lwt_body.of_stream)
   (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   (* below is the function of the client call *)
   Printf.printf "Response code: %d\n" code;
   Printf.printf "Headers: %s\n" (resp |> Response.headers |> Header.to_string);
-  body |> Cohttp_lwt_body.to_string >|= fun body ->
+  body |> Cohttp_lwt_body.to_string >|= callback
+
+(* stuff callback *)
+let cb = fun body ->
   Printf.printf "Body of length: %d\n" (String.length body);
   body
 
 (* [send_json j} sends a json to the servers. Returns unit *)
-let send_json j =
+let send_post_request j callback =
   let jstr = j |> to_string in
   let query = make_query action client_id in
-  let body = Lwt_main.run (body jstr query) in
+  let body = Lwt_main.run (post_body jstr query callback) in
+  print_endline ("Received body\n" ^ body)
+
+let get_body jstr query callback =
+  Client.get
+  (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
+  let code = resp |> Response.status |> Code.code_of_status in
+  (* below is the function of the client call *)
+  Printf.printf "Response code: %d\n" code;
+  Printf.printf "Headers: %s\n" (resp |> Response.headers |> Header.to_string);
+  body |> Cohttp_lwt_body.to_string >|= callback
+
+(* [send_json j} sends a json to the servers. Returns unit *)
+let send_get_request j callback =
+  let jstr = j |> to_string in
+  let query = make_query action client_id in
+  let body = Lwt_main.run (post_body jstr query callback) in
   print_endline ("Received body\n" ^ body)
 
 let () =
-  send_json j
+  send_post_request j cb

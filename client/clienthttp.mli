@@ -15,5 +15,8 @@ val translate_to_json: diff -> json
 (* [translate_to_diff j] returns diffs based on a json *)
 val translate_to_diff: json -> diff list
 
-(* [send_json j} sends a json to the servers. Returns unit *)
-val send_json: json -> unit
+(* [send_post_request j} sends a json to the servers. Returns unit *)
+val send_post_request: json -> (string -> string) -> unit
+
+(* [send_post_request j} sends a json to the servers. Returns unit *)
+val send_get_request: json -> (string -> string) -> unit
