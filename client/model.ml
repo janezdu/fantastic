@@ -91,22 +91,22 @@ let is_same_kind_item (x: item) (y: item) : bool =
   | IPlayer x' ->
     begin
       match y with
-      | IPlayer y' -> x'.id = y'.id
+      | IPlayer y' -> x'.id <> y'.id
       | _ -> false
     end
   | IAnimal x' ->
     begin
       match y with
-      | IAnimal y' -> x'.id = y'.id
+      | IAnimal y' -> x'.id <> y'.id
       | _ -> false
     end
   | IPolice x' ->
     begin
       match y with
-      | IPolice y' -> x'.id = y'.id
+      | IPolice y' -> x'.id <> y'.id
       | _ -> false
     end
-  | ISpell _ | IPotion _ -> x = y
+  | ISpell _ | IPotion _ -> x <> y
 
 let remove_id_of_same_kind_from_list (x:item) (lst: item list) : item list =
   List.filter (fun i -> is_same_kind_item x i) lst
