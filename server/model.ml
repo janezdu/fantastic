@@ -92,6 +92,6 @@ type diff =
 let apply_diff d = failwith "unimplemented"
 
 (* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
-let validate w d: world -> diff -> bool =
+let validate w d =
     failwith "unimplemented"
 
