@@ -80,7 +80,7 @@ type world = {
   items: item LibMap.t
 }
 
-type diffparam = {loc : room_loc; item : item};
+type diffparam = {loc: room_loc; newitem: item}
 
 type diff =
   | Add of diffparam
@@ -90,10 +90,11 @@ type diff =
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 let rec apply_diff d =
+  failwith "unimplemented"
   (* get room # *)
-  match d with
+ (*  match d with
   | [] -> curr_world
-  | h::t -> RoomMap.add h (update_room h) curr_world  (*plus doing something here with the tail*)
+  | h::t -> RoomMap.add h (update_room h) curr_world *)  (*plus doing something here with the tail*)
 
 (* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
 let validate w d: world -> diff -> bool =

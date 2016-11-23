@@ -1,3 +1,5 @@
+type room_loc = int * int
+
 (* A map module that uses room locations to look up properties of and contents
  * of a room. See [type world] for more details. *)
 module RoomMap = Map.Make (
@@ -79,7 +81,9 @@ type world = {
   items: item LibMap.t
 }
 
-type diff = json;
+type json = string
+
+type diff = json
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
