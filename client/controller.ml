@@ -17,12 +17,6 @@ type command_json =
   | JHelp
 
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 92ac21c6a73059aece15cddce09ff28a70d449ca
 exception NotAnItem
 exception Illegal
 
@@ -69,10 +63,8 @@ let check_match i key v=
   | IPotion p -> if v = p.name then true else false
   | IVoid -> None
 
-(*let rec find_in_lib i lst =
-  match lst with
-  | [] -> None
-  | (key, item_t)::t -> *)
+
+
 
 (* [find_item i w] finds item id based on name in world w*)
 let find_item i w= 
