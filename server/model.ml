@@ -89,7 +89,56 @@ type diff =
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
-let apply_diff d = failwith "unimplemented"
+
+let apply_diff_case (d: diffparam) (w: world)
+  (f: int -> int list -> int list) : world =
+  let loc = d.loc in
+  let id_to_edit = d.id in
+  let item_to_edit = complete_item w d.newitem in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with items = f id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  let new_items = LibMap.add id_to_edit item_to_edit w.items in
+  let updated_players =
+    if id_to_edit >= 1000 then update_players id_to_edit loc w.players
+    else w.players in
+  {rooms = new_rooms; players = updated_players; items = new_items}
+
+let apply_diff_add (d: diffparam) (w: world) : world =
+  apply_diff_case d w (fun x y -> x::y)
+
+let apply_diff_remove (d: diffparam) (w: world) : world =
+  let loc = d.loc in
+  let id_to_edit = d.id in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with items = remove_item_from_list id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  let new_items = LibMap.remove id_to_edit w.items in
+  let updated_players =
+    if id_to_edit >= 1000 then remove_players id_to_edit w.players
+    else w.players in
+  {rooms = new_rooms; players = updated_players; items = new_items}
+
+let apply_diff_change (d: diffparam) (w: world) : world =
+  let new_w = apply_diff_remove d w in
+  apply_diff_add d new_w
+
+let rec apply_diff_helper (d: diff) (w: world) : world =
+  match d with
+  | Add x -> apply_diff_add x w
+  | Remove x -> apply_diff_remove x w
+  | Change x -> apply_diff_change x w
+
+(* [apply_diff d] takes in a difference and returns an updated
+ * model based on the diff.*)
+let rec apply_diff (d: diff) (w: world) : world =
+  try
+    apply_diff_helper d w
+  with
+  | _ -> failwith "incompatible with the current world"
+
 
 (* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
 let validate w d: world -> diff -> bool =

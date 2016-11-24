@@ -21,7 +21,9 @@ let rec remove_from_list x = function
   | [] -> failwith "invalid"
   | h::t -> if h = x then t else remove_from_list h::(remove_from_list x t)
 
-(* [translate_to_diff j] returns diffs based on a json string [j] and request [r] *)
+(* [translate_to_diff j] returns diffs based on a json string [j] and 
+ * a string [r] that determines what type of cmd is being requested
+ * among ["move", "use", "take", "drop"] *)
 let translate_to_diff j r cid = 
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = state in
@@ -135,10 +137,17 @@ let getClientUpdate cid =
     diff
   with _ -> failwith "illegal client"
  *)
-(* tries to change the model based on a client's request. Returns true
- * if change was successful, false o/w. *)
-let pushClientUpdate cid cmd =
-  failwith "unimplemented"
+
+
+(* [translate_to_json d] returns a json based on diffs *)
+let translate_to_json = 
+  "{\r\n  \"diffs\": [\r\n    {\r\n      \"difftype\": \"add\",\r\n      \"roomx\": 2,\r\n      \"roomy\": 1,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234, \r\n      \"item\": {\r\n\t   \"name\" : \"rebecca\"\r\n        \"id\": 1234,\r\n        \"hp\": 90,\r\n        \"inv\": [\r\n          1,\r\n          2,\r\n          3,\r\n          3,\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"difftype\": \"remove\",\r\n      \"roomx\": 1,\r\n      \"roomy\": 2,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234\r\n    }\r\n  ]\r\n}"
+
+(* tries to change the model based on a client's request. 
+ * Returns a string that is a jsondiff, i.e. a string formatted with the json
+ * schema for diffs*)
+let pushClientUpdate cid cmd cmdtype = 
+    (translate_to_diff cmd cmdtype cid) |> translate_diff_to_json 
 
   (* cmd is one pre-parsed json command
    * {"type": "move", "origx" "origy" "newx" "newy"}
