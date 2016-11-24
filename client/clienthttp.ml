@@ -1,4 +1,5 @@
 open Controller
+open Model
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
@@ -6,7 +7,8 @@ open Yojson.Basic.Util
 open Yojson.Basic
 
 type json = Yojson.Basic.json
-type diff = Controller.diff
+type diff = Model.diff
+type jsonstring = string
 
 let client_id = 1234
 let action = "move"
@@ -43,8 +45,6 @@ let real_j =
     ]
   }"
 
-let j = real_j |> from_string
-
 (* need to make it iterate the list of diffs later *)
 let get_head lst =
   match lst with
@@ -54,7 +54,7 @@ let get_head lst =
 (* do this after talking to Jane *)
 (* now only assume the basic json no list *)
 (* [translate_to_json d] returns a json based on diffs *)
-let translate_to_json (d:diff) : json =
+let translate_to_json (d:diff) : jsonstring =
   failwith "1"
   (* let lst_items = d.ditems in
   let diff = get_head lst_items in
@@ -66,18 +66,57 @@ let translate_to_json (d:diff) : json =
     ", \"x\": " ^ (string_of_int loc_x) ^ ", \"y\": " ^
    (string_of_int loc_y) ^ "}" |> from_string *)
 
-let parse_diff_remove (j:json) roomy roomy objecttype : diff =
-  failwith "3"
-  (* let pid = j |> member "id" |> to_int in
-  Remove ({
-    loc = (proomx, proomy);
-    newitem = ?? }) *)
+let create_item item = function
+  | "player" ->
+    IPlayer ({
+      id = item |> member "id" |> to_int;
+      hp = item |> member "hp" |> to_int;
+      score = item |> member "score" |> to_int;
+      inventory = item |> member "inv" |> to_list |> List.map to_int;
+    })
+  | "spell" ->
+    ISpell ({
+      id = item |> member "id" |> to_int;
+      incant = item |> member "incant" |> to_string;
+      descr = item |> member "descr" |> to_string;
+      effect = item |> member "effect" |> to_int;
+    })
+  | "potion" ->
+    IPotion ({
+      id = item |> member "id" |> to_int;
+      descr = item |> member "descr" |> to_string;
+      effect = item |> member "effect" |> to_int;
+    })
+  | "animal" ->
+    IAnimal ({
+      id = item |> member "id" |> to_int;
+      name = item |> member "name" |> to_string;
+      descr = item |> member "descr" |> to_string;
+      hp = item |> member "hp" |> to_int;
+      spells = item |> member "spells" |> to_list |> List.map to_int;
+    })
+  | "police" ->
+    IPolice ({
+      id = item |> member "id" |> to_int;
+      name = item |> member "name" |> to_string;
+      descr = item |> member "descr" |> to_string;
+      hp = item |> member "hp" |> to_int;
+      spells = item |> member "spells" |> to_list |> List.map to_int;
+    })
 
-let parse_diff_add (j:json) roomy roomy objecttype : diff =
-  failwith "3"
+(* {loc: room_loc; id: int; newitem: item} *)
+let parse_diff_remove roomx roomy objecttype id : diff =
+  Remove ({loc = (roomx, roomy); id = id; newitem = IVoid})
 
-let parse_diff_change (j:json) roomy roomy objecttype : diff =
-  failwith "3"
+let parse_diff_add (j:json) roomx roomy objecttype id : diff =
+  let item = j |> member "item" in
+  let new_item = create_item item objecttype in
+  Add ({loc = (roomx, roomy); id = id; newitem = new_item})
+
+let parse_diff_change (j:json) roomx roomy objecttype id : diff =
+  let item = j |> member "item" in
+  let new_item = create_item item objecttype in
+  Change ({loc = (roomx, roomy); id = id; newitem = new_item})
 
 (* need to parse each object type differently also the pdifftype differently too! *)
 let parse_diff (j: json) : diff =
@@ -85,16 +124,17 @@ let parse_diff (j: json) : diff =
   let roomx = j |> member "roomx" |> to_int in
   let roomy = j |> member "roomy" |> to_int in
   let objecttype = j |> member "objecttype" |> to_string in
+  let id = j |> member "id" |> to_int in
   match difftype with
-  | "add" -> parse_diff_add j roomx roomy objecttype
-  | "remove" -> parse_diff_remove j roomx roomy objecttype
-  | "change" -> parse_diff_change j roomx roomy objecttype
+  | "add" -> parse_diff_add j roomx roomy objecttype id
+  | "remove" -> parse_diff_remove roomx roomy objecttype id
+  | "change" -> parse_diff_change j roomx roomy objecttype id
   | _ -> failwith "wrong diff type"
 
-(* [translate_to_diff j] returns diffs based on a json
+(* [translate_to_diff j] returns diffs based on a json string
  * Precondition : the input [j] is of type json already *)
-let translate_to_diff (j:json) : diff list =
-  j |> member "diffs" |> to_list |> List.map parse_diff
+let translate_to_diff (j:jsonstring) : diff list =
+  j |> from_string |> member "diffs" |> to_list |> List.map parse_diff
 
 let make_query_helper action cid =
   "/" ^ action ^ "?client_id=" ^ (string_of_int cid)
@@ -123,10 +163,9 @@ let cb = fun body ->
   body
 
 (* [send_json j} sends a json to the servers. Returns unit *)
-let send_post_request j callback =
-  let jstr = j |> to_string in
+let send_post_request (j: jsonstring) (action: string) callback =
   let query = make_query action client_id in
-  let body = Lwt_main.run (post_body jstr query callback) in
+  let body = Lwt_main.run (post_body j query callback) in
   print_endline ("Received body\n" ^ body)
 
 let get_body jstr query callback =
@@ -139,11 +178,10 @@ let get_body jstr query callback =
   body |> Cohttp_lwt_body.to_string >|= callback
 
 (* [send_json j} sends a json to the servers. Returns unit *)
-let send_get_request j callback =
-  let jstr = j |> to_string in
+let send_get_request (j: jsonstring) (action: string) callback =
   let query = make_query action client_id in
-  let body = Lwt_main.run (post_body jstr query callback) in
+  let body = Lwt_main.run (post_body j query callback) in
   print_endline ("Received body\n" ^ body)
 
 let () =
-  send_post_request j cb
+  send_post_request real_j action cb

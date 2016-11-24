@@ -120,14 +120,16 @@ type item =
  * in the room. *)
 type room = {
   descr : string;
-  items : item list;
+  items : int list;
 }
 
 type world = {
   rooms: room RoomMap.t;
-  player: (int * room_loc) list;
+  players: (int * room_loc) list;
   items: item LibMap.t
 }
+
+type constructing_ai_lib = item LibMap.t
 
 type diffparam = {loc: room_loc; id: int; newitem: item}
 

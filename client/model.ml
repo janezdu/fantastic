@@ -71,14 +71,16 @@ type item =
  * in the room. *)
 type room = {
   descr : string;
-  items : item list;
+  items : int list;
 }
 
 type world = {
   rooms: room RoomMap.t;
-  player: (int * room_loc) list;
+  players: (int * room_loc) list;
   items: item LibMap.t
 }
+
+type constructing_ai_lib = item LibMap.t
 
 type diffparam = {loc: room_loc; id: int; newitem: item}
 
@@ -87,54 +89,120 @@ type diff =
   | Remove of diffparam
   | Change of diffparam
 
-let is_same_kind_item_id (x: item) (y: item) : bool =
+let rec remove_item_from_list x = function
+  | h::t -> if h = x then t else h::(remove_item_from_list x t)
+  | [] -> []
+
+let rec remove_players id = function
+  | (id',loc) as h::t ->
+    if id = id' then t
+    else h::(remove_players id t)
+  | [] -> []
+
+(* updates loc of player [id]. If no such player [id] is found,
+ * append (id, new_loc) to [players] *)
+let rec update_players (id: int) (new_loc: room_loc)
+  (players: (int * room_loc) list) : (int * room_loc) list =
+  match players with
+  | (id', old_loc) as h::t ->
+    if id = id' then (id, new_loc)::t
+    else h::(update_players id new_loc t)
+  | [] -> (id, new_loc)::[]
+
+let is_null x =
   match x with
-  | IPlayer x' ->
-    begin
-      match y with
-      | IPlayer y' -> x'.id <> y'.id
-      | _ -> false
-    end
-  | IAnimal x' ->
-    begin
-      match y with
-      | IAnimal y' -> x'.id <> y'.id
-      | _ -> false
-    end
-  | IPolice x' ->
-    begin
-      match y with
-      | IPolice y' -> x'.id <> y'.id
-      | _ -> false
-    end
-  | ISpell _ | IPotion _ -> x <> y
+  | `Null -> true
+  | _ -> false
 
-(* review if this is efficient *)
-let remove_id_of_same_kind_from_list (x:item) (lst: item list) : item list =
-  List.filter (fun i -> is_same_kind_item_id x i) lst
+(* let complete_item_player (w: world) (i: player) : item =
+  let old_item = LibMap.find (i.id) w.items in
+  IPlayer ({
+    id = i.id;
+    hp = if is_null i.hp then old_item.hp else i.hp;
+    score = if is_null i.hp then old_item.score else i.score;
+    inventory = if is_null i.hp then old_item.score else i.inventory;
+  })
 
-let remove_item_from_list (x:item) (lst: item list) : item list =
-  List.filter (fun i -> i <> x) lst
+let complete_item_animal (w: world) (i: ai) : item =
+  let old_item = LibMap.find (i.id) w.items in
+  IAnimal ({
+    id = i.id;
+    name = if is_null i.name then old_item.name else i.name;
+    descr = if is_null i.descr then old_item.descr else i.descr;
+    hp = if is_null i.hp then old_item.hp else i.hp;
+    spells = if is_null i.spells then old_item.spells else i.spells;
+  })
+
+let complete_item_police (w: world) (i: ai) : item =
+  let old_item = LibMap.find (i.id) w.items in
+  IPolice ({
+    id = i.id;
+    name = if is_null i.name then old_item.name else i.name;
+    descr = if is_null i.descr then old_item.descr else i.descr;
+    hp = if is_null i.hp then old_item.hp else i.hp;
+    spells = if is_null i.spells then old_item.spells else i.spells;
+  })
+
+let complete_item_spell (w: world) (i: spell) : item =
+  let old_item = LibMap.find (i.id) w.items in
+  ISpell ({
+    id = i.id;
+    incant = if is_null i.incant then old_item.incant else i.incant;
+    descr = if is_null i.descr then old_item.descr else i.descr;
+    effect = if is_null i.effect then old_item.effect else i.effect;
+  })
+
+let complete_item_potion (w: world) (i: potion) : item =
+  let old_item = LibMap.find (i.id) w.items in
+  IPotion ({
+    id = i.id;
+    descr = if is_null i.descr then old_item.descr else i.descr;
+    effect = if is_null i.effect then old_item.effect else i.effect;
+  })
+ *)
+let complete_item w  p = failwith "wr"
+
+(*
+= function
+  | IPlayer i -> complete_item_player w i
+  | IAnimal i -> complete_item_animal w i
+  | IPolice i -> complete_item_police w i
+  | ISpell i -> complete_item_spell w i
+  | IPotion i -> complete_item_potion w i *)
 
 let apply_diff_case (d: diffparam) (w: world)
-  (f: item -> item list -> item list) : world =
+  (f: int -> int list -> int list) : world =
   let loc = d.loc in
-  let item_to_edit = d.newitem in
+  let id_to_edit = d.id in
+  let item_to_edit = complete_item w d.newitem in
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
-    {curr_rooms with items = f item_to_edit curr_rooms.items} in
+    {curr_rooms with items = f id_to_edit curr_rooms.items} in
   let new_rooms = RoomMap.add loc new_room w.rooms in
-  {w with rooms = new_rooms}
+  let new_items = LibMap.add id_to_edit item_to_edit w.items in
+  let updated_players =
+    if id_to_edit >= 1000 then update_players id_to_edit loc w.players
+    else w.players in
+  {rooms = new_rooms; players = updated_players; items = new_items}
 
 let apply_diff_add (d: diffparam) (w: world) : world =
   apply_diff_case d w (fun x y -> x::y)
 
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  apply_diff_case d w remove_item_from_list
+  let loc = d.loc in
+  let id_to_edit = d.id in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with items = remove_item_from_list id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  let new_items = LibMap.remove id_to_edit w.items in
+  let updated_players =
+    if id_to_edit >= 1000 then remove_players id_to_edit w.players
+    else w.players in
+  {rooms = new_rooms; players = updated_players; items = new_items}
 
-(* assume that only player/ai call this function *)
 let apply_diff_change (d: diffparam) (w: world) : world =
-  let new_w = apply_diff_case d w remove_id_of_same_kind_from_list in
+  let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
 let rec apply_diff_helper (d: diff) (w: world) : world =
