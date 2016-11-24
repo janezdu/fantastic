@@ -32,6 +32,7 @@ type spell = {
 
 type potion = {
   id : int;
+  name: string;
   descr : string;
   effect : int;
 }
@@ -39,6 +40,7 @@ type potion = {
 (* fields that can be updated in a move *)
 type player = {
   id : int;
+  name: string;
   hp : int;
   score : int;
   inventory : int list;
