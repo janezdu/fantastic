@@ -6,8 +6,6 @@ type status
  * they have included in [j], returning a sessionid if valid. *)
 val translate_to_newuser: json -> int
 
-(* [translate_to_diff j] returns diffs based on a json *)
-val translate_to_diff: json -> Controller.diff list
 
 (* [translate_to_json d] returns a json based on diffs *)
 val translate_to_json: Controller.diff list -> json

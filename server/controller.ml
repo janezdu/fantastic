@@ -9,12 +9,105 @@ type serverstate = {
 }
 
 exception IllegalMove
+exception IllegalUse
+exception IllegalTake
+exception IllegalDrop
 
 let state =
   failwith "unimplemented"
   (* {flatworld = init (); client_diffs = []} in *)
 
+let rec remove_from_list x = function 
+  | [] -> failwith "invalid"
+  | h::t -> if h = x then t else remove_from_list h::(remove_from_list x t)
 
+(* [translate_to_diff j] returns diffs based on a json string [j] and request [r] *)
+let translate_to_diff j r cid = 
+  let json = j |> Yojson.Basic.from_string in
+  let {flatworld; client_diffs} = state in
+  let (curx, cury) = List.assoc cid flatworld.player in 
+  let cur_room = flatworld.rooms |> (curx, cury) in
+  let IPlayer player = flatword.items |> find cid in
+  if r = "move" then begin
+    let newx = json |> member "newx" |> to_int in
+    let newy = json |> member "newy" |> to_int in
+    [
+    Remove {loc=(curx, cury); id=cid; newitem=IVoid}; 
+    Add {loc=(newx, newy); id=cid; newitem=IVoid}
+    ]
+  end 
+  else if r = "use" then begin
+    try 
+      let item_id = json |> member "id" |> to_int in
+      let target_id = json |> member "target" |> to_int in
+      let new_inv = remove_from_list item_id player.inventory in
+      remove_from_list target_id cur_room.items;
+      let wrapped_target = flatworld.items |> find target_id in
+      let target = match wrapped_target with 
+        | IPlayer x | IPolice x | IAnimal x -> x |_ -> failwith "not a player/ai"
+      in 
+      let wrapped_item = flatworld.items |> find item_id in
+      match wrapped_item with 
+      | ISpell x ->
+        begin
+          let diff_target = 
+            if target.hp + item.effect <= 0 
+            then Remove {loc=cur_loc; id=target_id; newitem=IVoid}
+            else Change {loc=cur_loc; id=target_id; 
+                newitem={target with hp = target.hp + item.effect}}
+          in
+          [
+          Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
+          diff_target
+          ] 
+        end
+      | IPotion x ->
+        begin
+          let diff_player = 
+            if player.hp + item.effect <= 0 
+            then Remove {loc=cur_loc; id=cid; newitem=IVoid}
+            else Change {loc=cur_loc; id=cid; 
+                newitem={player with hp = player.hp + item.effect}}
+          in
+          [
+          Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
+          diff_player
+          ] 
+        end
+      | _ -> failwith "not a spell/potion"
+    with _ -> raise IllegalUse
+  end 
+  else if r = "take" then begin
+    try
+      let item_id = json |> member "id" |> to_int in
+      remove_from_list item_id cur_room.items;
+      let wrapped_item = flatworld.items |> find item_id in
+      let item = match wrapped_item with
+        | ISpell x| IPotion x -> x |_ -> failwith "not a spell/potion"
+      in 
+      [
+      Remove {loc=cur_loc; id=item_id; newitem=IVoid};
+      Change {loc=cur_loc; id=cid; 
+        newitem={player with inventory=item_id::player.inventory}}
+      ]
+    with _ -> raise IllegalTake
+  end
+  else if r = "drop" then begin
+    try
+      let item_id = json |> member "id" |> to_int in
+      let item = match wrapped_item with
+        | ISpell x| IPotion x -> x |_ -> failwith "not a spell/potion"
+      in 
+      let new_inv = remove_from_list item_id player.inventory in
+      [
+      Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
+      Add {loc=cur_loc; id=item_id; newitem=IVoid}
+      ]
+    with
+    | _ -> raise IllegalDrop
+  end
+  else 
+    []
 
 (* side effects to flatworld and client_diffs *)
 let rec step cid diffs = match diffs with
@@ -28,50 +121,6 @@ let rec remove x l = match l with
   | [] -> failwith "no such element"
   | h::t -> if h = x then t
             else h::(remove x t)
-
-(* returns list of diffs to apply to model
- * throws "illegalmove" error *)
-let validate cid state cmd =
-  failwith "unimplemented"
-  (* let {flatworld; client_diffs} = state in
-  match cmd with
-  | Move (nx, ny) ->
-    begin
-      let (ox, oy) = List.assoc cid flatworld.client_locs in
-      if (abs (ox - nx) + abs (oy - ny) = 1)
-        && (nx < 50 && nx >= 0 && ny < 50 && ny >= 0)
-        then
-        [
-          ((ox, oy), [Remove cid]);
-          ((nx, ny), [Add cid])
-        ]
-      else raise IllegalMove
-
-      (* check if new is legal position: consecutive and in world *)
-      (* return diff list *)
-    end
-  | Use id ->
-    begin
-
-    end
-  | Take id -> failwith "unimplemented"
-    (* begin
-      let cur_loc = List.assoc cid flatworld.client_locs in
-      let items = (Map.find cur_loc flatworld.rooms).items in
-      try
-        let new_items' = remove id items in
-        let IPlayer player = Map.find cid flatworld.items in
-        let updated_player = {player with inventory = id::inventory}
-        [(cur_loc, [Remove cid; Remove id; Add )])]
-      with _ ->
-    end *)
-  | Drop id ->
-    begin
-      (* check if int is in inventory. *)
-    end *)
-
-(* just checking; no side effects *)
-
 
 (* returns the most up-to-date timestamp based on the server state *)
 let curtime state  = failwith "unimplemented"
