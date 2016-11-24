@@ -5,15 +5,17 @@ type directive = string
  * could make *)
 type command =
   | Move of string
-  | Spell of string
+  | Drink of string
+  | Spell of string (* *string *)
   | Quit
   | Take of string
   | Drop of string
   | Look
   | Inventory
-  | Drink of string
   | ViewState
   | Help
+
+
 
 (* [parse_command lst] is the command that is associated with [lst]
  * Raises Illegal if [lst] does represent to in a valid command form
@@ -25,8 +27,8 @@ type command =
 let parse_command lst= 
     match lst with
     | h::t::[] when (h="move") -> Move (String.trim t)
-    | h::t::[] when (h="spell") -> Spell (String.trim t)
     | h::t::[] when (h="drink") -> Drink (String.trim t)
+    | h::t::[] when (h="spell") -> Spell (String.trim t)
     | h::t::[] when (h="drop") -> Drop (String.trim t)
     | h::t::[] when (h="take") -> Take (String.trim t)
     | h::[] when (String.trim h="look") -> Look 
@@ -77,7 +79,7 @@ let rec list_concat lst =
 let sep_dir lst = 
     match lst with 
     | h::[] -> h::[]
-    | h::t when (h = "move" || h = "take" || h = "drop" || h = "spell" || h = "drink")-> 
+    | h::t when (h = "move" || h = "take" || h = "drink" || h = "spell" || h = "drop")-> 
         h::(String.trim (list_concat t))::[]
     | h::t -> (String.trim (list_concat lst))::[]
     | _ -> failwith "Illegal"
