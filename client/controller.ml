@@ -17,6 +17,12 @@ type command_json =
   | JHelp
 
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 92ac21c6a73059aece15cddce09ff28a70d449ca
 exception NotAnItem
 exception Illegal
 
@@ -97,9 +103,11 @@ let interp_move (m:string) current_player w: command_json =
   | "east" -> 
     let curr_loc = List.assoc current_player w.player in
   	let new_loc_x = fst curr_loc + 1 in
+
 	  let new_loc_y = snd curr_loc in
 	  JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^ 
 	  (string_of_int new_loc_y) ^ "}")
+
   	
   | "west" -> 
     let curr_loc = List.assoc current_player w.player in
