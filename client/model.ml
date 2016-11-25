@@ -1,6 +1,9 @@
+(* locations of rooms are in cartesian coordinate with the bottom-left cell
+ * being (0,0). X-axis is horizontal and increases value moving to the right.
+ * Y-axis increases value ass moving up. *)
 type room_loc = int * int
 
-(* A map module that uses room locations to look up properties of and contents
+(* A map module that uses room locations to look up properties and contents
  * of a room. See [type world] for more details. *)
 module RoomMap = Map.Make (
   struct
@@ -9,20 +12,27 @@ module RoomMap = Map.Make (
       if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
   end )
 
+(* A library module uses ids to look up properties and contents
+ * of an item.
+ *
+ * Indices of items are as follow:
+ *   potions and spells: 0-99
+ *   animals and police: 100-999
+ *   players: 1000+
+ *
+ * See [type world] for more details. *)
 module LibMap = Map.Make (
-    struct
-      type t = int
-      let compare e1 e2 = compare e1 e2
-    end )
+  struct
+    type t = int
+    let compare e1 e2 = compare e1 e2
+  end )
 
 (* A spell is casted to act on an object. However, there are consequences of
  * casting specific spells.
  * An example of a spell:
  * incantation = "Expelliarmus"
  * description = "disarms your opponent"
- * effect = Turn 1
- * consequence = None
- * environment = None *)
+ * effect = Turn 1 *)
 type spell = {
   id : int;
   incant: string;
@@ -89,14 +99,10 @@ type diff =
   | Remove of diffparam
   | Change of diffparam
 
+(* [remove_item_from_list x i] removes item [i] from list [x].
+ * If [x] does not contain [i], returns [x] *)
 let rec remove_item_from_list x = function
   | h::t -> if h = x then t else h::(remove_item_from_list x t)
-  | [] -> []
-
-let rec remove_players id = function
-  | (id',loc) as h::t ->
-    if id = id' then t
-    else h::(remove_players id t)
   | [] -> []
 
 (* updates loc of player [id]. If no such player [id] is found,
@@ -195,6 +201,8 @@ let complete_item_potion (w: world) (i: potion) : item =
     effect = if is_null_int i.effect then old_item.effect else i.effect;
   })
 
+(* [complete_item w item] fills up missing fields in [item] by
+ * taking values from [w] *)
 let complete_item w = function
   | IPlayer i -> complete_item_player w i
   | IAnimal i -> complete_item_animal w i
@@ -203,49 +211,49 @@ let complete_item w = function
   | IPotion i -> complete_item_potion w i
   | IVoid -> IVoid
 
-let apply_diff_case (d: diffparam) (w: world)
+(* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
+ * apply_diff_remove, and apply_diff_change *)
+let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
   (f: int -> int list -> int list) : world =
   let loc = d.loc in
   let id_to_edit = d.id in
-  let item_to_edit = complete_item w d.newitem in
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
     {curr_rooms with items = f id_to_edit curr_rooms.items} in
   let new_rooms = RoomMap.add loc new_room w.rooms in
-  let new_items = LibMap.add id_to_edit item_to_edit w.items in
   let updated_players =
     if id_to_edit >= 1000 then update_players id_to_edit loc w.players
     else w.players in
   {rooms = new_rooms; players = updated_players; items = new_items}
 
+(* [apply_diff_change d w] adds [d] in [w] and returns new world.
+ * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
-  apply_diff_case d w (fun x y -> x::y)
+  let item_to_edit = complete_item w d.newitem in
+  let new_items = LibMap.add d.id item_to_edit w.items in
+  apply_diff_case d new_items w (fun x y -> x::y)
 
+(* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  let loc = d.loc in
-  let id_to_edit = d.id in
-  let curr_rooms = RoomMap.find loc w.rooms in
-  let new_room =
-    {curr_rooms with items = remove_item_from_list id_to_edit curr_rooms.items} in
-  let new_rooms = RoomMap.add loc new_room w.rooms in
-  let new_items = LibMap.remove id_to_edit w.items in
-  let updated_players =
-    if id_to_edit >= 1000 then remove_players id_to_edit w.players
-    else w.players in
-  {rooms = new_rooms; players = updated_players; items = new_items}
+  let new_items = LibMap.remove d.id w.items in
+  apply_diff_case d new_items w remove_item_from_list
 
+(* [apply_diff_change d w] changes [d] in [w] and returns new world
+ * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
+(* [apply_diff_helper d w] is the same as apply_diff except it might raise
+ * different exception messages *)
 let rec apply_diff_helper (d: diff) (w: world) : world =
   match d with
   | Add x -> apply_diff_add x w
   | Remove x -> apply_diff_remove x w
   | Change x -> apply_diff_change x w
 
-(* [apply_diff d] takes in a difference and returns an updated
- * minimodel based on the diff.*)
+(* [apply_diff d w] takes in a difference and returns an updated
+ * minimodel based on the diff *)
 let rec apply_diff (d: diff) (w: world) : world =
   try
     apply_diff_helper d w

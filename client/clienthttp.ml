@@ -6,7 +6,7 @@ open Cohttp_lwt_unix
 open Yojson.Basic.Util
 
 type json = Yojson.Basic.json
-type diff = Model.diff
+type diff = Controller.diff
 type jsonstring = string
 
 (* stuff code *)
@@ -53,7 +53,7 @@ let responded_jstr =
     ]
   }"
 
-(* [translate_to_json d] returns a json based on diffs, to send to server *)
+(* [translate_to_json d] returns a command json string based on diffs *)
 let translate_to_json (d:diff) : jsonstring =
   failwith "1"
   (* let lst_items = d.ditems in
@@ -66,27 +66,39 @@ let translate_to_json (d:diff) : jsonstring =
     ", \"x\": " ^ (string_of_int loc_x) ^ ", \"y\": " ^
    (string_of_int loc_y) ^ "}" |> from_string *)
 
-(* [null_int] is  *)
+(* [null_int] represents null of type int *)
 let null_int = fnull_int ()
 
+(* [null_string] represents null of type string *)
 let null_string = fnull_string ()
 
+(* [null_list] represents null of type list *)
 let null_list = fnull_list ()
 
+(* [null_to i f x] parses [x] by applying it to [f] iff [x] is not `Null.
+ * Otherwise returns [i] *)
 let null_to i f x =
   match x with
   | `Null -> i
   | _ -> x |> f
 
+(* [null_to_int x] parses [x] to type int iff [x] is not `Null.
+ * Otherwise returns null_int *)
 let null_to_int = null_to null_int to_int
 
+(* [null_to_string x] parses [x] to type string iff [x] is not `Null.
+ * Otherwise returns null_string *)
 let null_to_string = null_to null_string to_string
 
+(* [null_to_list x] parses [x] to type int list iff [x] is not `Null.
+ * Otherwise returns null_list *)
 let null_to_list x =
   match x with
   | `Null -> null_list
   | _ -> x |> to_list |> List.map to_int
 
+(* [create_item item] creates type item based on json string [item].
+ * If some fields are missing, it replaces them with null value of that type. *)
 let create_item item = function
   | "player" ->
     IPlayer ({
@@ -126,15 +138,20 @@ let create_item item = function
     })
   | _ -> failwith "create wrong type"
 
-(* {loc: room_loc; id: int; newitem: item} *)
+(* [parse_diff_remove j roomx roomy objecttype id] parses [j] to diff of
+ * remove *)
 let parse_diff_remove roomx roomy objecttype id : diff =
   Remove ({loc = (roomx, roomy); id = id; newitem = IVoid})
 
+(* [parse_diff_add j roomx roomy objecttype id] parses [j] to diff of
+ * add *)
 let parse_diff_add (j:json) roomx roomy objecttype id : diff =
   let item = j |> member "item" in
   let new_item = create_item item objecttype in
   Add ({loc = (roomx, roomy); id = id; newitem = new_item})
 
+(* [parse_diff_change j roomx roomy objecttype id] parses [j] to diff of
+ * change *)
 let parse_diff_change (j:json) roomx roomy objecttype id : diff =
   let item = j |> member "item" in
   let new_item = create_item item objecttype in
@@ -153,10 +170,19 @@ let parse_diff (j: json) : diff =
   | "change" -> parse_diff_change j roomx roomy objecttype id
   | _ -> failwith "wrong diff type"
 
-(* [translate_to_diff j] returns diffs based on a json string, which is
- * a response from server *)
+(* [translate_to_diff j] returns diffs based on a diff json string *)
 let translate_to_diff (j:jsonstring) : diff list =
-  j |> Yojson.Basic.from_string |> member "diffs" |> to_list |> List.map parse_diff
+  j |> Yojson.Basic.from_string |> member "diffs" |> to_list
+  |> List.map parse_diff
+
+
+
+
+
+
+
+
+
 
 let make_query_helper action cid =
   "/" ^ action ^ "?client_id=" ^ (string_of_int cid)
