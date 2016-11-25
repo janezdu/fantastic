@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> db873fd9ffc6a954b872524428645362f01509e0
 type room_loc = int * int
 
 (* A map module that uses room locations to look up properties of and contents
@@ -81,7 +85,9 @@ type spell = {
 
 type potion = {
   id : int;
+
   name: string;
+
   descr : string;
   effect : int;
 }
@@ -117,6 +123,7 @@ type item =
   | IPotion of potion
   | IVoid
 
+
 (* each room has location row by column based on 50x50 system.
  * The description includes how the room looks like but not the items
  * in the room. *)
@@ -124,6 +131,7 @@ type room = {
   descr : string;
   items : int list;
 }
+
 
 type world = {
   rooms: room RoomMap.t;
@@ -133,7 +141,11 @@ type world = {
 
 type constructing_ai_lib = item LibMap.t
 
+
 type diffparam = {loc: room_loc; id: int; newitem: item}
+
+
+
 
 type diff =
   | Add of diffparam
@@ -142,4 +154,6 @@ type diff =
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
+
 val apply_diff: diff -> world -> world
+
