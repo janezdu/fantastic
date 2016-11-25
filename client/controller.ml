@@ -140,7 +140,7 @@ type comm_json =
   | JViewState
   | JHelp
 
-let current_player_id = 1234
+
 
 (* [init_state json] creates the inital world for the game *)
 let init_state json =
@@ -258,8 +258,8 @@ let interpret_command (c:command) current_player (w: world) : comm_json=
   | ViewState -> JViewState
   | Help -> JHelp
 
-let do_command comm current_player world: diff list=
-  match (interpret_command comm current_player world) with
+let do_command comm current_player_id world: diff list=
+  match (interpret_command comm current_player_id world) with
   | JMove x -> send_post_request x "move" current_player_id translate_to_diff
   | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
   | JSpell x -> send_post_request x "spell" current_player_id translate_to_diff
@@ -269,4 +269,4 @@ let do_command comm current_player world: diff list=
   | JLook -> send_get_request "look" current_player_id translate_to_diff
   | JInv -> send_get_request "inventory" current_player_id translate_to_diff
   | JViewState -> send_get_request "view" current_player_id translate_to_diff
-  | JHelp -> []
+  | JHelp -> print_string "help"; []
