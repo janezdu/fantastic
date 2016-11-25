@@ -1,12 +1,12 @@
-(* The json type used to pass information in the body of the client *)
-type json
-type diff
+open Lwt
+open Cohttp
+open Cohttp_lwt_unix
 
-(* [translate_to_json d] returns a json based on diffs *)
-val translate_to_json: diff -> json
+type diff_json = string
 
-(* [translate_to_diff j] returns diffs based on a json *)
-val translate_to_diff: json -> diff list
+(* [send_post_request j} sends a command json string to the servers.
+ * Returns unit *)
+val send_post_request: diff_json -> string -> int -> (string -> 'a) -> 'a
 
-(* [send_json j} sends a json to the servers. Returns unit *)
-val send_json: json -> unit
+(* [send_post_request j} sends a get request to the servers. Returns unit *)
+val send_get_request: diff_json -> string  -> int -> (string -> 'a) -> 'a
