@@ -1,3 +1,15 @@
+let interactive = !Sys.interactive;;
+Sys.interactive := false;;
+#use "topfind";;
+Sys.interactive := interactive;;
+
+(* run battop.ml in toplevel *)
+
+Toploop.use_silently
+             Format.err_formatter (Filename.concat (Findlib.package_directory
+             "batteries") "battop.ml");;
+
+
 
 #require "yojson"
 #require "cohttp.lwt"

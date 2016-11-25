@@ -1,4 +1,5 @@
 open Model
+open Concurrent
 
 open Yojson.Basic.Util
 
@@ -7,7 +8,7 @@ type clientid = int
 
 type serverstate = {
   flatworld : world ;
-  client_diffs: (diff list ref) list;
+  client_diffs: string list;
 }
 
 type json = string
@@ -57,8 +58,8 @@ let translate_to_diff snapshot j r cid =
       let item_id = json |> member "id" |> to_int in
       let item = flatworld.items |> LibMap.find item_id in
       let effect = match item with
-        | ISpell {effect} -> effect
-        | IPotion {effect} -> effect
+        | ISpell {effect} | IPotion {effect} -> effect
+        | _ -> failwith "Trying to use unusable item"
       in
       let target_id = json |> member "target" |> to_int in
       let new_inv = remove_from_list item_id player.inventory in
@@ -106,7 +107,7 @@ else if r = "take" then begin
     let item_id = json |> member "id" |> to_int in
     let _ = remove_from_list item_id cur_room.items in
     let wrapped_item = flatworld.items |> LibMap.find item_id in
-    let valid_item = match wrapped_item with
+    let _ = match wrapped_item with
       | ISpell _ | IPotion _ -> true | _ -> failwith "not a spell/potion"
     in
     [
@@ -120,7 +121,8 @@ else if r = "drop" then begin
   try
     let item_id = json |> member "id" |> to_int in
     let wrapped_item = flatworld.items |> LibMap.find item_id in
-    let valid_item = match wrapped_item with
+    let _ = match wrapped_item with
+      (* check for valid item *)
       | ISpell _ | IPotion _ -> true |_ -> failwith "not a spell/potion"
     in
     let _ = remove_from_list item_id player.inventory in
@@ -135,24 +137,18 @@ end
 else
   []
 
-(* side effects to flatworld and client_diffs *)
-let rec step cid diffs = match diffs with
-  | [] -> ()
-  | (loc, items)::t -> begin
-
-      ()
-    end
-
 let rec remove x l = match l with
   | [] -> failwith "no such element"
   | h::t -> if h = x then t
     else h::(remove x t)
 
-(* returns the most up-to-date timestamp based on the server state *)
-let curtime state  = failwith "unimplemented"
+(* [translate_to_json d] returns a json based on diffs *)
+let translate_to_json difflist =
+  "{\r\n  \"diffs\": [\r\n    {\r\n      \"difftype\": \"add\",\r\n      \"roomx\": 2,\r\n      \"roomy\": 1,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234, \r\n      \"item\": {\r\n\t   \"name\" : \"rebecca\"\r\n        \"id\": 1234,\r\n        \"hp\": 90,\r\n        \"inv\": [\r\n          1,\r\n          2,\r\n          3,\r\n          3,\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"difftype\": \"remove\",\r\n      \"roomx\": 1,\r\n      \"roomy\": 2,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234\r\n    }\r\n  ]\r\n}"
 
 (* returns the diff for a client when it asks for an update *)
 let getClientUpdate cid =
+  (* grab reader lock *)
   failwith "unimplemented"
 (* try
    let diff_ref = List.nth state.client_diffs cid in
@@ -162,20 +158,21 @@ let getClientUpdate cid =
    with _ -> failwith "illegal client"
 *)
 
-(* [translate_to_json d] returns a json based on diffs *)
-let translate_to_json difflist =
-  "{\r\n  \"diffs\": [\r\n    {\r\n      \"difftype\": \"add\",\r\n      \"roomx\": 2,\r\n      \"roomy\": 1,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234, \r\n      \"item\": {\r\n\t   \"name\" : \"rebecca\"\r\n        \"id\": 1234,\r\n        \"hp\": 90,\r\n        \"inv\": [\r\n          1,\r\n          2,\r\n          3,\r\n          3,\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"difftype\": \"remove\",\r\n      \"roomx\": 1,\r\n      \"roomy\": 2,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234\r\n    }\r\n  ]\r\n}"
-
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
  * schema for diffs*)
 let pushClientUpdate cid cmd cmdtype =
   try
-    print_endline "at least i got inside pushClientUpdate";
+    (* grab a lock before you can write *)
+
+    print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
     let snapshot = !state in
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
     let _ = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
+    (* grab lock on readers *)
     state := snapshot;
+    (* release lock on readers *)
+    (* release lock on writers *)
     diffs |> translate_to_json
   with
   | _ -> raise (WorldFailure ("error applying to world"))

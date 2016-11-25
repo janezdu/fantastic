@@ -18,10 +18,6 @@ type serverstate
 
 exception WorldFailure of string
 
-
-(* Returns an integer that represents the most up-to-date timestamp *)
-val curtime : serverstate -> int
-
 (* returns the diff for a client when it asks for an update *)
 val getClientUpdate : serverstate -> clientid -> diff list
 
