@@ -11,6 +11,7 @@ type command = Cli.command
 type diff = Model.diff
 type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
+type current_player_id = int
 
 (************************** translate_to_diff *********************************)
 
@@ -195,19 +196,19 @@ let interp_move (m:string) current_player (w:world): comm_json =
   	(string_of_int new_loc_y) ^ "}")
   | "south" ->
     let curr_loc = List.assoc current_player w.players in
-  	let new_loc_x = fst curr_loc in
+    let new_loc_x = fst curr_loc in
     let new_loc_y = snd curr_loc - 1 in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "east" ->
     let curr_loc = List.assoc current_player w.players in
-  	let new_loc_x = fst curr_loc + 1 in
-	  let new_loc_y = snd curr_loc in
-	  JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
-	  (string_of_int new_loc_y) ^ "}")
+    let new_loc_x = fst curr_loc + 1 in
+    let new_loc_y = snd curr_loc in
+    JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
+    (string_of_int new_loc_y) ^ "}")
   | "west" ->
     let curr_loc = List.assoc current_player w.players in
-  	let new_loc_x = fst curr_loc - 1 in
+    let new_loc_x = fst curr_loc - 1 in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
@@ -257,15 +258,15 @@ let interpret_command (c:command) current_player (w: world) : comm_json =
   | ViewState -> JViewState
   | Help -> JHelp
 
-let do_command comm current_player world: diff list =
+let do_command comm current_player world: diff list=
   match (interpret_command comm current_player world) with
   | JMove x -> send_post_request x "move" current_player_id translate_to_diff
   | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
   | JSpell x -> send_post_request x "spell" current_player_id translate_to_diff
   | JQuit -> send_get_request "quit" current_player_id translate_to_diff
-  | JTake x -> send_post_request x "take" current_player_id translate_to_diff
+  | JTake x -> send_post_request x"take" current_player_id translate_to_diff
   | JDrop x -> send_post_request x "drop" current_player_id translate_to_diff
   | JLook -> send_get_request "look" current_player_id translate_to_diff
   | JInv -> send_get_request "inventory" current_player_id translate_to_diff
   | JViewState -> send_get_request "view" current_player_id translate_to_diff
-  | JHelp -> print_endline "rule of the game"; []
+  | JHelp -> []
