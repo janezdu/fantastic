@@ -8,7 +8,7 @@ type clientid = int
 
 type serverstate = {
   flatworld : world ;
-  client_diffs: string list;
+  client_diffs: (int * diff list) list;
 }
 
 type json = string
@@ -149,16 +149,16 @@ let translate_to_json difflist =
 (* returns the diff for a client when it asks for an update *)
 let getClientUpdate cid =
   beginRead ();
-
-  endRead ();
-  failwith "unimplemented"
-(* try
-   let diff_ref = List.nth state.client_diffs cid in
-   let diff = !diff_ref in
-   diff_ref := [];
-   diff
-   with _ -> failwith "illegal client"
-*)
+  try
+    let snapshot = !state in
+    let diffs_to_apply = List.assoc cid snapshot.client_diffs in
+    let newdiffs = (cid, [])::(List.remove_assoc cid snapshot.client_diffs) in
+    let newstate = {snapshot with client_diffs = newdiffs} in
+    state := newstate;
+    endRead ();
+    translate_to_json diffs_to_apply
+  with
+  | _ -> endRead (); failwith "illegal client"
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -170,10 +170,8 @@ let pushClientUpdate cid cmd cmdtype =
     let snapshot = !state in
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
     let _ = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
-    (* grab lock on readers *)
+    (* TODO: populate client_diffs *)
     state := snapshot;
-    (* release lock on readers *)
-    (* release lock on writers *)
     endWrite ();
     diffs |> translate_to_json
   with
