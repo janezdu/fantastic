@@ -1,0 +1,30 @@
+let interactive = !Sys.interactive;;
+Sys.interactive := false;;
+#use "topfind";;
+Sys.interactive := interactive;;
+
+(* run battop.ml in toplevel *)
+
+Toploop.use_silently
+             Format.err_formatter (Filename.concat (Findlib.package_directory
+             "batteries") "battop.ml");;
+
+
+
+#require "yojson"
+#require "cohttp.lwt"
+#require "str"
+
+
+
+(** This loads the compiled modules from this directory *)
+#directory "_build";;
+
+#load "model.cmo";;
+#load "serverhttp.cmo";;
+#load "controller.cmo";;
+
+(** For convenience, we open a bunch of modules *)
+open Controller
+open Model
+open Serverhttp
