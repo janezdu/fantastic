@@ -12,6 +12,8 @@ module RoomMap = Map.Make (
       if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
   end )
 
+exception ApplyDiffError of string
+
 (* A library module uses ids to look up properties and contents
  * of an item.
  *
@@ -139,23 +141,23 @@ let is_null_list = is_null null_list
 
 let unwrap_player = function
   | IPlayer x -> x
-  | _ -> failwith "wrong item type"
+  | _ -> raise (ApplyDiffError "wrong item type" )
 
 let unwrap_animal = function
   | IAnimal x -> x
-  | _ -> failwith "wrong item type"
+  | _ -> raise (ApplyDiffError "wrong item type" )
 
 let unwrap_police = function
   | IPolice x -> x
-  | _ -> failwith "wrong item type"
+  | _ -> raise (ApplyDiffError "wrong item type" )
 
 let unwrap_spell = function
   | ISpell x -> x
-  | _ -> failwith "wrong item type"
+  | _ -> raise (ApplyDiffError "wrong item type" )
 
 let unwrap_potion = function
   | IPotion x -> x
-  | _ -> failwith "wrong item type"
+  | _ -> raise (ApplyDiffError "wrong item type" )
 
 let complete_item_player (w: world) (i: player) : item =
   let old_item = unwrap_player (LibMap.find (i.id) w.items) in
@@ -234,21 +236,18 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
-  print_endline "apply diff add";
   let item_to_edit = complete_item w d.newitem in
   let new_items = LibMap.add d.id item_to_edit w.items in
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  print_endline "apply diff remove";
   let new_items = LibMap.remove d.id w.items in
   apply_diff_case d new_items w remove_item_from_list
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
-  print_endline "apply diff change";
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
@@ -264,17 +263,17 @@ let rec apply_diff_helper (d: diff) (w: world) : world =
  * minimodel based on the diff *)
 let rec apply_diff (d: diff) (w: world) : world =
   try
-    print_endline "got to apply_diff";
     apply_diff_helper d w
   with
-  | _ -> failwith "incompatible with the current world"
+  | _ -> raise (ApplyDiffError "incompatible with the current world") 
 
-let init () =
+
+let init size =
   let emptyroom = {descr="This is a room!"; items = []} in
   let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
-    |> RoomMap.add (1,0) emptyroom
-    |> RoomMap.add (1,1) emptyroom
-    |> RoomMap.add (0,1) emptyroom
+            |> RoomMap.add (1,0) emptyroom
+            |> RoomMap.add (1,1) emptyroom
+            |> RoomMap.add (0,1) emptyroom
   in
   let players = [1234, (0,0)] in
   let items = LibMap.empty |> LibMap.add 1 (ISpell {id = 1;

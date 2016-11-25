@@ -1,4 +1,3 @@
-PKG lwt cohttp.lwt yojson str 
+PKG lwt cohttp.lwt yojson str
 
 B _build/
-B +threads

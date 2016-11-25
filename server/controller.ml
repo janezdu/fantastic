@@ -15,6 +15,10 @@ type json = string
 
 type diff = Model.diff
 
+let p = print_endline
+
+let newid = ref 1000
+
 (* todo: implement this in translate_to_diff *)
 type cmd = Move | Use | Take | Drop
 
@@ -24,7 +28,7 @@ exception IllegalTake
 exception IllegalDrop
 
 exception WorldFailure of string
-let state = ref {flatworld = (init ()); client_diffs = []}
+let state = ref {flatworld = (init 4); client_diffs = []}
 
 let rec remove_from_list x = function
   | [] -> failwith "invalid"
@@ -38,12 +42,12 @@ let translate_to_diff snapshot j r cid =
   let {flatworld; client_diffs} = snapshot in
   (* let flatworld = !fw in *)
   let (curx, cury) = List.assoc cid flatworld.players in
-  print_endline (string_of_int curx);
-  print_endline (string_of_int cury);
+  print_endline ("old location: ("^string_of_int curx^", "
+                 ^string_of_int cury^")");
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
-  print_endline "got past most declarations";
   let IPlayer (player) = flatworld.items |> LibMap.find cid in
+  print_endline ("player name: "^player.name);
   if r = "move" then begin
     print_endline "creating diff: inside move";
     let newx = json |> member "newx" |> to_int in
@@ -152,6 +156,7 @@ let getClientUpdate cid =
   try
     let snapshot = !state in
     let diffs_to_apply = List.assoc cid snapshot.client_diffs in
+        p "here i am";
     let newdiffs = (cid, [])::(List.remove_assoc cid snapshot.client_diffs) in
     let newstate = {snapshot with client_diffs = newdiffs} in
     state := newstate;
@@ -159,6 +164,14 @@ let getClientUpdate cid =
     translate_to_json diffs_to_apply
   with
   | _ -> endRead (); failwith "illegal client"
+
+(* This method looks at the cmd and decides if there are any reactions the
+ * world will make. For example, if the user attack an animal, this method
+ * will create the world 1 time step later, after the beast attacks back.
+ *
+ * This is only called inside pushClientUpdate and registerUser, so the world
+ * really does only *react* to things that users do. *)
+let react state cmd = state
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -170,10 +183,48 @@ let pushClientUpdate cid cmd cmdtype =
     let snapshot = !state in
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
     let newworld = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
-    let newdiffs = List.map
-        (fun (id,lst) -> (id, lst@diffs)) snapshot.client_diffs in
-    state := {flatworld =newworld; client_diffs = newdiffs};
+    let addDiffsToAll = List.map
+        (fun (id,lst) -> (id, diffs@lst)) snapshot.client_diffs in
+    (* Flush current user's diffs *)
+    let newdiffs = (cid, [])::(List.remove_assoc cid addDiffsToAll) in
+    let afterworld = react newworld cmd in
+    state := {flatworld = afterworld; client_diffs = newdiffs};
     endWrite ();
     diffs |> translate_to_json
   with
-  | _ -> endWrite (); raise (WorldFailure ("error applying to world"))
+  | _ -> begin endWrite (); raise (WorldFailure ("error applying to world")) end
+
+
+let registerUser name =
+  beginWrite ();
+  try
+    let snapshot = !state in
+    let cid = !newid in
+    newid := !newid + 1;
+    print_endline ("what d'yu know, your cid is "^ (string_of_int cid));
+    (* TODO: maybe randomize staring inventory? *)
+    let newPlayer = IPlayer {id = cid;
+                             name = name;
+                             hp = 1000;
+                             score = 0;
+                             inventory = [1;1;1]} in
+    let diffs = [Add {loc = (0,0); id = cid; newitem = newPlayer}] in
+    let newworld = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
+    p "made newworld";
+    let newdiffs = List.map
+        (fun (id,lst) -> (id, diffs@lst)) snapshot.client_diffs in
+    print_endline "made it this far";
+    let afterworld = react newworld diffs in
+    state := {flatworld = afterworld; client_diffs = newdiffs};
+    endWrite ();
+    cid
+  with
+  | ApplyDiffError msg -> begin
+      endWrite ();
+      raise (WorldFailure ("ApplyDiffError: "^ msg))
+    end
+  | _ -> begin
+      endWrite ();
+      raise (WorldFailure ("Stupid things happened when "^
+                                           "we tried to register "^ name))
+    end
