@@ -28,7 +28,7 @@ let post_body jstr query (callback:string -> 'a) =
     body |> Cohttp_lwt_body.to_string >|= callback
   else failwith "403 Forbidden: illegal move"
 
-let get_body jstr query (callback:string -> 'a) =
+let get_body query (callback:string -> 'a) =
   Client.get
   (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
@@ -43,7 +43,7 @@ let send_post_request (j: diff_json) (action: string)
   Lwt_main.run (post_body j query callback)
 
 (* [send_json j} sends a json to the servers. Returns unit *)
-let send_get_request (j: diff_json) (action: string)
+let send_get_request (action: string)
   (client_id: int) (callback: string -> 'a) =
   let query = make_query action client_id in
   Lwt_main.run (post_body j query callback)

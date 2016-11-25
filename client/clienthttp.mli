@@ -9,4 +9,4 @@ type diff_json = string
 val send_post_request: diff_json -> string -> int -> (string -> 'a) -> 'a
 
 (* [send_post_request j} sends a get request to the servers. Returns unit *)
-val send_get_request: diff_json -> string  -> int -> (string -> 'a) -> 'a
+val send_get_request: string  -> int -> (string -> 'a) -> 'a
