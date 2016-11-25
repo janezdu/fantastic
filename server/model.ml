@@ -264,3 +264,22 @@ let rec apply_diff (d: diff) (w: world) : world =
     apply_diff_helper d w
   with
   | _ -> failwith "incompatible with the current world"
+
+let init () =
+  let emptyroom = {descr="This is a room!"; items = []} in
+  let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
+    |> RoomMap.add (1,0) emptyroom
+    |> RoomMap.add (1,1) emptyroom
+    |> RoomMap.add (0,1) emptyroom
+  in
+  let players = [1234, (0,0)] in
+  let items = LibMap.empty |> LibMap.add 1
+                (ISpell {id = 1;
+                        incant = "lumos";
+                        descr = "a light spell";
+                         effect = 10}) in
+  {
+    rooms = map;
+    players = players;
+    items = items;
+  }

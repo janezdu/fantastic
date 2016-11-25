@@ -24,9 +24,7 @@ exception IllegalDrop
 
 exception WorldFailure of string
 
-let state =
-  failwith "unimplemented"
-  (* {flatworld = init (); client_diffs = []} in *)
+let state = {flatworld = init (); client_diffs = []}
 
 let rec remove_from_list x = function
   | [] -> failwith "invalid"
@@ -38,7 +36,7 @@ let rec remove_from_list x = function
 let translate_to_diff j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = state in
-  let (curx, cury) = List.assoc cid flatworld.player in
+  let (curx, cury) = List.assoc cid flatworld.players in
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
   let IPlayer (player) = flatworld.items |> LibMap.find cid in
@@ -159,7 +157,7 @@ let translate_to_json difflist =
 let pushClientUpdate cid cmd cmdtype =
   try
     let diffs = (translate_to_diff cmd cmdtype cid) in
-    let _ = List.fold_left (fun a d -> apply_diff d a) state diffs in
+    let _ = List.fold_left (fun a d -> apply_diff d a) state.flatworld diffs in
     diffs |> translate_to_json
   with
   | _ -> raise (WorldFailure ("error applying to world"))
