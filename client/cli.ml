@@ -1,3 +1,5 @@
+
+
 (* directive is what the player types into the command line*)
 type directive = string
 
@@ -5,16 +7,18 @@ type directive = string
  * could make *)
 type command =
   | Move of string
-  | Spell of string
+  | Drink of string
+  | Spell of string (* *string *)
   | Quit
   | Take of string
   | Drop of string
   | Look
   | Inventory
-  | Drink of string
   | ViewState
   | Help
-(*
+
+type command = Cli.command
+
 (* [parse_command lst] is the command that is associated with [lst]
  * Raises Illegal if [lst] does represent to in a valid command form
  * requires: [lst] is a list of at most length 2
@@ -25,8 +29,8 @@ type command =
 let parse_command lst=
     match lst with
     | h::t::[] when (h="move") -> Move (String.trim t)
-    | h::t::[] when (h="spell") -> Spell (String.trim t)
     | h::t::[] when (h="drink") -> Drink (String.trim t)
+    | h::t::[] when (h="spell") -> Spell (String.trim t)
     | h::t::[] when (h="drop") -> Drop (String.trim t)
     | h::t::[] when (h="take") -> Take (String.trim t)
     | h::[] when (String.trim h="look") -> Look
@@ -35,9 +39,8 @@ let parse_command lst=
         Inventory
     | h::[] when (String.trim h="View")-> ViewState
     | h::[] when (String.trim h="Help") -> Help
-    | h::[] -> Go (String.trim h)(*new stuff*)
-    | _ -> raise (Illegal)
-
+    | h::[] -> Move (String.trim h)(*new stuff*)
+    | _ -> failwith "Illegal"
 
 (* [split_to_list str] is a string that results from splitting [str] into a
  * list using the whitespace in [str] as places for separation
@@ -77,10 +80,10 @@ let rec list_concat lst =
 let sep_dir lst =
     match lst with
     | h::[] -> h::[]
-    | h::t when (h = "go" || h = "take" || h = "drop")->
-        h::(String.trim (list_concat t))::[]
+    | h::t when (h = "move" || h = "take" || h = "drink" || h = "spell" || h = "drop")->
+      h::(String.trim (list_concat t))::[]
     | h::t -> (String.trim (list_concat lst))::[]
-    | _ -> raise (Illegal)
+    | _ -> failwith "Illegal"
 
 (* [parse_c command] parses the command [command] into a command variant
  * raises Illegal if [command] not in the form of a valid command
@@ -93,5 +96,4 @@ let parse_c command =
 
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)
-let parse_comm d = (* parse_c d *)
-    failwith "unimplemented"
+let parse_comm d = parse_c d
