@@ -1,136 +1,67 @@
-(* [timeid] is timestamp of a gamestate aka [world]
- * the initial world has timeid 0. When the first player makes a change, the
- * most up-to-date world has timestamp 1, and so on *)
-type timeid = int
-
-(* [hp] stands for healthpoint *)
-type hp = int
-
-(* score of a player *)
-type score = int
-
-(* [precision] is the confidence level of hitting the target when
- * casting a spell
- * For example, precision of 95 i.e. 95% CI means 95 times out of 100 casts
- * the spell hits the target.
- * In other words, the higher [precision] is, the more times the spell
- * works.
- * Invariants: 0 < precision < 100
- * and by default, precision is 50. *)
-type precision = int
-
-(* exit of each room in 50x50 grids *)
-type exit = North | East | South | West
-
-(* location of a room in grid system *)
+(* locations of rooms are in cartesian coordinate with the bottom-left cell
+ * being (0,0). X-axis is horizontal and increases value moving to the right.
+ * Y-axis increases value ass moving up. *)
 type room_loc = int * int
 
-(* emotion of a player *)
-type emotion = Happy | Sad | Angry | Scared
+(* A map module that uses room locations to look up properties and contents
+ * of a room. See [type world] for more details. *)
+module RoomMap = Map.Make (
+  struct
+    type t = room_loc
+    let compare (x1,x2) (y1,y2) =
+      if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
+  end )
 
-(* each room has location row by column based on 50x50 system.
- * The description includes how the room looks like but not the items
- * in the room. *)
-type room = {
-  rdescr : string;
-  rexits : exit list;
-}
-
-(* [effect] of a spell could increase (positive int) or decrease
- * (negative int) health points, turn and precision of the current player.
- * [effect] on hint takes string hint input and print it to the player who
- * calls. For example,
- * EHP 10 represents increase 10 hp
- * EPrecision 10 represents the player's spell will be 10% more accurate
- *   than what it already is. If the precision is 50, it increases to 60%.
- * EHint "Use Patronas Charm" represents that the string hint will
- *   be printed on the player's screen.
- * EEmotion Happy represents the player's emotion will be changed to Happy *)
-type effect =
-  | EHP of hp
-  | EPrecision of precision
-  | EHint of string
-  | EEmotion of emotion
+(* A library module uses ids to look up properties and contents
+ * of an item.
+ *
+ * Indices of items are as follow:
+ *   potions and spells: 0-99
+ *   animals and police: 100-999
+ *   players: 1000+
+ *
+ * See [type world] for more details. *)
+module LibMap = Map.Make (
+  struct
+    type t = int
+    let compare e1 e2 = compare e1 e2
+  end )
 
 (* A spell is casted to act on an object. However, there are consequences of
  * casting specific spells.
  * An example of a spell:
  * incantation = "Expelliarmus"
  * description = "disarms your opponent"
- * effect = Turn 1
- * consequence = None
- * environment = None *)
+ * effect = Turn 1 *)
 type spell = {
-  spid : int;
-  spincant: string;
-  spdescr : string;
-  speffect : effect;
-  spconseq: effect option;
-  spcond : emotion option;
+  id : int;
+  incant: string;
+  descr : string;
+  effect : int;
 }
 
-(* A potion is used for a specific purpose [poeffect] on an object although
- * it could have a consequence [poconseq] on the user *)
 type potion = {
-  poid : int;
-  poname : string;
-  podescr : string;
-  poeffect : effect;
-  poconseq : effect option;
+  id : int;
+  name: string;
+  descr : string;
+  effect : int;
 }
-
-(* [attack] is used by an animal or a police. It has a name and effect. *)
-type attack = {
-  atname : string;
-  ateffect : effect;
-}
-
-(* types of items id that can be stored in an inventory *)
-type inventory_item =
-  | IVSpell of int
-  | IVPotion of int
-
-(* player of the game *)
-type player = {
-  pid : int;
-  pname : string;
-  pdescr : string;
-}
-
-(* animal or fantastic beast *)
-type animal = {
-  aid : int;
-  aname : string;
-  adescr : string;
-  aattacks : attack list;
-}
-
-(* policeman who is trying to catch players *)
-type policeman = {
-  plmid : int;
-  plmspells : spell list;
-}
-
-(* types of an item's id *)
-type id =
-  | IDPolice of int
-  | IDAnimal of int
-  | IDPlayer of int
-  | IDPotion of int
-  | IDSpell of int
-
-(* difference that can occur in inventory *)
-type diff_inv = Remove of inventory_item | Add of inventory_item
 
 (* fields that can be updated in a move *)
-type mut_AI = {
-  id : id;
-  newloc : room_loc;
-  hp : hp;
-  emotion : emotion option;
-  score : score;
-  inventory : diff_inv list;
-  precision : int;
+type player = {
+  id : int;
+  name: string;
+  hp : int;
+  score : int;
+  inventory : int list;
+}
+
+type ai = {
+  id : int;
+  name : string;
+  descr : string;
+  hp : int;
+  spells : int list;
 }
 
 (* A type that is one of several records, all of which contain enough
@@ -140,56 +71,196 @@ type mut_AI = {
  * For an animal, it is necessary to know the static info like its starting HP,
  * and dynamic info, like its current HP. See type [mut_AI] for more. *)
 type item =
-  | IPlayer of mut_AI
-  | IAnimal of mut_AI
-  | IPolice of mut_AI
-  | ISpell of int
-  | IPotion of int
+  | IPlayer of player
+  | IAnimal of ai
+  | IPolice of ai
+  | ISpell of spell
+  | IPotion of potion
+  | IVoid
 
-(* difference that can occur in a room *)
-type diff_item = Remove of id | Add of id | Change of item
-
-(* A map module that uses the id to lookup static things and properties,
- * like spell effects. *)
-module LibMap = Map.Make (
-    struct
-      type t = int
-      let compare e1 e2 = compare e1 e2
-    end )
-
-(* A map module that uses room locations to look up properties of and contents
- * of a room. See [type world] for more details. *)
-module RoomMap = Map.Make (
-    struct
-      type t = room_loc
-      let compare (x1,x2) (y1,y2) = if compare x1 y1 = 0 then compare x2 y2 else compare x1 y1
-    end )
-
-open LibMap
-open RoomMap
-
-(* Explanation:
- * [world] represents a game state
- * [wid] is the most up-to-date timestamp [world] is
- * A world contains information about room map [wrooms],
- * spell library [wspells], potion library [wpotions], animal library [animals],
- * police library [wpolice], player library [wplayers],
- * and dictionary of room associated with items in the room [witems] *)
-type world =  {
-  wid : timeid;
-  wrooms : room RoomMap.t;
-  wspells : spell LibMap.t;
-  wpotions : potion LibMap.t;
-  wanimals : animal LibMap.t;
-  wpolice : policeman LibMap.t;
-  wplayers : player LibMap.t;
-  witems : (item list) RoomMap.t;
+(* each room has location row by column based on 50x50 system.
+ * The description includes how the room looks like but not the items
+ * in the room. *)
+type room = {
+  descr : string;
+  items : int list;
 }
 
-type diff = {
-  ditems : (room_loc * (diff_item list)) list;
+type world = {
+  rooms: room RoomMap.t;
+  players: (int * room_loc) list;
+  items: item LibMap.t
 }
 
-(* [apply_diff d] takes in a difference and returns an updated
- * minimodel based on the diff.*)
-let apply_diff d = failwith "unimplemented"
+type constructing_ai_lib = item LibMap.t
+
+type diffparam = {loc: room_loc; id: int; newitem: item}
+
+type diff =
+  | Add of diffparam
+  | Remove of diffparam
+  | Change of diffparam
+
+(* [remove_item_from_list x i] removes item [i] from list [x].
+ * If [x] does not contain [i], returns [x] *)
+let rec remove_item_from_list x = function
+  | h::t -> if h = x then t else h::(remove_item_from_list x t)
+  | [] -> []
+
+(* updates loc of player [id]. If no such player [id] is found,
+ * append (id, new_loc) to [players] *)
+let rec update_players (id: int) (new_loc: room_loc)
+  (players: (int * room_loc) list) : (int * room_loc) list =
+  match players with
+  | (id', old_loc) as h::t ->
+    if id = id' then (id, new_loc)::t
+    else h::(update_players id new_loc t)
+  | [] -> (id, new_loc)::[]
+
+let fnull_int () = -1
+
+let fnull_string () = ""
+
+let fnull_list () = [(-1)]
+
+let null_int = fnull_int ()
+
+let null_string = fnull_string ()
+
+let null_list = fnull_list ()
+
+let is_null i x = i = x
+
+let is_null_int = is_null null_int
+
+let is_null_string = is_null null_string
+
+let is_null_list = is_null null_list
+
+let unwrap_player = function
+  | IPlayer x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_animal = function
+  | IAnimal x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_police = function
+  | IPolice x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_spell = function
+  | ISpell x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_potion = function
+  | IPotion x -> x
+  | _ -> failwith "wrong item type"
+
+let complete_item_player (w: world) (i: player) : item =
+  let old_item = unwrap_player (LibMap.find (i.id) w.items) in
+  IPlayer ({
+    id = i.id;
+    name = if is_null_string i.name then old_item.name else i.name;
+    hp = if is_null_int i.hp then old_item.hp else i.hp;
+    score = if is_null_int i.hp then old_item.score else i.score;
+    inventory = if is_null_list i.inventory then old_item.inventory
+      else i.inventory;
+  })
+
+let complete_item_animal (w: world) (i: ai) : item =
+  let old_item = unwrap_animal (LibMap.find (i.id) w.items) in
+  IAnimal ({
+    id = i.id;
+    name = if is_null_string i.name then old_item.name else i.name;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    hp = if is_null_int i.hp then old_item.hp else i.hp;
+    spells = if is_null_list i.spells then old_item.spells else i.spells;
+  })
+
+let complete_item_police (w: world) (i: ai) : item =
+  let old_item = unwrap_police (LibMap.find (i.id) w.items) in
+  IPolice ({
+    id = i.id;
+    name = if is_null_string i.name then old_item.name else i.name;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    hp = if is_null_int i.hp then old_item.hp else i.hp;
+    spells = if is_null_list i.spells then old_item.spells else i.spells;
+  })
+
+let complete_item_spell (w: world) (i: spell) : item =
+  let old_item = unwrap_spell (LibMap.find (i.id) w.items) in
+  ISpell ({
+    id = i.id;
+    incant = if is_null_string i.incant then old_item.incant else i.incant;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    effect = if is_null_int i.effect then old_item.effect else i.effect;
+  })
+
+let complete_item_potion (w: world) (i: potion) : item =
+  let old_item = unwrap_potion (LibMap.find (i.id) w.items) in
+  IPotion ({
+    id = i.id;
+    name = if is_null_string i.name then old_item.name else i.name;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    effect = if is_null_int i.effect then old_item.effect else i.effect;
+  })
+
+(* [complete_item w item] fills up missing fields in [item] by
+ * taking values from [w] *)
+let complete_item w = function
+  | IPlayer i -> complete_item_player w i
+  | IAnimal i -> complete_item_animal w i
+  | IPolice i -> complete_item_police w i
+  | ISpell i -> complete_item_spell w i
+  | IPotion i -> complete_item_potion w i
+  | IVoid -> IVoid
+
+(* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
+ * apply_diff_remove, and apply_diff_change *)
+let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
+  (f: int -> int list -> int list) : world =
+  let loc = d.loc in
+  let id_to_edit = d.id in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with items = f id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  let updated_players =
+    if id_to_edit >= 1000 then update_players id_to_edit loc w.players
+    else w.players in
+  {rooms = new_rooms; players = updated_players; items = new_items}
+
+(* [apply_diff_change d w] adds [d] in [w] and returns new world.
+ * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
+let apply_diff_add (d: diffparam) (w: world) : world =
+  let item_to_edit = complete_item w d.newitem in
+  let new_items = LibMap.add d.id item_to_edit w.items in
+  apply_diff_case d new_items w (fun x y -> x::y)
+
+(* [apply_diff_change d w] removes [d] in [w] and returns new world *)
+let apply_diff_remove (d: diffparam) (w: world) : world =
+  let new_items = LibMap.remove d.id w.items in
+  apply_diff_case d new_items w remove_item_from_list
+
+(* [apply_diff_change d w] changes [d] in [w] and returns new world
+ * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
+let apply_diff_change (d: diffparam) (w: world) : world =
+  let new_w = apply_diff_remove d w in
+  apply_diff_add d new_w
+
+(* [apply_diff_helper d w] is the same as apply_diff except it might raise
+ * different exception messages *)
+let rec apply_diff_helper (d: diff) (w: world) : world =
+  match d with
+  | Add x -> apply_diff_add x w
+  | Remove x -> apply_diff_remove x w
+  | Change x -> apply_diff_change x w
+
+(* [apply_diff d w] takes in a difference and returns an updated
+ * minimodel based on the diff *)
+let rec apply_diff (d: diff) (w: world) : world =
+  try
+    apply_diff_helper d w
+  with
+  | _ -> failwith "incompatible with the current world"

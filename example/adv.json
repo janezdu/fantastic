@@ -1,0 +1,85 @@
+{
+	"rooms": [{
+		"id": "garden",
+		"description": "This is garden. There is an exit to the north.\nYou should drop the bike here",
+		"points": 1,
+		"exits": [{
+			"direction": "north",
+			"room_id": "living room"
+		}],
+		"treasure": ["bike"]
+	}, {
+		"id": "living room",
+		"description": "This is living room. There are exits to the south and east.
+		\nYou should drop the bag and hat here.",
+		"points": 10000,
+		"exits": [{
+			"direction": "east",
+			"room_id": "dining room"
+		}, {
+			"direction": "south",
+			"room_id": "garden"
+		}],
+		"treasure": ["bag", "hat"]
+	}, {
+		"id": "dining room",
+		"description": "This is dining room. There are exits to the west and up.
+		\nYou should drop the chicken here.",
+		"points": 100,
+		"exits": [{
+			"direction": "west",
+			"room_id": "living room"
+		}, {
+			"direction": "up",
+			"room_id": "bedroom"
+		}],
+		"treasure": ["chicken"]
+	},{
+		"id": "bedroom",
+		"description": "This is dining room. There is an exit down.
+		\nYou should drop the chicken here.",
+		"points": 1000,
+		"exits": [{
+			"direction": "down",
+			"room_id": "dining room"
+		}],
+		"treasure": ["tshirt", "laptop"]
+	}],
+	"start_room": "garden",
+	"items": [{
+		"id": "bike",
+		"description": "a black sport bike",
+		"points": 50
+	}, {
+		"id": "bag",
+		"description": "a pink bag",
+		"points": 500
+	}, {
+		"id": "hat",
+		"description": "a red hat",
+		"points": 2
+	}, {
+		"id": "chicken",
+		"description": "a living chicken",
+		"points": 10
+	}, {
+		"id": "tshirt",
+		"description": "a cornell tee",
+		"points": 20
+	}, {
+		"id": "laptop",
+		"description": "a macbook",
+		"points": 2000
+	}],
+	"start_inv": ["bag", "chicken", "tshirt"],
+	"start_locations": [{
+		"room": "bedroom",
+		"item": "bike"
+	}, {
+		"room": "living room",
+		"item": "hat"
+	}, {
+		"room": "garden",
+		"item": "laptop"
+	}]
+}

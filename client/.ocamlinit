@@ -1,0 +1,15 @@
+#require "yojson"
+#require "lwt"
+#require "cohttp.lwt"
+#directory "_build"
+#load "model.cmo";;
+#load "clienthttp.cmo";;
+#load "controller.cmo";;
+
+open Lwt
+open Cohttp
+open Cohttp_lwt_unix
+open Yojson.Basic.Util
+open Yojson.Basic
+
+#use "model.ml"
