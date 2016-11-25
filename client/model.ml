@@ -109,66 +109,99 @@ let rec update_players (id: int) (new_loc: room_loc)
     else h::(update_players id new_loc t)
   | [] -> (id, new_loc)::[]
 
-let is_null x =
-  match x with
-  | `Null -> true
-  | _ -> false
+let fnull_int () = -1
 
-(* let complete_item_player (w: world) (i: player) : item =
-  let old_item = LibMap.find (i.id) w.items in
+let fnull_string () = ""
+
+let fnull_list () = [(-1)]
+
+let null_int = fnull_int ()
+
+let null_string = fnull_string ()
+
+let null_list = fnull_list ()
+
+let is_null i x = i = x
+
+let is_null_int = is_null null_int
+
+let is_null_string = is_null null_string
+
+let is_null_list = is_null null_list
+
+let unwrap_player = function
+  | IPlayer x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_animal = function
+  | IAnimal x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_police = function
+  | IPolice x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_spell = function
+  | ISpell x -> x
+  | _ -> failwith "wrong item type"
+
+let unwrap_potion = function
+  | IPotion x -> x
+  | _ -> failwith "wrong item type"
+
+let complete_item_player (w: world) (i: player) : item =
+  let old_item = unwrap_player (LibMap.find (i.id) w.items) in
   IPlayer ({
     id = i.id;
-    hp = if is_null i.hp then old_item.hp else i.hp;
-    score = if is_null i.hp then old_item.score else i.score;
-    inventory = if is_null i.hp then old_item.score else i.inventory;
+    hp = if is_null_int i.hp then old_item.hp else i.hp;
+    score = if is_null_int i.hp then old_item.score else i.score;
+    inventory = if is_null_list i.inventory then old_item.inventory else i.inventory;
   })
 
 let complete_item_animal (w: world) (i: ai) : item =
-  let old_item = LibMap.find (i.id) w.items in
+  let old_item = unwrap_animal (LibMap.find (i.id) w.items) in
   IAnimal ({
     id = i.id;
-    name = if is_null i.name then old_item.name else i.name;
-    descr = if is_null i.descr then old_item.descr else i.descr;
-    hp = if is_null i.hp then old_item.hp else i.hp;
-    spells = if is_null i.spells then old_item.spells else i.spells;
+    name = if is_null_string i.name then old_item.name else i.name;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    hp = if is_null_int i.hp then old_item.hp else i.hp;
+    spells = if is_null_list i.spells then old_item.spells else i.spells;
   })
 
 let complete_item_police (w: world) (i: ai) : item =
-  let old_item = LibMap.find (i.id) w.items in
+  let old_item = unwrap_police (LibMap.find (i.id) w.items) in
   IPolice ({
     id = i.id;
-    name = if is_null i.name then old_item.name else i.name;
-    descr = if is_null i.descr then old_item.descr else i.descr;
-    hp = if is_null i.hp then old_item.hp else i.hp;
-    spells = if is_null i.spells then old_item.spells else i.spells;
+    name = if is_null_string i.name then old_item.name else i.name;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    hp = if is_null_int i.hp then old_item.hp else i.hp;
+    spells = if is_null_list i.spells then old_item.spells else i.spells;
   })
 
 let complete_item_spell (w: world) (i: spell) : item =
-  let old_item = LibMap.find (i.id) w.items in
+  let old_item = unwrap_spell (LibMap.find (i.id) w.items) in
   ISpell ({
     id = i.id;
-    incant = if is_null i.incant then old_item.incant else i.incant;
-    descr = if is_null i.descr then old_item.descr else i.descr;
-    effect = if is_null i.effect then old_item.effect else i.effect;
+    incant = if is_null_string i.incant then old_item.incant else i.incant;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    effect = if is_null_int i.effect then old_item.effect else i.effect;
   })
 
 let complete_item_potion (w: world) (i: potion) : item =
-  let old_item = LibMap.find (i.id) w.items in
+  let old_item = unwrap_potion (LibMap.find (i.id) w.items) in
   IPotion ({
     id = i.id;
-    descr = if is_null i.descr then old_item.descr else i.descr;
-    effect = if is_null i.effect then old_item.effect else i.effect;
+    descr = if is_null_string i.descr then old_item.descr else i.descr;
+    effect = if is_null_int i.effect then old_item.effect else i.effect;
   })
- *)
-let complete_item w  p = failwith "wr"
 
-(*
-= function
+let complete_item w = function
   | IPlayer i -> complete_item_player w i
   | IAnimal i -> complete_item_animal w i
   | IPolice i -> complete_item_police w i
   | ISpell i -> complete_item_spell w i
-  | IPotion i -> complete_item_potion w i *)
+  | IPotion i -> complete_item_potion w i
+  | IVoid -> IVoid
 
 let apply_diff_case (d: diffparam) (w: world)
   (f: int -> int list -> int list) : world =

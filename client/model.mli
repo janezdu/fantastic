@@ -101,6 +101,12 @@ type ai = {
   spells : int list;
 }
 
+val fnull_int: unit -> int
+
+val fnull_string: unit -> string
+
+val fnull_list: unit -> int list
+
 (* A type that is one of several records, all of which contain enough
  * information to represent both the static and dynamic parts of an item.
  * For a spell, for example, it is sufficient to know what type of spell it is;

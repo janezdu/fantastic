@@ -4,32 +4,42 @@ open Lwt
 open Cohttp
 open Cohttp_lwt_unix
 open Yojson.Basic.Util
-open Yojson.Basic
 
 type json = Yojson.Basic.json
 type diff = Model.diff
 type jsonstring = string
 
+(* stuff code *)
 let client_id = 1234
 let action = "move"
-
-let real_j =
+let responded_jstr =
   "{
     \"diffs\": [
       {
         \"difftype\": \"add\",
         \"roomx\": 1,
-        \"roomy\": 3,
+        \"roomy\": 2,
+        \"objecttype\": \"potion\",
+        \"id\": 23,
+        \"item\": {
+          \"id\": 23
+        }
+      },
+      {
+        \"difftype\": \"change\",
+        \"roomx\": 1,
+        \"roomy\": 2,
         \"objecttype\": \"player\",
-        \"player\": {
-          \"id\": 3,
+        \"id\": 1234,
+        \"item\": {
+          \"id\": 1234,
           \"hp\": 90,
-          \"score\": 1030,
           \"inv\": [
             1,
             2,
             3,
-            3
+            3,
+            4
           ]
         }
       },
@@ -37,23 +47,13 @@ let real_j =
         \"difftype\": \"remove\",
         \"roomx\": 1,
         \"roomy\": 2,
-        \"objecttype\": \"spell\",
-        \"spell\": {
-          \"id\": 3
-        }
+        \"id\": 4,
+        \"objecttype\": \"spell\"
       }
     ]
   }"
 
-(* need to make it iterate the list of diffs later *)
-let get_head lst =
-  match lst with
-  | [] -> failwith "no head"
-  | h::t -> h
-
-(* do this after talking to Jane *)
-(* now only assume the basic json no list *)
-(* [translate_to_json d] returns a json based on diffs *)
+(* [translate_to_json d] returns a json based on diffs, to send to server *)
 let translate_to_json (d:diff) : jsonstring =
   failwith "1"
   (* let lst_items = d.ditems in
@@ -66,43 +66,65 @@ let translate_to_json (d:diff) : jsonstring =
     ", \"x\": " ^ (string_of_int loc_x) ^ ", \"y\": " ^
    (string_of_int loc_y) ^ "}" |> from_string *)
 
+(* [null_int] is  *)
+let null_int = fnull_int ()
+
+let null_string = fnull_string ()
+
+let null_list = fnull_list ()
+
+let null_to i f x =
+  match x with
+  | `Null -> i
+  | _ -> x |> f
+
+let null_to_int = null_to null_int to_int
+
+let null_to_string = null_to null_string to_string
+
+let null_to_list x =
+  match x with
+  | `Null -> null_list
+  | _ -> x |> to_list |> List.map to_int
+
 let create_item item = function
   | "player" ->
     IPlayer ({
       id = item |> member "id" |> to_int;
-      hp = item |> member "hp" |> to_int;
-      score = item |> member "score" |> to_int;
-      inventory = item |> member "inv" |> to_list |> List.map to_int;
+      hp = item |> member "hp" |> null_to_int;
+      score = item |> member "score" |> null_to_int;
+      inventory = item |> member "inv" |> null_to_list;
     })
   | "spell" ->
     ISpell ({
       id = item |> member "id" |> to_int;
-      incant = item |> member "incant" |> to_string;
-      descr = item |> member "descr" |> to_string;
-      effect = item |> member "effect" |> to_int;
+      incant = item |> member "incant" |> null_to_string;
+      descr = item |> member "descr" |> null_to_string;
+      effect = item |> member "effect" |> null_to_int;
     })
   | "potion" ->
     IPotion ({
       id = item |> member "id" |> to_int;
-      descr = item |> member "descr" |> to_string;
-      effect = item |> member "effect" |> to_int;
+      descr = item |> member "descr" |> null_to_string;
+      effect = item |> member "effect" |> null_to_int;
     })
   | "animal" ->
     IAnimal ({
       id = item |> member "id" |> to_int;
-      name = item |> member "name" |> to_string;
-      descr = item |> member "descr" |> to_string;
-      hp = item |> member "hp" |> to_int;
-      spells = item |> member "spells" |> to_list |> List.map to_int;
+      name = item |> member "name" |> null_to_string;
+      descr = item |> member "descr" |> null_to_string;
+      hp = item |> member "hp" |> null_to_int;
+      spells = item |> member "spells" |> null_to_list;
     })
   | "police" ->
     IPolice ({
       id = item |> member "id" |> to_int;
-      name = item |> member "name" |> to_string;
-      descr = item |> member "descr" |> to_string;
-      hp = item |> member "hp" |> to_int;
-      spells = item |> member "spells" |> to_list |> List.map to_int;
+      name = item |> member "name" |> null_to_string;
+      descr = item |> member "descr" |> null_to_string;
+      hp = item |> member "hp" |> null_to_int;
+      spells = item |> member "spells" |> null_to_list;
     })
+  | _ -> failwith "create wrong type"
 
 (* {loc: room_loc; id: int; newitem: item} *)
 let parse_diff_remove roomx roomy objecttype id : diff =
@@ -131,10 +153,10 @@ let parse_diff (j: json) : diff =
   | "change" -> parse_diff_change j roomx roomy objecttype id
   | _ -> failwith "wrong diff type"
 
-(* [translate_to_diff j] returns diffs based on a json string
- * Precondition : the input [j] is of type json already *)
+(* [translate_to_diff j] returns diffs based on a json string, which is
+ * a response from server *)
 let translate_to_diff (j:jsonstring) : diff list =
-  j |> from_string |> member "diffs" |> to_list |> List.map parse_diff
+  j |> Yojson.Basic.from_string |> member "diffs" |> to_list |> List.map parse_diff
 
 let make_query_helper action cid =
   "/" ^ action ^ "?client_id=" ^ (string_of_int cid)
@@ -184,4 +206,4 @@ let send_get_request (j: jsonstring) (action: string) callback =
   print_endline ("Received body\n" ^ body)
 
 let () =
-  send_post_request real_j action cb
+  send_post_request responded_jstr action cb

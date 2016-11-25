@@ -9,10 +9,11 @@ open Yojson.Basic
 type diff = Controller.diff
 type jsonstring = string
 
-(* [translate_to_json d] returns a json based on a diff *)
+(* [translate_to_json d] returns a json based on diffs, to send to server *)
 val translate_to_json: diff -> jsonstring
 
-(* [translate_to_diff j] returns diffs based on a json *)
+(* [translate_to_diff j] returns diffs based on a json string, which is
+ * a response from server *)
 val translate_to_diff: jsonstring -> diff list
 
 (* [send_post_request j} sends a json to the servers. Returns unit *)
