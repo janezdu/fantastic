@@ -4,8 +4,9 @@
 #directory "_build"
 #load "model.cmo";;
 #load "clienthttp.cmo";;
-#load "controller.cmo";;
+
 #load "cli.cmo";;
+#load "controller.cmo"
 
 open Lwt
 open Cohttp
@@ -17,3 +18,4 @@ open Controller
 
 #use "model.ml"
 #use "controller.ml"
+

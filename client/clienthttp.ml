@@ -3,7 +3,7 @@ open Cohttp
 open Cohttp_lwt_unix
 
 
-type jsonstring = string
+type diff_json = string
 
 
 (* stuff constant *)
@@ -30,7 +30,7 @@ let post_body jstr query (callback:string -> 'a) =
     body |> Cohttp_lwt_body.to_string >|= callback
   else failwith "403 Forbidden: illegal move"
 
-let get_body jstr query (callback:string -> 'a) =
+let get_body query (callback:string -> 'a) =
   Client.get
   (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
@@ -39,16 +39,14 @@ let get_body jstr query (callback:string -> 'a) =
   else failwith "403 Forbidden: illegal move"
 
 
-let send_post_request (j: jsonstring) (action: string)
-
-  (client_id: int) (callback:string -> 'a) =
+(* [send_json j} sends a json to the servers. Returns unit *)
+let send_post_request (j: diff_json) (action: string)
+  (client_id: int) (callback: string -> 'a) =
   let query = make_query action client_id in
   Lwt_main.run (post_body j query callback)
 
 (* [send_json j} sends a json to the servers. Returns unit *)
-
-let send_get_request (j: jsonstring) (action: string)
-
-  (client_id: int) (callback:string -> 'a) =
+let send_get_request (action: string)
+  (client_id: int) (callback: string -> 'a) =
   let query = make_query action client_id in
   Lwt_main.run (post_body j query callback)

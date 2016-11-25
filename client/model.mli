@@ -151,5 +151,3 @@ type diff =
 
 val apply_diff: diff -> world -> world
 
-
->>>>>>> origin/elle

@@ -188,11 +188,11 @@ let find_item i (w:world)=
 let interp_move (m:string) current_player (w:world): comm_json =
   match (String.lowercase_ascii m) with
   | "north" ->
-    let curr_loc = List.assoc current_player w.players in
-    let new_loc_x = fst curr_loc in
-    let new_loc_y = snd curr_loc + 1 in
-    JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
-    (string_of_int new_loc_y) ^ "}")
+  	let curr_loc = List.assoc current_player w.players in
+  	let new_loc_x = fst curr_loc in
+  	let new_loc_y = snd curr_loc + 1 in
+  	JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
+  	(string_of_int new_loc_y) ^ "}")
   | "south" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in

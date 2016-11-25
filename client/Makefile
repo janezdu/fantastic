@@ -1,5 +1,7 @@
 build:
-	ocamlbuild -pkgs yojson,cohttp.lwt controller.byte
+
+	ocamlbuild -pkgs yojson,cohttp.lwt,lwt controller.byte
+
 
 clean:
 	camlbuild -clean
