@@ -103,6 +103,7 @@ let create_item item = function
   | "player" ->
     IPlayer ({
       id = item |> member "id" |> to_int;
+      name = item |> member "name" |> null_to_string;
       hp = item |> member "hp" |> null_to_int;
       score = item |> member "score" |> null_to_int;
       inventory = item |> member "inv" |> null_to_list;
@@ -117,6 +118,7 @@ let create_item item = function
   | "potion" ->
     IPotion ({
       id = item |> member "id" |> to_int;
+      name = item |> member "name" |> null_to_string;
       descr = item |> member "descr" |> null_to_string;
       effect = item |> member "effect" |> null_to_int;
     })

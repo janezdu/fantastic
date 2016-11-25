@@ -161,9 +161,11 @@ let complete_item_player (w: world) (i: player) : item =
   let old_item = unwrap_player (LibMap.find (i.id) w.items) in
   IPlayer ({
     id = i.id;
+    name = if is_null_string i.name then old_item.name else i.name;
     hp = if is_null_int i.hp then old_item.hp else i.hp;
     score = if is_null_int i.hp then old_item.score else i.score;
-    inventory = if is_null_list i.inventory then old_item.inventory else i.inventory;
+    inventory = if is_null_list i.inventory then old_item.inventory
+      else i.inventory;
   })
 
 let complete_item_animal (w: world) (i: ai) : item =
@@ -199,6 +201,7 @@ let complete_item_potion (w: world) (i: potion) : item =
   let old_item = unwrap_potion (LibMap.find (i.id) w.items) in
   IPotion ({
     id = i.id;
+    name = if is_null_string i.name then old_item.name else i.name;
     descr = if is_null_string i.descr then old_item.descr else i.descr;
     effect = if is_null_int i.effect then old_item.effect else i.effect;
   })
