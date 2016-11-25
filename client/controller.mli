@@ -28,4 +28,4 @@ type current_player_id = int
 
 
 (* [translate_to_json d] returns a command json string based on diffs *)
-val interpret_command: command -> comm_json
+val interpret_command: command -> int -> Model.world -> comm_json

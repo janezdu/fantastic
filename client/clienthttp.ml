@@ -49,4 +49,4 @@ let send_post_request (j: diff_json) (action: string)
 let send_get_request (action: string)
   (client_id: int) (callback: string -> 'a) =
   let query = make_query action client_id in
-  Lwt_main.run (post_body j query callback)
+  Lwt_main.run (get_body query callback)

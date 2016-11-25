@@ -11,6 +11,7 @@ type command = Cli.command
 type diff = Model.diff
 type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
+type current_player_id = int
 
 (************************** translate_to_diff *********************************)
 
@@ -257,7 +258,7 @@ let interpret_command (c:command) current_player (w: world) : comm_json=
   | ViewState -> JViewState
   | Help -> JHelp
 
-let do_command comm current_player world: unit=
+let do_command comm current_player world: diff list=
   match (interpret_command comm current_player world) with
   | JMove x -> send_post_request x "move" current_player_id translate_to_diff
   | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
@@ -268,4 +269,4 @@ let do_command comm current_player world: unit=
   | JLook -> send_get_request "look" current_player_id translate_to_diff
   | JInv -> send_get_request "inventory" current_player_id translate_to_diff
   | JViewState -> send_get_request "view" current_player_id translate_to_diff
-  | JHelp -> ()
+  | JHelp -> []
