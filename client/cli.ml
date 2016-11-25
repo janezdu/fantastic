@@ -1,5 +1,3 @@
-
-
 (* directive is what the player types into the command line*)
 type directive = string
 
@@ -8,7 +6,7 @@ type directive = string
 type command =
   | Move of string
   | Drink of string
-  | Spell of string (* *string *)
+  | Spell of string
   | Quit
   | Take of string
   | Drop of string
@@ -16,8 +14,6 @@ type command =
   | Inventory
   | ViewState
   | Help
-
-type command = Cli.command
 
 (* [parse_command lst] is the command that is associated with [lst]
  * Raises Illegal if [lst] does represent to in a valid command form

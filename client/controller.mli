@@ -1,15 +1,11 @@
-<<<<<<< HEAD
 open Model
 open Cli
 open Clienthttp
 
-exception NotAnItem
-exception Illegal
-
-type command = Cli.command
-type diff = Model.diff
-type diff_json = string
-type comm_json = string (*try to hide the type*)
+type command
+type diff
+type diff_json
+type comm_json
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list

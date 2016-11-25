@@ -10,7 +10,7 @@ exception Illegal
 type command = Cli.command
 type diff = Model.diff
 type json = Yojson.Basic.json
-type diff_json = string
+type diff_json = Clienthttp.diff_json
 type comm_json = string
 
 (************************** translate_to_diff *********************************)
