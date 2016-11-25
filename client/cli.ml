@@ -1,3 +1,5 @@
+
+
 (* directive is what the player types into the command line*)
 type directive = string
 
@@ -15,7 +17,7 @@ type command =
   | ViewState
   | Help
 
-
+type command = Cli.command
 
 (* [parse_command lst] is the command that is associated with [lst]
  * Raises Illegal if [lst] does represent to in a valid command form
@@ -96,3 +98,6 @@ let parse_c command =
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)
 let parse_comm d = parse_c d
+
+
+
