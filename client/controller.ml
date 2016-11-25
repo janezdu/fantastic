@@ -3,6 +3,7 @@ open Clienthttp
 open Cli
 open Clienthttp
 open Yojson.Basic.Util
+open Lwt
 
 exception NotAnItem
 exception Illegal
@@ -12,6 +13,13 @@ type diff = Model.diff
 type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
+
+(* status codes *)
+let ok = 200
+let forbidden = 403
+let conflict = 409
+let non_found = 404
+let unauthorized = 401
 
 (************************** translate_to_diff *********************************)
 
@@ -147,8 +155,6 @@ let init_state json =
   let player_id = json |> member "player" |> to_int in
   let player_x = json |> member "x" |> to_int in
   let player_y = json |> member "y" |> to_int in
-  let my_player =
-    IPlayer {id = player_id; name = ""; hp = 100; score = 0; inventory = []} in
   let my_rooms = RoomMap.(empty |> add (0,0) {descr= "hi"; items = [1]}) in
   let my_players = [(player_id, (player_x, player_y))] in
   let my_items = LibMap.(empty ) in
@@ -258,15 +264,17 @@ let interpret_command (c:command) current_player (w: world) : comm_json =
   | ViewState -> JViewState
   | Help -> JHelp
 
-let do_command comm current_player world: diff list=
+(* [do_command comm current_player world] calls a post or get request
+ * based on [comm] and returns a tuple of status code and body Lwt.t *)
+let do_command comm current_player world =
   match (interpret_command comm current_player world) with
-  | JMove x -> send_post_request x "move" current_player_id translate_to_diff
-  | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
-  | JSpell x -> send_post_request x "spell" current_player_id translate_to_diff
-  | JQuit -> send_get_request "quit" current_player_id translate_to_diff
-  | JTake x -> send_post_request x"take" current_player_id translate_to_diff
-  | JDrop x -> send_post_request x "drop" current_player_id translate_to_diff
-  | JLook -> send_get_request "look" current_player_id translate_to_diff
-  | JInv -> send_get_request "inventory" current_player_id translate_to_diff
-  | JViewState -> send_get_request "view" current_player_id translate_to_diff
-  | JHelp -> []
+  | JMove x -> send_post_request x "move" current_player_id
+  | JDrink x -> send_post_request x "drink" current_player_id
+  | JSpell x -> send_post_request x "spell" current_player_id
+  | JQuit -> send_get_request "quit" current_player_id
+  | JTake x -> send_post_request x"take" current_player_id
+  | JDrop x -> send_post_request x "drop" current_player_id
+  | JLook -> send_get_request "look" current_player_id
+  | JInv -> send_get_request "inventory" current_player_id
+  | JViewState -> send_get_request "view" current_player_id
+  | JHelp -> (-1, return "")

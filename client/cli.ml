@@ -88,7 +88,7 @@ let parse_c command =
     let c = String.trim (String.lowercase_ascii command) in
     let spl = split_to_list c in
     let sep_com = sep_dir spl in
-    parse_command sep_com  *)
+    parse_command sep_com
 
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)
