@@ -11,7 +11,6 @@ type command = Cli.command
 type diff = Model.diff
 type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
-type comm_json = string
 
 (************************** translate_to_diff *********************************)
 
@@ -260,13 +259,13 @@ let interpret_command (c:command) current_player (w: world) : comm_json=
 
 let do_command comm current_player world: unit=
   match (interpret_command comm current_player world) with
-  | JMove x -> Clienthttp.send_post_request x "move"
-  | JDrink x -> Clienthttp.send_post_request x "drink"
-  | JSpell -> Clienthttp.send_post_request x "spell"
-  | JQuit -> Clienthttp.send_get_request x "quit"
-  | JTake -> Clienthttp.send_post_request x "take"
-  | JDrop -> Clienthttp.send_post_request x "drop"
-  | JLook -> Clienthttp.send_get_request x "look"
-  | JInv -> Clienthttp.send_get_request x "inventory"
-  | JViewState -> Clienthttp.send_get_request x "view"
+  | JMove x -> send_post_request x "move" current_player_id translate_to_diff
+  | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
+  | JSpell -> send_post_request x "spell" current_player_id translate_to_diff
+  | JQuit -> send_get_request x "quit" current_player_id translate_to_diff
+  | JTake -> send_post_request x "take" current_player_id translate_to_diff
+  | JDrop -> send_post_request x "drop" current_player_id translate_to_diff
+  | JLook -> send_get_request x "look" current_player_id translate_to_diff
+  | JInv -> send_get_request x "inventory" current_player_id translate_to_diff
+  | JViewState -> send_get_request x "view" current_player_id translate_to_diff
   | JHelp -> ()

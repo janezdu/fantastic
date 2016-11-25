@@ -7,7 +7,7 @@ type command =
   | Move of string
   | Drink of string
   | Spell of string
-  | Quit
+  | Quitc
   | Take of string
   | Drop of string
   | Look
