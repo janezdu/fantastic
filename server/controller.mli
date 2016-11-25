@@ -1,6 +1,8 @@
 (* identification of each client *)
 type clientid
-type diff
+type diff = Model.diff
+type json = string
+type cmd
 
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not
@@ -14,6 +16,9 @@ type diff
  * it is up to date with [flatworld]. *)
 type serverstate
 
+exception WorldFailure of string
+
+
 (* Returns an integer that represents the most up-to-date timestamp *)
 val curtime : serverstate -> int
 
@@ -22,5 +27,4 @@ val getClientUpdate : serverstate -> clientid -> diff list
 
 (* tries to change the model based on a client's request. Returns true
  * if change was successful, false o/w. *)
-val pushClientUpdate: serverstate -> diff -> bool
-
+val pushClientUpdate: int -> string -> string -> string

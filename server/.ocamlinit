@@ -1,0 +1,18 @@
+
+#require "yojson"
+#require "cohttp.lwt"
+#require "str"
+
+
+
+(** This loads the compiled modules from this directory *)
+#directory "_build";;
+
+#load "model.cmo";;
+#load "serverhttp.cmo";;
+#load "controller.cmo";;
+
+(** For convenience, we open a bunch of modules *)
+open Controller
+open Model
+open Serverhttp

@@ -4,4 +4,4 @@ build:
 
 
 clean:
-	camlbuild -clean
+	ocamlbuild -clean
