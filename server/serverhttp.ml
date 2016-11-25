@@ -8,7 +8,7 @@ open Controller
 type status = OK | Invalid
 type json = Yojson.Basic.json
 
-
+exception WorldFailure of string
 exception BadRequest of string
 
 (* [start pw] will start a game server; join game with password [pw] *)
@@ -82,9 +82,8 @@ let server =
             (Printf.sprintf "We're fantastic!"))
           >>= (fun body -> Server.respond_string ~status:`OK ~body ()) *)
     with
-    | BadRequest msg -> body |> Cohttp_lwt_body.to_string >|= (fun body ->
-          (Printf.sprintf "No username selected"))
-        >>= (fun body -> Server.respond_string ~status:`Bad_request ~body ())
+    | WorldFailure msg -> (Server.respond_string ~status:`OK ~body:"no username" ())
+    | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:"" ()
 
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())

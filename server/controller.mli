@@ -16,6 +16,9 @@ type cmd
  * it is up to date with [flatworld]. *)
 type serverstate
 
+exception WorldFailure of string
+
+
 (* Returns an integer that represents the most up-to-date timestamp *)
 val curtime : serverstate -> int
 

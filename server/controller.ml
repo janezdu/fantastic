@@ -22,6 +22,8 @@ exception IllegalUse
 exception IllegalTake
 exception IllegalDrop
 
+exception WorldFailure of string
+
 let state =
   failwith "unimplemented"
   (* {flatworld = init (); client_diffs = []} in *)
@@ -155,20 +157,9 @@ let translate_to_json difflist =
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
  * schema for diffs*)
 let pushClientUpdate cid cmd cmdtype =
-    (translate_to_diff cmd cmdtype cid) |> translate_to_json
-
-  (* cmd is one pre-parsed json command
-   * {"type": "move", "origx" "origy" "newx" "newy"}
-    -> Move(old, new, thing)*)
-
-  (* 2. validate the cmd *)
-
-  (* 3. apply the cmd *)
-
-(*
-
-  let isok = checkall state diffs in
-
-  if isok then step state diffs
-  else false
- *)
+  try
+    let diffs = (translate_to_diff cmd cmdtype cid) in
+    let _ = List.fold_left (fun a d -> apply_diff d a) state diffs in
+    diffs |> translate_to_json
+  with
+  | _ -> raise (WorldFailure ("error applying to world"))
