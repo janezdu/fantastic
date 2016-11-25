@@ -5,11 +5,15 @@
 #load "model.cmo";;
 #load "clienthttp.cmo";;
 #load "controller.cmo";;
+#load "cli.cmo";;
 
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
 open Yojson.Basic.Util
-open Yojson.Basic
+open Cli
+open Model
+open Controller
 
 #use "model.ml"
+#use "controller.ml"
