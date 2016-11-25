@@ -27,4 +27,4 @@ val getClientUpdate : serverstate -> clientid -> diff list
 val pushClientUpdate: int -> string -> string -> string
 
 (* [translate_to_diff j] returns diffs based on a json *)
-val translate_to_diff: json -> diff list
+val translate_to_diff: json -> string -> int -> diff list

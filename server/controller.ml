@@ -10,6 +10,10 @@ type serverstate = {
   client_diffs: (diff list ref) list;
 }
 
+type json = string
+
+type diff = Model.diff
+
 (* todo: implement this in translate_to_diff *)
 type cmd = Move | Use | Take | Drop
 
@@ -33,6 +37,7 @@ let translate_to_diff j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = state in
   let (curx, cury) = List.assoc cid flatworld.player in
+  let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
   let IPlayer (player) = flatworld.items |> LibMap.find cid in
   if r = "move" then begin
@@ -48,36 +53,40 @@ let translate_to_diff j r cid =
       let item_id = json |> member "id" |> to_int in
       let target_id = json |> member "target" |> to_int in
       let new_inv = remove_from_list item_id player.inventory in
-      let _ = remove_from_list target_id cur_room.items in
-      let wrapped_target = flatworld.items |> find target_id in
+      let _ = remove_from_list target_id player.inventory in
+      let wrapped_target = flatworld.items |> LibMap.find target_id in
       let target = match wrapped_target with
-        | IPlayer x | IPolice x | IAnimal x -> x |_ -> failwith "not a player/ai"
+        | IPlayer x -> x
+        (* TODO: pattern match properly *)
+        (* | IPolice x | IAnimal x -> x *)
+        | _ -> failwith "not a player/ai"
       in
-      let wrapped_item = flatworld.items |> find item_id in
+      let wrapped_item = flatworld.items |> LibMap.find item_id in
       match wrapped_item with
       | ISpell x ->
         begin
           let diff_target =
-            if target.hp + item.effect <= 0
+            if target.hp + x.effect <= 0
             then Remove {loc=cur_loc; id=target_id; newitem=IVoid}
             else Change {loc=cur_loc; id=target_id;
-                newitem={target with hp = target.hp + item.effect}}
+                newitem = IPlayer {target with hp = target.hp + x.effect}}
           in
           [
-          Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
+            (* TODO: can't always wrap in IPlayer *)
+          Change {loc=cur_loc; id=cid; newitem= IPlayer {player with inventory=new_inv}};
           diff_target
           ]
         end
       | IPotion x ->
         begin
           let diff_player =
-            if player.hp + item.effect <= 0
+            if player.hp + x.effect <= 0
             then Remove {loc=cur_loc; id=cid; newitem=IVoid}
             else Change {loc=cur_loc; id=cid;
-                newitem={player with hp = player.hp + item.effect}}
+                newitem= IPlayer {player with hp = player.hp + x.effect}}
           in
           [
-          Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
+          Change {loc=cur_loc; id=cid; newitem= IPlayer {player with inventory=new_inv}};
           diff_player
           ]
         end
@@ -87,28 +96,23 @@ let translate_to_diff j r cid =
   else if r = "take" then begin
     try
       let item_id = json |> member "id" |> to_int in
-      remove_from_list item_id cur_room.items;
-      let wrapped_item = flatworld.items |> find item_id in
-      let item = match wrapped_item with
-        | ISpell x| IPotion x -> x |_ -> failwith "not a spell/potion"
-      in
+      let _ = remove_from_list item_id cur_room.items in
       [
       Remove {loc=cur_loc; id=item_id; newitem=IVoid};
       Change {loc=cur_loc; id=cid;
-        newitem={player with inventory=item_id::player.inventory}}
+        newitem = IPlayer {player with inventory=item_id::player.inventory}}
       ]
     with _ -> raise IllegalTake
   end
   else if r = "drop" then begin
     try
       let item_id = json |> member "id" |> to_int in
-      let item = match wrapped_item with
-        | ISpell x | IPotion x -> x |_ -> failwith "not a spell/potion"
-      in
+      let _ = remove_from_list item_id player.inventory in
       let new_inv = remove_from_list item_id player.inventory in
       [
-      Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
-      Add {loc=cur_loc; id=item_id; newitem=IVoid}
+        Change {loc = cur_loc; id = cid;
+                newitem = IPlayer{player with inventory = new_inv}};
+        Add {loc=cur_loc; id=item_id; newitem=IVoid}
       ]
     with
     | _ -> raise IllegalDrop
@@ -151,7 +155,7 @@ let translate_to_json difflist =
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
  * schema for diffs*)
 let pushClientUpdate cid cmd cmdtype =
-    (translate_to_diff cmd cmdtype cid) |> translate_diff_to_json
+    (translate_to_diff cmd cmdtype cid) |> translate_to_json
 
   (* cmd is one pre-parsed json command
    * {"type": "move", "origx" "origy" "newx" "newy"}
@@ -168,5 +172,3 @@ let pushClientUpdate cid cmd cmdtype =
   if isok then step state diffs
   else false
  *)
-
-type diff = string (* stuff code *)

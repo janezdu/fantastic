@@ -90,8 +90,9 @@ type diff =
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 
-let apply_diff_case (d: diffparam) (w: world)
-  (f: int -> int list -> int list) : world =
+let apply_diff_case (d: diffparam) (w: world) =
+  failwith "unimplemented"
+  (* (f: int -> int list -> int list) : world =
   let loc = d.loc in
   let id_to_edit = d.id in
   let item_to_edit = complete_item w d.newitem in
@@ -103,13 +104,15 @@ let apply_diff_case (d: diffparam) (w: world)
   let updated_players =
     if id_to_edit >= 1000 then update_players id_to_edit loc w.players
     else w.players in
-  {rooms = new_rooms; players = updated_players; items = new_items}
+     {rooms = new_rooms; players = updated_players; items = new_items} *)
 
 let apply_diff_add (d: diffparam) (w: world) : world =
-  apply_diff_case d w (fun x y -> x::y)
+  (* apply_diff_case d w (fun x y -> x::y)  *)
+  failwith "unimplemented"
 
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  let loc = d.loc in
+  failwith "unimpl"
+  (* let loc = d.loc in
   let id_to_edit = d.id in
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
@@ -119,7 +122,7 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
   let updated_players =
     if id_to_edit >= 1000 then remove_players id_to_edit w.players
     else w.players in
-  {rooms = new_rooms; players = updated_players; items = new_items}
+  {rooms = new_rooms; players = updated_players; items = new_items} *)
 
 let apply_diff_change (d: diffparam) (w: world) : world =
   let new_w = apply_diff_remove d w in

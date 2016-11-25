@@ -120,7 +120,7 @@ type item =
  * in the room. *)
 type room = {
   descr : string;
-  items : item list;
+  items : int list;
 }
 
 type world = {
@@ -139,6 +139,6 @@ type diff =
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
 val apply_diff: diff -> world -> world
-
+(* 
 (* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
-val validate: world -> diff -> bool
+val validate: world -> diff -> bool *)

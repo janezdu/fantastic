@@ -42,8 +42,8 @@ let server =
   let callback _conn req body =
     try
       let uri = req |> Request.uri |> Uri.to_string in
-      let meth = req |> Request.meth |> Code.string_of_method in
-      let headers = req |> Request.headers |> Header.to_string in
+      (* let meth = req |> Request.meth |> Code.string_of_method in *)
+      (* let headers = req |> Request.headers |> Header.to_string in *)
       let queryparams = req |> Request.uri |> Uri.query in
 
       let cid = begin
