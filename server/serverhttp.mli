@@ -7,8 +7,6 @@ type status
 val translate_to_newuser: json -> int
 
 
-(* [translate_to_json d] returns a json based on diffs *)
-val translate_to_json: Controller.diff list -> json
 
 (* [send_response j status] sends an http response to the clients *)
 val send_response: json -> status -> unit

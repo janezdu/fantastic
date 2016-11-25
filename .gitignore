@@ -8,6 +8,7 @@
 *.cmxs
 *.cmxa
 *snippets.ml
+*.zip
 
 # ocamlbuild working directory
 */_build

@@ -9,18 +9,14 @@ type status = OK | Invalid
 type json = Yojson.Basic.json
 
 
+exception BadRequest of string
+
 (* [start pw] will start a game server; join game with password [pw] *)
 let start s = failwith "unimplemented"
 
 (* [translate_to_newuser j] will attempt to add the new user with the password
  * they have included in [j], returning a sessionid if valid. *)
 let translate_to_newuser j = failwith "unimplemented"
-
-(* [translate_to_diff j] returns diffs based on a json *)
-let translate_to_diff j = failwith "unimplemented"
-
-(* [translate_to_json d] returns a json based on diffs *)
-let translate_to_json diffs  = failwith "unimplemented"
 
 (* [send_response j status] sends an http response to the clients *)
 let send_response j s = failwith "unimplemented"
@@ -44,51 +40,52 @@ let server =
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ()) *)
   let callback _conn req body =
-    let uri = req |> Request.uri |> Uri.to_string in
-    let meth = req |> Request.meth |> Code.string_of_method in
-    let headers = req |> Request.headers |> Header.to_string in
-    let cid = 1234 in (* ... something with queries  *)
+    try
+      let uri = req |> Request.uri |> Uri.to_string in
+      let meth = req |> Request.meth |> Code.string_of_method in
+      let headers = req |> Request.headers |> Header.to_string in
+      let queryparams = req |> Request.uri |> Uri.query in
 
-    let mvregexp = Str.regexp ".*move.*" in
+      let cid = begin
+        try List.assoc "username" queryparams |> List.hd |> int_of_string
+        with
+        | _ -> raise (BadRequest ("No username selected"));
+      end in
 
-    if Str.string_match mvregexp uri 18 then
-      begin
-(*         let cmd = body |> Cohttp_lwt_body.to_string in
-        print_endline cmd; *)
-        (* if pushClientUpdate cid cmd then (* send OK *) *)
-        
-        body |> Cohttp_lwt_body.to_string >|= 
-          (
-            fun cmdbody -> pushClientUpdate cid cmdbody
-            (Printf.sprintf translate_to_diff )
-          )
+      let mvregexp = Str.regexp ".*move.*" in
+
+      if Str.string_match mvregexp uri 18 then
+        begin
+          body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+            ( print_endline cmdbody;
+              pushClientUpdate cid cmdbody "move"))
+          >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+
+        end
+      else failwith "Can only handle move"
+      (*   begin
+          body |> Cohttp_lwt_body.to_string >|= (fun body ->
+          (Printf.sprintf "Uri: %s\nMethod: %s\nHeaders\nHeaders: %s\nBody: %s"
+             uri meth headers body))
+          >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+        end *)
+(*         (* GET Request *)
+        (* let resbody = translate_to_json (getClientUpdate cmd json cid) in *)
 
 
-        >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+      (* after code that parses POST update *)
+      body (*...*)
 
-        else (* send BadMove *) 
-      end
-    
-    else
-      begin
-        body |> Cohttp_lwt_body.to_string >|= (fun body ->
-        (Printf.sprintf "Uri: %s\nMethod: %s\nHeaders\nHeaders: %s\nBody: %s"
-           uri meth headers body))
-        >>= (fun body -> Server.respond_string ~status:`OK ~body ())
-      end
 
-      (* GET Request *)
-      (* let resbody = translate_to_json (getClientUpdate cmd json cid) in *)
-    
+      if x then
+          body |> Cohttp_lwt_body.to_string >|= (fun body ->
+            (Printf.sprintf "We're fantastic!"))
+          >>= (fun body -> Server.respond_string ~status:`OK ~body ()) *)
+    with
+    | BadRequest msg -> body |> Cohttp_lwt_body.to_string >|= (fun body ->
+          (Printf.sprintf "No username selected"))
+        >>= (fun body -> Server.respond_string ~status:`Bad_request ~body ())
 
-    (* after code that parses POST update *)
-    body (*...*)
-    
-
-    if x then
-        body |> Cohttp_lwt_body.to_string >|= (fun body ->
-          (Printf.sprintf "We're fantastic!"))
-        >>= (fun body -> Server.respond_string ~status:`OK ~body ())
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
 

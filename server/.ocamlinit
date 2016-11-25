@@ -1,9 +1,12 @@
-(** This loads the compiled modules from this directory *)
-#directory "_build";;
 
 #require "yojson"
 #require "cohttp.lwt"
 #require "str"
+
+
+
+(** This loads the compiled modules from this directory *)
+#directory "_build";;
 
 #load "model.cmo";;
 #load "serverhttp.cmo";;

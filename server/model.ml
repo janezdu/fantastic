@@ -71,7 +71,7 @@ type item =
  * in the room. *)
 type room = {
   descr : string;
-  items : item list;
+  items : int list;
 }
 
 type world = {
@@ -143,4 +143,3 @@ let rec apply_diff (d: diff) (w: world) : world =
 (* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
 let validate w d: world -> diff -> bool =
     failwith "unimplemented"
-

@@ -1,5 +1,7 @@
 open Model
 
+open Yojson.Basic.Util
+
 (* identification of each client *)
 type clientid = int
 
@@ -7,6 +9,9 @@ type serverstate = {
   flatworld : world;
   client_diffs: (diff list ref) list;
 }
+
+(* todo: implement this in translate_to_diff *)
+type cmd = Move | Use | Take | Drop
 
 exception IllegalMove
 exception IllegalUse
@@ -17,68 +22,68 @@ let state =
   failwith "unimplemented"
   (* {flatworld = init (); client_diffs = []} in *)
 
-let rec remove_from_list x = function 
+let rec remove_from_list x = function
   | [] -> failwith "invalid"
-  | h::t -> if h = x then t else remove_from_list h::(remove_from_list x t)
+  | h::t -> if h = x then t else h::(remove_from_list x t)
 
-(* [translate_to_diff j] returns diffs based on a json string [j] and 
+(* [translate_to_diff j] returns diffs based on a json string [j] and
  * a string [r] that determines what type of cmd is being requested
  * among ["move", "use", "take", "drop"] *)
-let translate_to_diff j r cid = 
+let translate_to_diff j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = state in
-  let (curx, cury) = List.assoc cid flatworld.player in 
-  let cur_room = flatworld.rooms |> (curx, cury) in
-  let IPlayer player = flatword.items |> find cid in
+  let (curx, cury) = List.assoc cid flatworld.player in
+  let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
+  let IPlayer (player) = flatworld.items |> LibMap.find cid in
   if r = "move" then begin
     let newx = json |> member "newx" |> to_int in
     let newy = json |> member "newy" |> to_int in
     [
-    Remove {loc=(curx, cury); id=cid; newitem=IVoid}; 
+    Remove {loc=(curx, cury); id=cid; newitem=IVoid};
     Add {loc=(newx, newy); id=cid; newitem=IVoid}
     ]
-  end 
+  end
   else if r = "use" then begin
-    try 
+    try
       let item_id = json |> member "id" |> to_int in
       let target_id = json |> member "target" |> to_int in
       let new_inv = remove_from_list item_id player.inventory in
-      remove_from_list target_id cur_room.items;
+      let _ = remove_from_list target_id cur_room.items in
       let wrapped_target = flatworld.items |> find target_id in
-      let target = match wrapped_target with 
+      let target = match wrapped_target with
         | IPlayer x | IPolice x | IAnimal x -> x |_ -> failwith "not a player/ai"
-      in 
+      in
       let wrapped_item = flatworld.items |> find item_id in
-      match wrapped_item with 
+      match wrapped_item with
       | ISpell x ->
         begin
-          let diff_target = 
-            if target.hp + item.effect <= 0 
+          let diff_target =
+            if target.hp + item.effect <= 0
             then Remove {loc=cur_loc; id=target_id; newitem=IVoid}
-            else Change {loc=cur_loc; id=target_id; 
+            else Change {loc=cur_loc; id=target_id;
                 newitem={target with hp = target.hp + item.effect}}
           in
           [
           Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
           diff_target
-          ] 
+          ]
         end
       | IPotion x ->
         begin
-          let diff_player = 
-            if player.hp + item.effect <= 0 
+          let diff_player =
+            if player.hp + item.effect <= 0
             then Remove {loc=cur_loc; id=cid; newitem=IVoid}
-            else Change {loc=cur_loc; id=cid; 
+            else Change {loc=cur_loc; id=cid;
                 newitem={player with hp = player.hp + item.effect}}
           in
           [
           Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
           diff_player
-          ] 
+          ]
         end
       | _ -> failwith "not a spell/potion"
     with _ -> raise IllegalUse
-  end 
+  end
   else if r = "take" then begin
     try
       let item_id = json |> member "id" |> to_int in
@@ -86,10 +91,10 @@ let translate_to_diff j r cid =
       let wrapped_item = flatworld.items |> find item_id in
       let item = match wrapped_item with
         | ISpell x| IPotion x -> x |_ -> failwith "not a spell/potion"
-      in 
+      in
       [
       Remove {loc=cur_loc; id=item_id; newitem=IVoid};
-      Change {loc=cur_loc; id=cid; 
+      Change {loc=cur_loc; id=cid;
         newitem={player with inventory=item_id::player.inventory}}
       ]
     with _ -> raise IllegalTake
@@ -98,8 +103,8 @@ let translate_to_diff j r cid =
     try
       let item_id = json |> member "id" |> to_int in
       let item = match wrapped_item with
-        | ISpell x| IPotion x -> x |_ -> failwith "not a spell/potion"
-      in 
+        | ISpell x | IPotion x -> x |_ -> failwith "not a spell/potion"
+      in
       let new_inv = remove_from_list item_id player.inventory in
       [
       Change {loc=cur_loc; id=cid; newitem={player with inventory=new_inv}};
@@ -108,7 +113,7 @@ let translate_to_diff j r cid =
     with
     | _ -> raise IllegalDrop
   end
-  else 
+  else
     []
 
 (* side effects to flatworld and client_diffs *)
@@ -138,16 +143,15 @@ let getClientUpdate cid =
   with _ -> failwith "illegal client"
  *)
 
-
 (* [translate_to_json d] returns a json based on diffs *)
-let translate_to_json = 
+let translate_to_json difflist =
   "{\r\n  \"diffs\": [\r\n    {\r\n      \"difftype\": \"add\",\r\n      \"roomx\": 2,\r\n      \"roomy\": 1,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234, \r\n      \"item\": {\r\n\t   \"name\" : \"rebecca\"\r\n        \"id\": 1234,\r\n        \"hp\": 90,\r\n        \"inv\": [\r\n          1,\r\n          2,\r\n          3,\r\n          3,\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"difftype\": \"remove\",\r\n      \"roomx\": 1,\r\n      \"roomy\": 2,\r\n      \"objecttype\": \"player\",\r\n      \"id\": 1234\r\n    }\r\n  ]\r\n}"
 
-(* tries to change the model based on a client's request. 
+(* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
  * schema for diffs*)
-let pushClientUpdate cid cmd cmdtype = 
-    (translate_to_diff cmd cmdtype cid) |> translate_diff_to_json 
+let pushClientUpdate cid cmd cmdtype =
+    (translate_to_diff cmd cmdtype cid) |> translate_diff_to_json
 
   (* cmd is one pre-parsed json command
    * {"type": "move", "origx" "origy" "newx" "newy"}
@@ -166,5 +170,3 @@ let pushClientUpdate cid cmd cmdtype =
  *)
 
 type diff = string (* stuff code *)
-
-
