@@ -30,13 +30,32 @@ type mode = Login of string | Query of int | Badmode
 
 let loginsallowed = ref true
 
-
+(* A method that handles legal queries once gameplay starts. Does not handle
+ * login *)
 let handleQuery req body cid =
   match Uri.path (Request.uri req) with
   | "/move" -> begin
       body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
           ( print_endline cmdbody;
             pushClientUpdate cid cmdbody "move"))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/use" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline cmdbody;
+            pushClientUpdate cid cmdbody "use"))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/take" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline cmdbody;
+            pushClientUpdate cid cmdbody "take"))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/drop" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline cmdbody;
+            pushClientUpdate cid cmdbody "drop"))
       >>= (fun body -> Server.respond_string ~status:`OK ~body ())
     end
   | "/update" -> begin
@@ -49,6 +68,7 @@ let handleQuery req body cid =
       Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
     end
 
+(* A method that deals with user registration only. *)
 let handleLogin req body name =
   let cid = registerUser name in
   print_endline (name ^ "'s clieentid is "^(string_of_int cid));
@@ -73,7 +93,7 @@ let server =
           let cid = List.assoc "client_id" queryparams
                     |> List.hd |> int_of_string in
           (* print_endline ("New player: " ^ string_of_int cid); *)
-          Query (List.assoc "client_id" queryparams |> List.hd |> int_of_string)
+          Query (cid)
         else if List.mem_assoc "username" queryparams then
           begin
             let name = List.assoc "username" queryparams |> List.hd in
