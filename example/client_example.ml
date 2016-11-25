@@ -21,8 +21,8 @@ let json = "{world:{player:A},diff:{hi: true}}"
  * for functions that takes time -> let other thread to compute and will
  * come back to get the results later *)
 let body =
-  Client.post ~body:([json] |> Lwt_stream.of_list |> Cohttp_lwt_body.of_stream)
-  (Uri.of_string "http://0.0.0.0:8000") >>= fun (resp, body) ->
+  Client.get 
+  (Uri.of_string "http://0.0.0.0:8000/login?username=rebecca") >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   (* below is the function of the client call *)
   Printf.printf "Response code: %d\n" code;
