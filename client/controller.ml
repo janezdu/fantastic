@@ -246,9 +246,9 @@ let interp_drink d (w:world): comm_json =
 
 (* [interpret_command c] returns a command_json list based on a command*)
 let interpret_command (c:command) current_player (w: world) : comm_json=
-  match c with
+  match (parse_comm c) with
   | Move s -> interp_move s current_player w
-  | Spell s -> interp_spell s w
+  | Spell s -> interp_spell s w 
   | Quit -> JQuit
   | Take s -> interp_take s w
   | Drop s -> interp_drop s w
@@ -257,16 +257,88 @@ let interpret_command (c:command) current_player (w: world) : comm_json=
   | Drink s -> interp_drink s w
   | ViewState -> JViewState
   | Help -> JHelp
+  | _ -> failwith "invalid"
 
-let do_command comm current_player_id world: diff list=
-  match (interpret_command comm current_player_id world) with
-  | JMove x -> send_post_request x "move" current_player_id translate_to_diff
-  | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
-  | JSpell x -> send_post_request x "spell" current_player_id translate_to_diff
-  | JQuit -> send_get_request "quit" current_player_id translate_to_diff
-  | JTake x -> send_post_request x"take" current_player_id translate_to_diff
-  | JDrop x -> send_post_request x "drop" current_player_id translate_to_diff
-  | JLook -> send_get_request "look" current_player_id translate_to_diff
-  | JInv -> send_get_request "inventory" current_player_id translate_to_diff
-  | JViewState -> send_get_request "view" current_player_id translate_to_diff
-  | JHelp -> print_string "help"; []
+
+(* [do_command comm current_player world] calls a post or get request
+ * based on [comm] and returns a tuple of status code and body Lwt.t *)
+let do_command comm current_player world =
+  match (interpret_command comm current_player world) with
+  | JMove x -> send_post_request x "move" current_player_id
+  | JDrink x -> send_post_request x "drink" current_player_id
+  | JSpell x -> send_post_request x "spell" current_player_id
+  | JQuit -> send_get_request "quit" current_player_id
+  | JTake x -> send_post_request x"take" current_player_id
+  | JDrop x -> send_post_request x "drop" current_player_id
+  | JLook -> send_get_request "look" current_player_id
+  | JInv -> send_get_request "inventory" current_player_id
+  | JViewState -> send_get_request "view" current_player_id
+  | JHelp -> (-1, return "")
+
+let print_item  (w: world) (i: int): unit = 
+  let item = find_item i w in
+  match item with 
+  | IAnimal a -> print_endline (a.name ^ ":"); print_endline (a.descr)
+  | IPolice p -> print_endline (p.name ^ ":"); print_endline (p.descr)
+  | ISpell s -> print_endline (s.name ^ ":"); print_endline (s.descr)
+  | IPotion p -> print_endline (p.name ^ ":"); print_endline (p.descr)
+  | IPlayer p -> print_endline (p.name ^ ":"); print_endline (p.descr)
+  | _ -> failwith "invalid"
+
+
+let print_inv player_id (w:world): unit = 
+  let player = find_item current_player w in
+  match player with 
+  | IPlayer p -> List.iter (print_item w) player.inventory
+  | _ -> failwith "invalid"
+  
+let print_room_info player_id (w:world): unit =
+  let room = List.assoc player_id w.players in
+  let desired_room = RoomMap.find room w.rooms in
+  let desired_room_items = desired_room.items in
+  List.iter (print_item w) desired_room_items
+
+let print_score player_id (w:world): unit =
+  let player = find_item current_player w in
+  match player with 
+  | IPlayer p -> print_string (string_of_int player.score)
+  | _ -> failwith "invalid"
+
+
+let rec repl current_player (w: world): unit =
+  (*let c = read_line ()  in  
+  let interp_c = (interpret_command c current_player w) in
+  let new_tup = try 
+    (match interp_c with
+    | JMove -> do_command interp_c current_player w
+    | JDrink -> do_command interp_c current_player w
+    | JSpell -> do_command interp_c current_player w
+    | JQuit -> do_command interp_c current_player w
+    | JTake -> do_command interp_c current_player w
+    | JDrop -> do_command interp_c current_player w
+    | JLook -> (print_room_info current_player w)
+    | JInv ->  (print_inv current_player w)
+    | JViewState -> print_string "world"
+    | JHelp -> print_string "help"
+    | _ -> print_endline "I'm sorry, please try again")
+    with
+    | -> print_endline "I'm sorry"*)
+
+
+
+    let c = read_line () in
+    let pair = (try let temp = (do_command c current_player w) in temp with
+        | _ -> (print_endline 
+        "I'm sorry, I don't quite understand your command, please try again";  
+        s)) in 
+    try (match pair with
+      (* if it's look: (print_room_info current_player w) 
+       * if it's score: print_score current_player w
+       * if it's inventory: print_inv current_player w*))
+      
+      with
+      | _ -> repl current_player new_s
+   
+
+
+(*et main = *)

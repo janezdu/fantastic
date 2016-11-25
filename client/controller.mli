@@ -24,8 +24,7 @@ type comm_json =
 val translate_to_diff: diff_json -> diff list
 
 
-
-
-
 (* [translate_to_json d] returns a command json string based on diffs *)
 val interpret_command: command -> int -> Model.world -> comm_json
+
+val repl: int -> world -> unit
