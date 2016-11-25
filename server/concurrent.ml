@@ -7,63 +7,45 @@ let nWriters = ref 0
 let canRead = create ()
 let canWrite = create ()
 
-let lock = Mutex.create ()
-
-
+let m = Mutex.create ()
 
 let beginWrite () =
-  if !nReaders <> 0 || !nWriters <> 0 then
-    failwith "Can't begin writing; nRreaders or nWriters <> 0"
+  Mutex.lock m;
   waitingWriters := !waitingWriters + 1;
   while !nWriters	> 0	|| !nReaders	> 0 do
-    wait canWrite lock;
+    wait canWrite m;
     waitingWriters := !waitingWriters - 1;
   done;
   nWriters := 1;
+  Mutex.unlock m;
+  ()
 
 let endWrite () =
-  if !nReaders <> 0 || !nWriters <> 0 then
-    failwith "Can't begin writing; nRreaders or nWriters <> 0"
-  waitingWriters := !waitingWriters + 1;
-  while !nWriters	> 0	|| !nReaders	> 0 do
-    wait canWrite lock;
-    waitingWriters := !waitingWriters - 1;
-  done;
-  nWriters := 1;
+  Mutex.lock m;
+  nWriters	:=	0;
+  let _ =
+    if !waitingWriters	>	0 then  (broadcast canWrite;)
+    else if	(!waitingReaders	>	0) then (broadcast canRead;)
+    else ignore ()
+  in
+  Mutex.unlock m;
+  ()
 
 let beginRead () =
-  failwith "unimplemented"
+  Mutex.lock m;
+  waitingReaders := !waitingReaders + 1;
+  while	(!nWriters>0	||	!waitingWriters>0) do
+    wait canRead m;
+  done;
+  waitingReaders := !waitingReaders - 1;
+  nReaders := !nReaders + 1;
+  Mutex.unlock m;
+  ()
 
-let endRead () = failwith "unimplemented"
-
-
-
-(*
-int	waitingWriters=0,	waitingReaders=0,	nReaders=0,	nWriters=0;
-	Condition	canRead,	canWrite;
-	void	BeginWrite()
-		assert(nReaders==0	or	nWriters==0)
-		++waitingWriters
-		while	(nWriters	>0	or	nReaders	>0)
-	 		canWrite.wait();
-		--waitingWriters
-		nWriters	=	1;
-	void	EndWrite()
-		assert(nWriters==1	and	nReaders==0)
-		nWriters	=	0
-		if	WaitingWriters	>	0
-	 		canWrite.signal();
-		else	if	waitingReaders	>	0
-				canRead.broadcast();
-void	BeginRead()
-	 assert(nReaders==0	or	nWriters==0)
-	 ++waitingReaders
-	 while	(nWriters>0	or	waitingWriters>0)
-	 	 canRead.wait();
-	 --waitingReaders
-	 ++nReaders
-void	EndRead()
-	 assert(nReaders>0	and	nWriters==0)
-	 --nReaders;
-	 if	(nReaders==0	and	waitingWriters>0)
-						canWrite.signal(); *)
+let endRead () =
+  Mutex.lock m;
+  nReaders := !nReaders - 1;
+  if	(!nReaders = 0	&&	!waitingWriters > 0) then
+    broadcast canWrite;
+  Mutex.unlock m;
+  ()

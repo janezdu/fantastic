@@ -148,7 +148,9 @@ let translate_to_json difflist =
 
 (* returns the diff for a client when it asks for an update *)
 let getClientUpdate cid =
-  (* grab reader lock *)
+  beginRead ();
+
+  endRead ();
   failwith "unimplemented"
 (* try
    let diff_ref = List.nth state.client_diffs cid in
@@ -162,9 +164,8 @@ let getClientUpdate cid =
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
  * schema for diffs*)
 let pushClientUpdate cid cmd cmdtype =
+  beginWrite ();
   try
-    (* grab a lock before you can write *)
-
     print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
     let snapshot = !state in
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
@@ -173,6 +174,7 @@ let pushClientUpdate cid cmd cmdtype =
     state := snapshot;
     (* release lock on readers *)
     (* release lock on writers *)
+    endWrite ();
     diffs |> translate_to_json
   with
-  | _ -> raise (WorldFailure ("error applying to world"))
+  | _ -> endWrite (); raise (WorldFailure ("error applying to world"))
