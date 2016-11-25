@@ -24,7 +24,7 @@ type comm_json =
 val translate_to_diff: diff_json -> diff list
 
 
-type current_player_id = int
+
 
 
 (* [translate_to_json d] returns a command json string based on diffs *)
