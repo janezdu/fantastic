@@ -1,5 +1,5 @@
 open Model
-
+open Clienthttp
 open Cli
 open Yojson.Basic.Util
 
@@ -18,9 +18,6 @@ type comm_json =
   | JInv
   | JViewState
   | JHelp
-
-
-
 
 
 
@@ -149,7 +146,7 @@ let interp_drink d (w:world): comm_json =
 
 
 (* [interpret_command c] returns a command_json list based on a command*)
-let interpret_command (c:command) current_player (w: world) pid: comm_json=
+let interpret_command (c:command) current_player (w: world) : comm_json=
   match c with
   | Move s -> interp_move s current_player w
   | Spell s -> interp_spell s w
@@ -167,3 +164,16 @@ let interpret_command (c:command) current_player (w: world) pid: comm_json=
 
 
 let main = *)
+
+let do_command comm current_player world: unit=
+  match (interpret_command comm current_player world) with
+  | JMove x -> Clienthttp.send_post_request x "move"
+  | JDrink x -> Clienthttp.send_post_request x "drink"
+  | JSpell -> Clienthttp.send_post_request x "spell"
+  | JQuit -> Clienthttp.send_get_request x "quit"
+  | JTake -> Clienthttp.send_post_request x "take"
+  | JDrop -> Clienthttp.send_post_request x "drop"
+  | JLook -> Clienthttp.send_get_request x "look"
+  | JInv -> Clienthttp.send_get_request x "inventory"
+  | JViewState -> Clienthttp.send_get_request x "view"
+  | JHelp -> ()
