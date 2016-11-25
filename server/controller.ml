@@ -23,7 +23,6 @@ exception IllegalTake
 exception IllegalDrop
 
 exception WorldFailure of string
-
 let state = {flatworld = init (); client_diffs = []}
 
 let rec remove_from_list x = function
@@ -37,10 +36,14 @@ let translate_to_diff j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = state in
   let (curx, cury) = List.assoc cid flatworld.players in
+  print_endline (string_of_int curx);
+  print_endline (string_of_int cury);
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
+  print_endline "got past most declarations";
   let IPlayer (player) = flatworld.items |> LibMap.find cid in
   if r = "move" then begin
+    print_endline "creating diff: inside move";
     let newx = json |> member "newx" |> to_int in
     let newy = json |> member "newy" |> to_int in
     [
@@ -156,6 +159,7 @@ let translate_to_json difflist =
  * schema for diffs*)
 let pushClientUpdate cid cmd cmdtype =
   try
+    print_endline "at least i got inside pushClientUpdate";
     let diffs = (translate_to_diff cmd cmdtype cid) in
     let _ = List.fold_left (fun a d -> apply_diff d a) state.flatworld diffs in
     diffs |> translate_to_json

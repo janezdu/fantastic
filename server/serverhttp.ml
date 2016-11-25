@@ -24,7 +24,6 @@ let send_response j s = failwith "unimplemented"
 (* [send_status] sense a response without a body*)
 let send_status s = failwith "unimplemented"
 
-
 let x = true
 
 (* a server is a function that gets data, compute and respond *)
@@ -53,28 +52,32 @@ let server =
       let queryparams = req |> Request.uri |> Uri.query in
 
       let cid = begin
-        try List.assoc "username" queryparams |> List.hd |> int_of_string
+        try List.assoc "client_id" queryparams |> List.hd |> int_of_string
         with
         | _ -> raise (BadRequest ("No username selected"));
       end in
+
+      print_endline (string_of_int cid);
       (* let mvregexp = Str.regexp ".*move.*" in
 
          if Str.string_match mvregexp uri 0 then *)
+      
       match Uri.path (Request.uri req) with
       | "/move" -> begin
-          print_endline "got to move";
           body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
             ( print_endline cmdbody;
               pushClientUpdate cid cmdbody "move"))
           >>= (fun body -> Server.respond_string ~status:`OK ~body ())
         end
       | "/update" -> begin
-          print_endline "got to update";
           body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
               ("not done implementing update tho" ))
           >>= (fun body -> Server.respond_string ~status:`OK ~body ())
         end
-      | _ -> Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
+      | _ -> begin
+          Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
+        end
+
       (* else failwith "Can only handle move" *)
       (*   begin
           body |> Cohttp_lwt_body.to_string >|= (fun body ->
@@ -93,10 +96,12 @@ let server =
       if x then
           body |> Cohttp_lwt_body.to_string >|= (fun body ->
             (Printf.sprintf "We're fantastic!"))
-          >>= (fun body -> Server.respond_string ~status:`OK ~body ()) *)
+           >>= (fun body -> Server.respond_string ~status:`OK ~body ()) *)
+
     with
     | WorldFailure msg -> (Server.respond_string ~status:`OK ~body:"no username" ())
     | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:"" ()
+    | _ -> Server.respond_string ~status:`Bad_request ~body:"idk even" ()
 
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())

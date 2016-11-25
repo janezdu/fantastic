@@ -234,18 +234,21 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
+  print_endline "apply diff add";
   let item_to_edit = complete_item w d.newitem in
   let new_items = LibMap.add d.id item_to_edit w.items in
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
+  print_endline "apply diff remove";
   let new_items = LibMap.remove d.id w.items in
   apply_diff_case d new_items w remove_item_from_list
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
+  print_endline "apply diff change";
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
@@ -261,6 +264,7 @@ let rec apply_diff_helper (d: diff) (w: world) : world =
  * minimodel based on the diff *)
 let rec apply_diff (d: diff) (w: world) : world =
   try
+    print_endline "got to apply_diff";
     apply_diff_helper d w
   with
   | _ -> failwith "incompatible with the current world"
@@ -273,11 +277,16 @@ let init () =
     |> RoomMap.add (0,1) emptyroom
   in
   let players = [1234, (0,0)] in
-  let items = LibMap.empty |> LibMap.add 1
-                (ISpell {id = 1;
-                        incant = "lumos";
-                        descr = "a light spell";
-                         effect = 10}) in
+  let items = LibMap.empty |> LibMap.add 1 (ISpell {id = 1;
+                                                    incant = "lumos";
+                                                    descr = "a light spell";
+                                                    effect = 10})
+              |> LibMap.add 1234 (IPlayer {id = 1234;
+                                           name = "rebecca";
+                                           hp = 1000;
+                                           score = 100;
+                                           inventory = [1;2;3;3]})
+  in
   {
     rooms = map;
     players = players;
