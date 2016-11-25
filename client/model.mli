@@ -103,6 +103,12 @@ type ai = {
   spells : int list;
 }
 
+val fnull_int: unit -> int
+
+val fnull_string: unit -> string
+
+val fnull_list: unit -> int list
+
 (* A type that is one of several records, all of which contain enough
  * information to represent both the static and dynamic parts of an item.
  * For a spell, for example, it is sufficient to know what type of spell it is;
@@ -122,14 +128,16 @@ type item =
  * in the room. *)
 type room = {
   descr : string;
-  items : item list;
+  items : int list;
 }
 
 type world = {
   rooms: room RoomMap.t;
-  player: (int * room_loc) list;
+  players: (int * room_loc) list;
   items: item LibMap.t
 }
+
+type constructing_ai_lib = item LibMap.t
 
 type diffparam = {loc: room_loc; id: int; newitem: item}
 
