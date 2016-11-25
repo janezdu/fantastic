@@ -169,9 +169,10 @@ let pushClientUpdate cid cmd cmdtype =
     print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
     let snapshot = !state in
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
-    let _ = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
-    (* TODO: populate client_diffs *)
-    state := snapshot;
+    let newworld = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
+    let newdiffs = List.map
+        (fun (id,lst) -> (id, lst@diffs)) snapshot.client_diffs in
+    state := {flatworld =newworld; client_diffs = newdiffs};
     endWrite ();
     diffs |> translate_to_json
   with
