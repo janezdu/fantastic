@@ -28,6 +28,3 @@ val getClientUpdate : serverstate -> clientid -> diff list
 (* tries to change the model based on a client's request. Returns true
  * if change was successful, false o/w. *)
 val pushClientUpdate: int -> string -> string -> string
-
-(* [translate_to_diff j] returns diffs based on a json *)
-val translate_to_diff: json -> string -> int -> diff list

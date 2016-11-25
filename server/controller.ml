@@ -6,7 +6,7 @@ open Yojson.Basic.Util
 type clientid = int
 
 type serverstate = {
-  flatworld : world;
+  flatworld : world ;
   client_diffs: (diff list ref) list;
 }
 
@@ -23,7 +23,7 @@ exception IllegalTake
 exception IllegalDrop
 
 exception WorldFailure of string
-let state = {flatworld = init (); client_diffs = []}
+let state = ref {flatworld = (init ()); client_diffs = []}
 
 let rec remove_from_list x = function
   | [] -> failwith "invalid"
@@ -32,9 +32,10 @@ let rec remove_from_list x = function
 (* [translate_to_diff j] returns diffs based on a json string [j] and
  * a string [r] that determines what type of cmd is being requested
  * among ["move", "use", "take", "drop"] *)
-let translate_to_diff j r cid =
+let translate_to_diff snapshot j r cid =
   let json = j |> Yojson.Basic.from_string in
-  let {flatworld; client_diffs} = state in
+  let {flatworld; client_diffs} = snapshot in
+  (* let flatworld = !fw in *)
   let (curx, cury) = List.assoc cid flatworld.players in
   print_endline (string_of_int curx);
   print_endline (string_of_int cury);
@@ -160,8 +161,10 @@ let translate_to_json difflist =
 let pushClientUpdate cid cmd cmdtype =
   try
     print_endline "at least i got inside pushClientUpdate";
-    let diffs = (translate_to_diff cmd cmdtype cid) in
-    let _ = List.fold_left (fun a d -> apply_diff d a) state.flatworld diffs in
+    let snapshot = !state in
+    let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
+    let _ = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
+    state := snapshot;
     diffs |> translate_to_json
   with
   | _ -> raise (WorldFailure ("error applying to world"))
