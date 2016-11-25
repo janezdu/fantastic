@@ -244,7 +244,7 @@ let interp_drink d (w:world): comm_json =
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
-let interpret_command (c:command) current_player (w: world) : comm_json=
+let interpret_command (c:command) current_player (w: world) : comm_json =
   match c with
   | Move s -> interp_move s current_player w
   | Spell s -> interp_spell s w
@@ -257,15 +257,15 @@ let interpret_command (c:command) current_player (w: world) : comm_json=
   | ViewState -> JViewState
   | Help -> JHelp
 
-let do_command comm current_player world: unit=
+let do_command comm current_player world: diff list =
   match (interpret_command comm current_player world) with
   | JMove x -> send_post_request x "move" current_player_id translate_to_diff
   | JDrink x -> send_post_request x "drink" current_player_id translate_to_diff
-  | JSpell -> send_post_request x "spell" current_player_id translate_to_diff
-  | JQuit -> send_get_request x "quit" current_player_id translate_to_diff
-  | JTake -> send_post_request x "take" current_player_id translate_to_diff
-  | JDrop -> send_post_request x "drop" current_player_id translate_to_diff
-  | JLook -> send_get_request x "look" current_player_id translate_to_diff
-  | JInv -> send_get_request x "inventory" current_player_id translate_to_diff
-  | JViewState -> send_get_request x "view" current_player_id translate_to_diff
-  | JHelp -> ()
+  | JSpell x -> send_post_request x "spell" current_player_id translate_to_diff
+  | JQuit -> send_get_request "quit" current_player_id translate_to_diff
+  | JTake x -> send_post_request x "take" current_player_id translate_to_diff
+  | JDrop x -> send_post_request x "drop" current_player_id translate_to_diff
+  | JLook -> send_get_request "look" current_player_id translate_to_diff
+  | JInv -> send_get_request "inventory" current_player_id translate_to_diff
+  | JViewState -> send_get_request "view" current_player_id translate_to_diff
+  | JHelp -> print_endline "rule of the game"; []

@@ -16,7 +16,6 @@ type comm_json =
   | JInv
   | JViewState
   | JHelp
-type current_player_id = int
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
