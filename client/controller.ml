@@ -8,11 +8,16 @@ open Lwt
 exception NotAnItem
 exception Illegal
 
+type world = Model.world
 type command = Cli.command
 type diff = Model.diff
 type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
+type directive = Cli.directive
+
+let client_id = ref (-1)
+let username = ref ""
 
 (* status codes *)
 let ok = 200
@@ -134,6 +139,11 @@ let translate_to_diff (j:diff_json) : diff list =
   j |> Yojson.Basic.from_string |> member "diffs" |> to_list
   |> List.map parse_diff
 
+(********************** translate_to_client_id ********************************)
+
+let translate_to_client_id j =
+  j |> int_of_string |> (:=) client_id
+
 (************************** interpret_command *********************************)
 
 type comm_json =
@@ -148,8 +158,6 @@ type comm_json =
   | JViewState
   | JHelp
 
-let current_player_id = 1234
-
 (* [init_state json] creates the inital world for the game *)
 let init_state json =
   let player_id = json |> member "player" |> to_int in
@@ -157,7 +165,7 @@ let init_state json =
   let player_y = json |> member "y" |> to_int in
   let my_rooms = RoomMap.(empty |> add (0,0) {descr= "hi"; items = [1]}) in
   let my_players = [(player_id, (player_x, player_y))] in
-  let my_items = LibMap.(empty ) in
+  let my_items = LibMap.empty in
   {rooms = my_rooms; players = my_players; items = my_items}
 
 let rec remove i lst =
@@ -165,14 +173,11 @@ let rec remove i lst =
   | [] -> []
   | h::t -> if h = i then t else h::(remove i t)
 
-(* [update_world d] updates the world based on diff d*)
-let update_world (d: diff) (w:world) = Model.apply_diff d w
-
 (* [step dl w] updates a world based on a diff list [dl]*)
 let rec step (dl: diff list) (w: world) =
   match dl with
   | [] -> w
-  | h::t -> step t (update_world h w)
+  | h::t -> step t (apply_diff w h)
 
 let check_match i key v=
   match v with
@@ -186,7 +191,6 @@ let check_match i key v=
 (* [find_item i w] finds item id based on name in world w*)
 let find_item i (w:world)=
   let items = w.items in
-  (*let items_lst = LibMap.bindings items in*)
   LibMap.fold (fun k v acc -> if (check_match i k v) then
     Some k else acc) items None
 
@@ -222,37 +226,41 @@ let interp_move (m:string) current_player (w:world): comm_json =
 
 (* [interp_move m w] returns a command_json list based on a move
  * command m and world w *)
+(* Note : find the room the player is in*
+   * find the spell that they want to use in the inventory
+   * (matches incantation) *)
 let interp_spell s (w:world): comm_json =
-  (* find the room the player is in*
-   * find the spell that they want to use in the inventory (matches incantation) *)
    match (find_item s w) with
    | Some s -> failwith "Unimplemented"
    | None -> raise NotAnItem
 
-(* [interp_move m w] returns a command_json list based on a move command m and world w *)
+(* [interp_move m w] returns a command_json list based on a move
+ * command m and world w *)
+(* Note: find the room the object is in, find the item they want to take*)
 let interp_take t (w:world): comm_json =
-  (* find the room the object is in, find the item they want to take*)
    match (find_item t w) with
    | Some t -> JTake ("{\"Id\":" ^ (string_of_int t) ^ "}")
    | None -> raise NotAnItem
 
-(* [interp_move m w] returns a command_json list based on a move command m and world w *)
+(* [interp_move m w] returns a command_json list based on a move
+ * command m and world w *)
+(* find room player is in, find item they want to drop in inventory*)
 let interp_drop d (w:world): comm_json =
-  (* find room player is in, find item they want to drop in inventory*)
    match (find_item d w) with
    | Some d -> JTake ("{\"Id\":" ^ (string_of_int d) ^ "}")
    | None -> raise NotAnItem
 
-(* [interp_move m w] returns a command_json list based on a move command m and world w *)
+(* [interp_move m w] returns a command_json list based on a move
+ * command m and world w *)
+(* find room player is in, find item they want to drop in inventory*)
 let interp_drink d (w:world): comm_json =
-  (* find room player is in, find item they want to drop in inventory*)
    match (find_item d w) with
    | Some d -> JDrink ("{\"Id\":" ^ (string_of_int d) ^ "}")
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
-let interpret_command (c:command) current_player (w: world) : comm_json =
-  match c with
+let interpret_command (c: string) current_player (w: world) : comm_json=
+  match (parse_comm c) with
   | Move s -> interp_move s current_player w
   | Spell s -> interp_spell s w
   | Quit -> JQuit
@@ -264,17 +272,125 @@ let interpret_command (c:command) current_player (w: world) : comm_json =
   | ViewState -> JViewState
   | Help -> JHelp
 
+let print_string_list = function
+  | [] -> ()
+  | h::t -> print_endline h
+
+let get_item_name_by_id lib id =
+  match LibMap.find id lib with
+  | IPlayer x -> x.name
+  | IAnimal x -> x.name
+  | IPolice x -> x.name
+  | ISpell x -> x.incant
+  | IPotion x -> x.name
+  | IVoid -> ""
+
+let rec get_curr_loc = function
+  | [] -> (-1,-1)
+  | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
+
+let print_room w =
+  let loc = get_curr_loc w.players in
+  let room = RoomMap.find (loc) w.rooms in
+  print_endline ("Room description: " ^ room.descr);
+  print_endline "In the room, there are: ";
+  print_string_list (List.map (get_item_name_by_id w.items) room.items)
+
+let unwrap_player = function
+  | IPlayer x -> x
+  | _ -> failwith "invalid command"
+
+let print_inv w =
+  let p = unwrap_player (LibMap.find !client_id w.items) in
+  print_endline "Your inventory contains: ";
+  print_string_list (List.map (get_item_name_by_id w.items) p.inventory)
+
+let print_help () =
+  print_endline "Game instruction goes here"
+
 (* [do_command comm current_player world] calls a post or get request
- * based on [comm] and returns a tuple of status code and body Lwt.t *)
+ * based on [comm] for command that needs to update the world.
+ * For commands that don't, pulls infos from the current world state.
+ * Returns a tuple of status code and body Lwt.t *)
 let do_command comm current_player world =
-  match (interpret_command comm current_player world) with
-  | JMove x -> send_post_request x "move" current_player_id
-  | JDrink x -> send_post_request x "drink" current_player_id
-  | JSpell x -> send_post_request x "spell" current_player_id
-  | JQuit -> send_get_request "quit" current_player_id
-  | JTake x -> send_post_request x"take" current_player_id
-  | JDrop x -> send_post_request x "drop" current_player_id
-  | JLook -> send_get_request "look" current_player_id
-  | JInv -> send_get_request "inventory" current_player_id
-  | JViewState -> send_get_request "view" current_player_id
-  | JHelp -> (-1, return "")
+  match interpret_command comm current_player world with
+  | JMove x -> send_post_request x "move" current_player
+  | JDrink x -> send_post_request x "use" current_player
+  | JSpell x -> send_post_request x "use" current_player
+  | JQuit -> send_get_request "quit" current_player
+  | JTake x -> send_post_request x"take" current_player
+  | JDrop x -> send_post_request x "drop" current_player
+  | JLook -> print_room world; (-1, return "")
+  | JInv -> print_inv world; (-1, return "")
+  | JViewState -> print_room world; (-1, return "")
+  | JHelp -> print_help (); (-1, return "")
+
+(********************************** repl **************************************)
+
+(*  localhost:8000/login?username=chau *)
+(* request client_id from server. ?? maybe i need to check other resp code *)
+let rec update_client_id_helper name =
+  return (send_login_request name) >>= fun (code, body) ->
+  if code = 200 then
+    body >>= fun x -> translate_to_client_id x; return ()
+  else
+    (print_endline ("We are having trouble logging in." ^
+    "Please check if you have the right version of world");
+    update_client_id_helper name)
+
+let update_client_id name =
+  ignore (update_client_id_helper name)
+
+(* keep requesting until it's approved then apply diffs to the world *)
+let rec request_and_update_world (w: world) : world Lwt.t =
+  return (send_get_request "update" !client_id) >>= fun (code, body) ->
+  if code = 200 then
+    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+  else request_and_update_world w
+
+let rec repl_helper (c: string) (w: world) : world Lwt.t =
+  return (do_command c !client_id w) >>= fun (code, body) ->
+  match code with
+  | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> repl
+  | 403 -> (print_endline "Invalid move. Please try again."; repl w)
+  | 409 -> request_and_update_world w >>= repl_helper c
+  | 404 -> (print_endline "Invalid move. Please try again."; repl w)
+  | 401 -> (update_client_id !username; repl_helper c w)
+  | _ -> request_and_update_world w >>= repl_helper c
+
+and repl (w: world): world Lwt.t =
+  let c = String.lowercase_ascii (read_line ()) in
+  try repl_helper c w with
+  | _ -> (print_endline "Invalid command. Please try again."; repl w)
+
+(* Helper function:
+ * [cut_file_type file_name] cuts the .filetype out of a file name
+ * var cut_file_type : string -> string *)
+let cut_file_type file_name =
+  let dot_idx = String.rindex file_name '.' in
+  String.sub file_name 0 dot_idx
+
+(* Helper for main:
+ * [welcome_msg file_name st] prints messages before starting the game
+ * var welcome_msg : string -> state -> unit *)
+let welcome_msg file_name st =
+  print_endline ("Welcome back to the magical world of J.K. Rowling" ^
+    "Fantastic Beasts And Where To Find Them:");
+  print_endline (cut_file_type file_name);
+  do_command "look" !client_id st
+
+(* [main f] is the main entry point from outside this module
+ * to load a game from file [f] and start playing it *)
+let rec main file_name =
+  try
+    let init_state_var = init_state (Yojson.Basic.from_file file_name) in
+    print_endline "What's your name?";
+    username := (read_line ());
+    update_client_id !username;
+    ignore (welcome_msg file_name init_state_var);
+    Lwt_main.run (repl init_state_var)
+  with
+  | Sys_error explanation ->
+    (print_endline explanation;
+    print_string "\n";
+    main (read_line ()))
