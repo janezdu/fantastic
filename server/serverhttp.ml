@@ -22,28 +22,30 @@ let strip path = String.sub path 1 (String.length path - 1)
 
 (* A method that handles legal queries once gameplay starts. Does not handle
  * login *)
-let handleQuery req body cid : string Lwt.t=
-  let path = Uri.path (Request.uri req) in
-  match path with
-  | "/move" | "/use" | "/take" | "/drop" -> begin
-      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
-          ( print_endline cmdbody;
-            try
-              pushClientUpdate cid cmdbody (strip path)
-            with
-            | WorldFailure msg -> begin
-                print_endline "got to error";
-                raise (WorldFailure msg)
-              end
-            | _ -> failwith "Legal uri but broken non-worldfailure"))
-    end
-
-  | "/update" -> body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
-      ( print_endline ("[UPDATE]: "^(string_of_int cid));
-        getClientUpdate cid))
-  | _ -> begin return ("u dun guffed off")
-    (* Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" () *)
-    end
+let handleQuery req body cid : string Lwt.t =
+  try
+    let path = Uri.path (Request.uri req) in
+    match path with
+    | "/move" | "/use" | "/take" | "/drop" -> begin
+        body |> Cohttp_lwt_body.to_string >>= (fun cmdbody ->
+            ( print_endline cmdbody;
+              try
+                return (pushClientUpdate cid cmdbody (strip path))
+              with
+              | WorldFailure msg -> begin
+                  print_endline "got to error";
+                  Lwt.fail (WorldFailure msg)
+                end
+              | _ -> failwith "Legal uri but broken non-worldfailure"))
+      end
+    | "/update" -> body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+        ( print_endline ("[UPDATE]: "^(string_of_int cid));
+          getClientUpdate cid))
+    | _ -> begin return ("u dun guffed off")
+      (* Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" () *)
+      end
+  with
+  | x -> raise x
 
 (* A method that deals with user registration only. *)
 let handleLogin req body name =
@@ -57,10 +59,6 @@ let server =
     print_endline ("\n\n===================================================="^
                    "\nstarted callback");
     print_endline (req |> Request.uri |> Uri.to_string);
-    (* print_endline (Uri.path (Request.uri req)); *)
-    (* let uri = req |> Request.uri |> Uri.to_string in *)
-    (* let meth = req |> Request.meth |> Code.string_of_method in *)
-    (* let headers = req |> Request.headers |> Header.to_string in *)
     let queryparams = req |> Request.uri |> Uri.query in
 
     let reqmode =
@@ -77,26 +75,30 @@ let server =
       else Badmode
     in
 
-    let body = match reqmode with
+    let errorhandler = function
+      | WorldFailure msg -> begin
+          print_endline msg;
+          Server.respond_string ~status:`Bad_request ~body:msg ()
+        end
+      | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:msg ()
+    in
+
+    match reqmode with
       | Query (cid) -> begin
           print_endline ("hanlding player "^(string_of_int cid));
-          try handleQuery req body cid with | x -> raise x
+          Lwt.catch (fun () ->
+              handleQuery req body cid >>=
+              (fun body -> Server.respond_string ~status:`OK ~body ())
+            ) errorhandler
         end
       | Login (name) -> begin
           print_endline ("handling login "^name);
-          try handleLogin req body name with | x -> raise x
-      end
+          Lwt.catch (fun () ->
+              handleLogin req body name >>=
+              (fun body -> Server.respond_string ~status:`OK ~body ())
+            ) errorhandler
+        end
       | Badmode -> raise (BadRequest ("Badly formed uri, missing query"))
-    in
-
-    try body >>=(fun body -> Server.respond_string ~status:`OK ~body ())
-    with
-    | WorldFailure msg -> begin
-        print_endline msg;
-        Server.respond_string ~status:`Bad_request ~body:"no username" ()
-      end
-    | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:msg ()
-    (* | _ -> Server.respond_string ~status:`Bad_request ~body:"idk even" () *)
 
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
