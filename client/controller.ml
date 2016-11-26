@@ -308,29 +308,49 @@ let print_inv w =
 let print_help () =
   print_endline "Game instruction goes here"
 
+(************************** update world **************************************)
+
+(* keep requesting until it's approved then apply diffs to the world *)
+let rec request_and_update_world (w: world) : world Lwt.t =
+  send_get_request "update" !client_id >>= fun (code, body) ->
+  if code = 200 then
+    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+  else request_and_update_world w
+
+(* [auto_update_world w] is the most up-to-date world from the server.
+ * It requests to update every 500ms *)
+let rec auto_update_world (is_loop: bool) (w: world) : world Lwt.t =
+  if is_loop then
+    Lwt_unix.sleep 0.5 >>= fun () -> request_and_update_world w
+    >>= auto_update_world is_loop
+  else return w
+
+(************************** eval command **************************************)
+
 (* [do_command comm current_player world] calls a post or get request
  * based on [comm] for command that needs to update the world.
  * For commands that don't, pulls infos from the current world state.
  * Returns a tuple of status code and body Lwt.t *)
-let do_command comm current_player world =
-  match interpret_command comm current_player world with
+let do_command comm current_player curr_world : (int * string Lwt.t) Lwt.t =
+  auto_update_world false curr_world >>= fun curr_world ->
+  match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x "move" current_player
   | JDrink x -> send_post_request x "use" current_player
   | JSpell x -> send_post_request x "use" current_player
   | JQuit -> send_get_request "quit" current_player
   | JTake x -> send_post_request x"take" current_player
   | JDrop x -> send_post_request x "drop" current_player
-  | JLook -> print_room world; (-1, return "")
-  | JInv -> print_inv world; (-1, return "")
-  | JViewState -> print_room world; (-1, return "")
-  | JHelp -> print_help (); (-1, return "")
+  | JLook -> print_room curr_world; return ((-1, return ""))
+  | JInv -> print_inv curr_world; return ((-1, return ""))
+  | JViewState -> print_room curr_world; return ((-1, return ""))
+  | JHelp -> print_help (); return ((-1, return ""))
 
 (********************************** repl **************************************)
 
 (*  localhost:8000/login?username=chau *)
 (* request client_id from server. ?? maybe i need to check other resp code *)
 let rec update_client_id_helper name =
-  return (send_login_request name) >>= fun (code, body) ->
+  send_login_request name >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x -> translate_to_client_id x; return ()
   else
@@ -341,27 +361,29 @@ let rec update_client_id_helper name =
 let update_client_id name =
   ignore (update_client_id_helper name)
 
-(* keep requesting until it's approved then apply diffs to the world *)
-let rec request_and_update_world (w: world) : world Lwt.t =
-  return (send_get_request "update" !client_id) >>= fun (code, body) ->
-  if code = 200 then
-    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
-  else request_and_update_world w
-
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
-  return (do_command c !client_id w) >>= fun (code, body) ->
+  do_command c !client_id w >>= fun (code, body) ->
   match code with
-  | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> repl
-  | 403 -> (print_endline "Invalid move. Please try again."; repl w)
+  | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+  | 403 ->
+    (print_endline "Invalid move. Please try again.";
+    auto_update_world true w >>= repl)
   | 409 -> request_and_update_world w >>= repl_helper c
-  | 404 -> (print_endline "Invalid move. Please try again."; repl w)
+  | 404 ->
+    (print_endline "Invalid move. Please try again.";
+    auto_update_world true w >>= repl)
   | 401 -> (update_client_id !username; repl_helper c w)
   | _ -> request_and_update_world w >>= repl_helper c
 
 and repl (w: world): world Lwt.t =
   let c = String.lowercase_ascii (read_line ()) in
-  try repl_helper c w with
+  try
+    repl_helper c w >>= fun repl_world -> auto_update_world true repl_world
+    >>= repl
+  with
   | _ -> (print_endline "Invalid command. Please try again."; repl w)
+
+(******************************* main functions *******************************)
 
 (* Helper function:
  * [cut_file_type file_name] cuts the .filetype out of a file name
@@ -375,9 +397,14 @@ let cut_file_type file_name =
  * var welcome_msg : string -> state -> unit *)
 let welcome_msg file_name st =
   print_endline ("Welcome back to the magical world of J.K. Rowling" ^
-    "Fantastic Beasts And Where To Find Them:");
+    "Fantastic Beasts And Where To Find Them: ");
   print_endline (cut_file_type file_name);
   do_command "look" !client_id st
+
+let f (file_name: string) (w: world) =
+  auto_update_world true w >>= fun x ->
+  welcome_msg file_name x |> ignore;
+  x |> repl
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
@@ -387,8 +414,7 @@ let rec main file_name =
     print_endline "What's your name?";
     username := (read_line ());
     update_client_id !username;
-    ignore (welcome_msg file_name init_state_var);
-    Lwt_main.run (repl init_state_var)
+    Lwt_main.run (f file_name init_state_var)
   with
   | Sys_error explanation ->
     (print_endline explanation;

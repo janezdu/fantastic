@@ -153,3 +153,17 @@ val apply_diff: world -> diff -> world
 
 val apply_diff_list: world -> diff list -> world
 
+(* init [i] creates a i x i size world*)
+val init: int -> world
+
+(* prints out a libmap *)
+val print_libmap : item LibMap.t -> unit
+
+val string_of_diff : diff -> string
+
+val string_of_item : item -> string
+
+val string_of_inventory : int list -> string
+
+val string_of_difflist : (int * diff list) list -> string
+

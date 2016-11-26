@@ -269,3 +269,126 @@ let rec apply_diff_list (w: world) (ds: diff list) : world =
   match ds with
   | [] -> w
   | d::ds' -> apply_diff w d
+
+let init size =
+  let emptyroom = {descr="This is a room!"; items = []} in
+  let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
+            |> RoomMap.add (1,0) emptyroom
+            |> RoomMap.add (1,1) emptyroom
+            |> RoomMap.add (0,1) emptyroom
+  in
+  let players = [1234, (0,0)] in
+  let items = LibMap.empty
+              |> LibMap.add 1 (ISpell {id = 1;
+                                       incant = "lumos";
+                                       descr = "a light spell";
+                                       effect = 10})
+              |> LibMap.add 2 (ISpell {id = 1;
+                                       incant = "avada kedavra";
+                                       descr = "a death spell";
+                                       effect = -1000})
+              |> LibMap.add 3 (IPotion {id = 3;
+                                       name = "pepperup potion";
+                                        descr = "warms and energizes";
+                                       effect = 30})
+              |> LibMap.add 1234 (IPlayer {id = 1234;
+                                           name = "rebecca";
+                                           hp = 1000;
+                                           score = 100;
+                                           inventory = [1;2;2;2;2;2;3;3]})
+  in
+  {
+    rooms = map;
+    players = players;
+    items = items;
+  }
+
+let string_of_inventory inv =
+  let rec string_list str = function
+    [] -> str
+    | h::t -> string_list (str^(string_of_int h)^",") t
+  in
+  (string_list "" inv)
+
+let string_of_item i =
+  match i with
+  | IPlayer p -> begin
+      "Player:"^
+      "\n\tID:"^(string_of_int p.id)^
+      "\n\tName:"^(p.name)^
+      "\n\tHP:"^(string_of_int p.hp)^
+      "\n\tScore:"^(string_of_int p.score)^
+      "\n\tInventory:"^(string_of_inventory p.inventory)
+  end
+  | IAnimal a -> begin
+      "Beast:"^
+      "\n\tID:"^(string_of_int a.id)^
+      "\n\tName:"^(a.name)^
+      "\n\tDescr:"^(a.descr)^
+      "\n\tHP:"^(string_of_int a.hp)^
+      "\n\tSpells:"^(string_of_inventory a.spells)
+    end
+  | IPolice a -> begin
+      "Beast:"^
+      "\n\tID:"^(string_of_int a.id)^
+      "\n\tName:"^(a.name)^
+      "\n\tDescr:"^(a.descr)^
+      "\n\tHP:"^(string_of_int a.hp)^
+      "\n\tSpells:"^(string_of_inventory a.spells)
+    end
+  | ISpell s -> begin
+      "Spell:"^
+      "\n\tID:"^(string_of_int s.id)^
+      "\n\tIncant:"^(s.incant)^
+      "\n\tDescr:"^(s.descr)^
+      "\n\tEffect:"^(string_of_int s.effect)
+    end
+  | IPotion s -> begin
+      "Potion:"^
+      "\n\tID:"^(string_of_int s.id)^
+      "\n\tName:"^(s.name)^
+      "\n\tDescr:"^(s.descr)^
+      "\n\tEffect:"^(string_of_int s.effect)
+    end
+  | IVoid -> "void"
+
+let string_of_diff d =
+  let item = match d with
+    | Add x | Remove x | Change x -> string_of_item x.newitem
+  in
+
+  let id = match d with
+    | Add x -> "ADD " ^ (string_of_int x.id)
+    | Remove x -> "RMV " ^ (string_of_int x.id)
+    | Change x -> "CHG " ^ (string_of_int x.id)
+  in
+
+  let (curx, cury) = match d with
+    | Add x | Remove x | Change x -> x.loc
+  in
+  let printloc = "("^string_of_int curx^", " ^string_of_int cury^")" in
+
+  ("Diff: " ^ id ^ " at "^printloc^" to "^item)
+
+let string_of_diff_simple d = match d with
+  | Add x -> "ADD " ^ (string_of_int x.id)
+  | Remove x -> "RMV " ^ (string_of_int x.id)
+  | Change x -> "CHG " ^ (string_of_int x.id)
+
+let string_of_difflist client_diffs =
+  let rec difflist str (id, lst) =
+    List.fold_left (fun a b -> a^", "^(string_of_diff_simple b))
+      ("["^(string_of_int id)^"]") lst
+  in
+  List.fold_left difflist "client_diffs:\t" client_diffs
+
+    (* str ^"["^(string_of_int id)^"]"^
+    (string_of_diff_simple diff)^",\n" *)
+
+let print_libmap lmap =
+  print_endline "---------------------------";
+  LibMap.iter (fun index item->
+      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
+                       (string_of_int index)
+                       (string_of_item item);)) lmap;
+  print_endline "---------------------------"
