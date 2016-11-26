@@ -67,7 +67,7 @@ let translate_to_diff snapshot j r cid =
         | IAnimal x -> (IAnimal {x with hp = x.hp + item.effect}, x.hp)
         | _ -> failwith "not a player/ai"
       in
-      let wrapped_item = flatworld.items |> find item_id in
+      let wrapped_item = flatworld.items |> LibMap.find item_id in
       match wrapped_item with
       | ISpell x ->
         begin
@@ -88,7 +88,7 @@ let translate_to_diff snapshot j r cid =
             if player.hp + x.effect <= 0
             then Remove {loc=cur_loc; id=cid; newitem=IPlayer player}
             else Change {loc=cur_loc; id=cid;
-                         newitem=Iplayer {player with hp = player.hp + x.effect}}
+                         newitem = IPlayer {player with hp = player.hp + x.effect}}
           in
           [
             Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
@@ -102,9 +102,10 @@ else if r = "take" then begin
   try
     let item_id = json |> member "id" |> to_int in
     let _ = remove_from_list item_id cur_room.items in
-    let wrapped_item = flatworld.items |> find item_id in
-    let valid_item = match wrapped_item with
-      | ISpell x| IPotion x -> true |_ -> failwith "not a spell/potion"
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    let _  = match wrapped_item with
+      | ISpell _ | IPotion _ -> true | _ ->
+        raise (IllegalStep "not a spell/potion")
     in
     [
       Remove {loc=cur_loc; id=item_id; newitem=wrapped_item};
@@ -116,9 +117,9 @@ end
 else if r = "drop" then begin
   try
     let item_id = json |> member "id" |> to_int in
-    let wrapped_item = flatworld.items |> find item_id in
-    let valid_item = match wrapped_item with
-      | ISpell x| IPotion x -> true |_ -> failwith "not a spell/potion"
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    let _ = match wrapped_item with
+      | ISpell _ | IPotion _  -> true | _ -> failwith "not a spell/potion"
     in
     let _ = remove_from_list item_id player.inventory in
     let new_inv = remove_from_list item_id player.inventory in
