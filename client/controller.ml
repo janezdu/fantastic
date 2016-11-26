@@ -372,7 +372,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   | 404 ->
     (print_endline "Invalid move. Please try again.";
     auto_update_world true w >>= repl)
-  | 401 -> (update_client_id !username; repl_helper c w)
+  | 401 -> repl_helper c w
   | _ -> request_and_update_world w >>= repl_helper c
 
 and repl (w: world): world Lwt.t =
@@ -401,7 +401,7 @@ let welcome_msg file_name st =
   print_endline (cut_file_type file_name);
   do_command "look" !client_id st
 
-let f (file_name: string) (w: world) =
+let start_chain (file_name: string) (w: world) =
   auto_update_world true w >>= fun x ->
   welcome_msg file_name x |> ignore;
   x |> repl
@@ -414,7 +414,7 @@ let rec main file_name =
     print_endline "What's your name?";
     username := (read_line ());
     update_client_id !username;
-    Lwt_main.run (f file_name init_state_var)
+    Lwt_main.run (start_chain file_name init_state_var)
   with
   | Sys_error explanation ->
     (print_endline explanation;

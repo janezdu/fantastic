@@ -4,18 +4,16 @@ open Cohttp_lwt_unix
 
 type diff_json = string
 
+let valid_actions =
+  ["move"; "use"; "take"; "drop"; "quit"; "update"]
+
 let make_query_helper action cid =
   "/" ^ action ^ "?client_id=" ^ (string_of_int cid)
 
 (* [make_query action cid] is [action]?client_id=[cid] *)
 let make_query action cid =
-  match action with
-  | "move" -> make_query_helper "move" cid
-  | "use" -> make_query_helper "use" cid
-  | "take" -> make_query_helper "take" cid
-  | "drop" -> make_query_helper "drop" cid
-  | "quit" -> make_query_helper "quit" cid
-  | _ -> failwith "invalid command"
+  if List.mem action valid_actions then make_query_helper action cid
+  else failwith "invalid action"
 
 (* [make_login_query name] is login?username=[name] *)
 let make_login_query name =
