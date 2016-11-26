@@ -231,7 +231,7 @@ let getClientUpdate cid =
  *
  * This is only called inside pushClientUpdate and registerUser, so the world
  * really does only *react* to things that users do. *)
-let react state cmd = state
+let react state (cmd:string) = state
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -254,7 +254,7 @@ let pushClientUpdate cid cmd cmdtype =
     let afterstate =
       react {flatworld = newworld;
              client_diffs = newdiffs;
-             alldiffs = diffs@snapshot.alldiffs} diffs in
+             alldiffs = diffs@snapshot.alldiffs} cmd in
     state := afterstate;
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
     print_libmap afterstate.flatworld.items;
@@ -288,10 +288,12 @@ let registerUser name =
     let newclientdiffs = (cid, snapshot.alldiffs)::snapshot.client_diffs  in
     let newdiffs = List.map
         (fun (id,lst) -> (id, diffs@lst)) newclientdiffs in
-    let afterstate =
-      react {flatworld = newworld;
+    let afterstate = {flatworld = newworld;
+                      client_diffs = newdiffs;
+                      alldiffs = diffs@snapshot.alldiffs} in
+      (* react {flatworld = newworld;
              client_diffs = newdiffs;
-             alldiffs = diffs@snapshot.alldiffs} diffs in
+             alldiffs = diffs@snapshot.alldiffs} diffs in *)
     state := afterstate;
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
     print_libmap afterstate.flatworld.items;
