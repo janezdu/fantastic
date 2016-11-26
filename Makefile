@@ -1,10 +1,10 @@
-build: 
+build:
 	$(MAKE) -C client && $(MAKE) -C server
 
 ser:
 	$(MAKE) -C server
 
-cli: 
+cli:
 	$(MAKE) -C client
 
 host:
@@ -12,6 +12,10 @@ host:
 
 play:
 	$(MAKE) -C client && ./client/clienthttp.byte
+
+tester:
+	ocamlbuild -pkgs yojson,cohttp.lwt,str -tag bin-annot -tag thread concurrent.byte
+
 
 clean:
 	ocamlbuild -clean

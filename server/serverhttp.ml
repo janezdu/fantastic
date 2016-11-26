@@ -41,7 +41,13 @@ let handleQuery req body cid =
   | "/use" -> begin
       body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
           ( print_endline cmdbody;
-            pushClientUpdate cid cmdbody "use"))
+            try
+              pushClientUpdate cid cmdbody "use"
+            with
+            | WorldFailure msg -> begin
+                print_endline "got to error";
+                raise (WorldFailure msg)
+            end))
       >>= (fun body -> Server.respond_string ~status:`OK ~body ())
     end
   | "/take" -> begin
@@ -63,7 +69,7 @@ let handleQuery req body cid =
       >>= (fun body -> Server.respond_string ~status:`OK ~body ())
     end
   | _ -> begin
-      Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
+    Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
     end
 
 (* A method that deals with user registration only. *)
@@ -113,8 +119,10 @@ let server =
       | Badmode -> raise (BadRequest ("Badly formed uri, missing query"))
 
     with
-    | WorldFailure msg ->
-      Server.respond_string ~status:`OK ~body:"no username" ()
+    | WorldFailure msg -> begin
+        print_endline msg;
+        Server.respond_string ~status:`Bad_request ~body:"no username" ()
+      end
     | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:msg ()
     (* | _ -> Server.respond_string ~status:`Bad_request ~body:"idk even" () *)
 

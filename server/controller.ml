@@ -24,10 +24,10 @@ let newid = ref 1000
 type cmd = Move | Use | Take | Drop
 
 exception IllegalStep of string
-exception IllegalMove
-exception IllegalUse
+(* exception IllegalMove
+exception IllegalUse of string
 exception IllegalTake
-exception IllegalDrop
+exception IllegalDrop *)
 
 exception WorldFailure of string
 let state = ref {flatworld = (init 4);
@@ -62,9 +62,17 @@ let translate_to_diff snapshot j r cid =
   else if r = "use" then begin
     try
       let item_id = json |> member "id" |> to_int in
+      print_endline (string_of_int item_id);
       let target_id = json |> member "target" |> to_int in
       let new_inv = remove_from_list item_id player.inventory in
-      let _ = remove_from_list target_id player.inventory in
+      print_endline (string_of_inventory new_inv);
+
+      if (not (LibMap.mem target_id flatworld.items)) then
+        begin
+          print_endline "attacking bad thing";
+          raise (IllegalStep "Not an available target")
+        end
+      else
       let wrapped_target = flatworld.items |> LibMap.find target_id in
       let wrapped_item = flatworld.items |> LibMap.find item_id in
       match wrapped_item with
@@ -77,36 +85,44 @@ let translate_to_diff snapshot j r cid =
               | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
               | _ -> failwith "not a player/ai"
             in
-            if target_hp + spell.effect <= 0
+            (* if target_hp + spell.effect <= 0
             then Remove {loc=cur_loc; id=target_id; newitem=wrapped_target}
-            else Change {loc=cur_loc; id=target_id;
-                         newitem=new_target}
+            else  *)
+            Change {loc=cur_loc; id=target_id; newitem=new_target}
           in
           [
-            Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
-            diff_target
+            diff_target;
+            Change {loc=cur_loc; id=cid;
+                    newitem=IPlayer {player with inventory=new_inv}}
           ]
         end
       | IPotion potion ->
         begin
           let diff_player =
             if player.hp + potion.effect <= 0
-            then Remove {loc=cur_loc; id=cid; newitem=IPlayer player}
+            then Remove {loc=cur_loc; id=cid;
+                         newitem=IPlayer {player with
+                                          inventory = new_inv}}
             else Change {loc=cur_loc; id=cid;
-                         newitem=IPlayer {player with hp = player.hp + potion.effect}}
+                         newitem=IPlayer {player with
+                                          hp = player.hp + potion.effect;
+                                          inventory=new_inv}}
           in
           [
-            Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
             diff_player
           ]
         end
-      | _ -> failwith "not a spell/potion"
-    with _ -> raise IllegalUse
+      | _ -> raise (IllegalStep "not a spell/potion")
+    with
+    | IllegalStep msg -> raise (IllegalStep msg)
+    | _ -> failwith "weird error ?? "
   end
   else if r = "take" then begin
     try
       let item_id = json |> member "id" |> to_int in
-      let _ = remove_from_list item_id cur_room.items in
+      if (not (List.mem item_id cur_room.items)) then
+        raise (IllegalStep "Not in room")
+      else
       let wrapped_item = flatworld.items |> LibMap.find item_id in
       let _ = match wrapped_item with
         | ISpell _| IPotion _ -> true |_ -> failwith "not a spell/potion"
@@ -116,7 +132,7 @@ let translate_to_diff snapshot j r cid =
         Change {loc=cur_loc; id=cid;
                 newitem=IPlayer {player with inventory=item_id::player.inventory}}
       ]
-    with _ -> raise IllegalTake
+    with _ -> raise (IllegalStep "Bad take")
   end
   else if r = "drop" then begin
     try
@@ -132,7 +148,7 @@ let translate_to_diff snapshot j r cid =
         Add {loc=cur_loc; id=item_id; newitem=wrapped_item}
       ]
     with
-    | _ -> raise IllegalDrop
+    | _ -> raise (IllegalStep "Bad drop")
   end
   else
     []
@@ -203,7 +219,6 @@ let translate_to_json difflist =
 let getClientUpdate cid =
   try
     let snapshot = !state in
-    p "hi there!";
     print_endline (string_of_difflist snapshot.client_diffs);
     let diffs_to_apply = List.assoc cid snapshot.client_diffs in
     let newdiffs = (cid, [])::(List.remove_assoc cid snapshot.client_diffs) in
@@ -220,7 +235,7 @@ let getClientUpdate cid =
  *
  * This is only called inside pushClientUpdate and registerUser, so the world
  * really does only *react* to things that users do. *)
-let react state cmd = state
+let react oldstate newstate (cmd:string) cid = newstate
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -228,26 +243,46 @@ let react state cmd = state
 let pushClientUpdate cid cmd cmdtype =
   try
     print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
+    (* Basically we're just pulling the state out of its ref. *)
     let snapshot = !state in
+    (* [diffs] is a list of type diff (add remove change). This is the result
+     * of the player's action; if the player moved, this includes only the diffs
+     * generated by the move, and none of its consequences like a beast
+     * attacking back. *)
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
 
     print_endline (string_of_difflist snapshot.client_diffs);
 
+    (* This creates a new flatworld that with [diffs] applied to it. Again, this
+       does not include the consequences like a beast attacking back.    *)
     let newworld = List.fold_left (fun a d -> apply_diff d a)
         (snapshot.flatworld) diffs in
+
+    (* Add the new diffs to every player's stack. *)
     let addDiffsToAll = List.map
         (fun (id,lst) -> (id, diffs@lst)) snapshot.client_diffs in
     print_endline (string_of_difflist addDiffsToAll);
-    (* Flush current user's diffs *)
-    let newdiffs = (cid, [])::(List.remove_assoc cid addDiffsToAll) in
+
+    (* Aplpy react *)
     let afterstate =
-      react {flatworld = newworld;
-             client_diffs = newdiffs;
-             alldiffs = diffs@snapshot.alldiffs} diffs in
-    state := afterstate;
+      react snapshot {flatworld = newworld;
+                      client_diffs = addDiffsToAll;
+                      (* This adds the diffs to [alldiffs], which is basically
+                         a history of all diffs that have happened in the game
+                         so far. This is only here because if a new player joins
+                         the game, they need the entire history in diffs. *)
+                      alldiffs = diffs@snapshot.alldiffs} cmd cid in
+    (* [toflush] are the diffs that the client will be getting. *)
+    let toflush = List.assoc cid afterstate.client_diffs in
+    (* Flush [toflush] from the list of client_diffs. *)
+    let flushed = (cid, [])::(List.remove_assoc cid afterstate.client_diffs) in
+
+    state := {afterstate with client_diffs = flushed};
+
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
     print_libmap afterstate.flatworld.items;
-    diffs |> translate_to_json
+
+    toflush |> translate_to_json
   with
   | IllegalStep msg -> raise (WorldFailure msg)
   | _ -> begin
@@ -277,10 +312,12 @@ let registerUser name =
     let newclientdiffs = (cid, snapshot.alldiffs)::snapshot.client_diffs  in
     let newdiffs = List.map
         (fun (id,lst) -> (id, diffs@lst)) newclientdiffs in
-    let afterstate =
-      react {flatworld = newworld;
+    let afterstate = {flatworld = newworld;
+                      client_diffs = newdiffs;
+                      alldiffs = diffs@snapshot.alldiffs} in
+      (* react {flatworld = newworld;
              client_diffs = newdiffs;
-             alldiffs = diffs@snapshot.alldiffs} diffs in
+             alldiffs = diffs@snapshot.alldiffs} diffs in *)
     state := afterstate;
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
     print_libmap afterstate.flatworld.items;

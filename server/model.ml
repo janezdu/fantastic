@@ -342,13 +342,28 @@ let apply_diff_add (d: diffparam) (w: world) : world =
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
   print_endline "Removing...";
-  let new_items = w.items in
-  apply_diff_case d new_items w remove_item_from_list
+  let new_items = match d.newitem with
+    | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
+    | ISpell _ | IPotion _ | IVoid -> w.items
+    | IPlayer p ->
+      if p.hp = 0 then
+        begin
+          print_endline ("found a ghost "^ string_of_int p.hp);
+          let ghost = {p with name = p.name ^ "'s ghost'"} in
+          let cleancorpse = LibMap.remove d.id w.items in
+          LibMap.add d.id (IPlayer ghost) cleancorpse
+        end
+      else
+        w.items
+  in
+  apply_diff_case d new_items {w with items = new_items}
+    remove_item_from_list
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
   print_endline "Changing...";
+
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
@@ -377,15 +392,24 @@ let init size =
             |> RoomMap.add (0,1) emptyroom
   in
   let players = [1234, (0,0)] in
-  let items = LibMap.empty |> LibMap.add 1 (ISpell {id = 1;
-                                                    incant = "lumos";
-                                                    descr = "a light spell";
-                                                    effect = 10})
+  let items = LibMap.empty
+              |> LibMap.add 1 (ISpell {id = 1;
+                                       incant = "lumos";
+                                       descr = "a light spell";
+                                       effect = 10})
+              |> LibMap.add 2 (ISpell {id = 1;
+                                       incant = "avada kedavra";
+                                       descr = "a death spell";
+                                       effect = -1000})
+              |> LibMap.add 3 (IPotion {id = 3;
+                                       name = "pepperup potion";
+                                        descr = "warms and energizes";
+                                       effect = 30})
               |> LibMap.add 1234 (IPlayer {id = 1234;
                                            name = "rebecca";
                                            hp = 1000;
                                            score = 100;
-                                           inventory = [1;2;3;3]})
+                                           inventory = [1;2;2;2;2;2;3;3]})
   in
   {
     rooms = map;
