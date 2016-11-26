@@ -245,7 +245,7 @@ let getClientUpdate cid =
  *
  * This is only called inside pushClientUpdate and registerUser, so the world
  * really does only *react* to things that users do. *)
-let react oldstate newstate (cmd:string) cid = newstate
+let react oldstate newstate (cmd:string) cmdtype cid = newstate
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -281,7 +281,7 @@ let pushClientUpdate cid cmd cmdtype =
                          a history of all diffs that have happened in the game
                          so far. This is only here because if a new player joins
                          the game, they need the entire history in diffs. *)
-                      alldiffs = diffs@snapshot.alldiffs} cmd cid in
+                      alldiffs = diffs@snapshot.alldiffs} cmd cmdtype cid in
     (* [toflush] are the diffs that the client will be getting. *)
     let toflush = List.assoc cid afterstate.client_diffs in
     (* Flush [toflush] from the list of client_diffs. *)
