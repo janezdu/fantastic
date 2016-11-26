@@ -6,8 +6,6 @@ type status
  * they have included in [j], returning a sessionid if valid. *)
 val translate_to_newuser: json -> int
 
-
-
 (* [send_response j status] sends an http response to the clients *)
 val send_response: json -> status -> unit
 
