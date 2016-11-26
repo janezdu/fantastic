@@ -26,7 +26,7 @@ let send_status s = failwith "unimplemented"
 
 type mode = Login of string | Query of int | Badmode
 
-let loginsallowed = ref true
+(* let loginsallowed = ref true *)
 
 (* A method that handles legal queries once gameplay starts. Does not handle
  * login *)
@@ -90,8 +90,8 @@ let server =
         if List.mem_assoc "client_id" queryparams then
           let cid = List.assoc "client_id" queryparams
                     |> List.hd |> int_of_string in
-          (* print_endline ("New player: " ^ string_of_int cid); *)
-          Query (cid)
+          if (not (check_clientid cid)) then raise (BadRequest "Invalid user")
+          else Query (cid)
         else if List.mem_assoc "username" queryparams then
           begin
             let name = List.assoc "username" queryparams |> List.hd in
@@ -104,21 +104,18 @@ let server =
       match reqmode with
       | Query (cid) -> begin
           print_endline ("hanlding player "^(string_of_int cid));
-          loginsallowed := false;
           handleQuery req body cid
         end
       | Login (name) -> begin
           print_endline ("handling login "^name);
-          print_endline ("I am allowed to register: "^(string_of_bool !loginsallowed));
-          if !loginsallowed then handleLogin req body name
-          (* TODO rolling login: keep list of old diffs in state *)
-          else raise (BadRequest ("too late to log in"))
+          handleLogin req body name
       end
       | Badmode -> raise (BadRequest ("Badly formed uri, missing query"))
 
     with
-    | WorldFailure msg -> (Server.respond_string ~status:`OK ~body:"no username" ())
-    | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:"" ()
+    | WorldFailure msg ->
+      Server.respond_string ~status:`OK ~body:"no username" ()
+    | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:msg ()
     (* | _ -> Server.respond_string ~status:`Bad_request ~body:"idk even" () *)
 
   in

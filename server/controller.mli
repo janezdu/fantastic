@@ -27,3 +27,6 @@ val pushClientUpdate: int -> string -> string -> string
 (* [registerUser s i] Adds a new user to the game state with the name s
  * and returns a tuple [(cid,j)] of its new clientid and a json to add itself *)
 val registerUser : string -> int
+
+
+val check_clientid : int -> bool

@@ -116,41 +116,41 @@ let string_of_item i =
   match i with
   | IPlayer p -> begin
       "Player:"^
-      "\tID:"^(string_of_int p.id)^
-      "\tName:"^(p.name)^
-      "\tHP:"^(string_of_int p.hp)^
-      "\tScore:"^(string_of_int p.score)^
-      "\tInventory:"^(string_of_inventory p.inventory)
+      "\n\tID:"^(string_of_int p.id)^
+      "\n\tName:"^(p.name)^
+      "\n\tHP:"^(string_of_int p.hp)^
+      "\n\tScore:"^(string_of_int p.score)^
+      "\n\tInventory:"^(string_of_inventory p.inventory)
   end
   | IAnimal a -> begin
       "Beast:"^
-      "\tID:"^(string_of_int a.id)^
-      "\tName:"^(a.name)^
-      "\tDescr:"^(a.descr)^
-      "\tHP:"^(string_of_int a.hp)^
-      "\tSpells:"^(string_of_inventory a.spells)
+      "\n\tID:"^(string_of_int a.id)^
+      "\n\tName:"^(a.name)^
+      "\n\tDescr:"^(a.descr)^
+      "\n\tHP:"^(string_of_int a.hp)^
+      "\n\tSpells:"^(string_of_inventory a.spells)
     end
   | IPolice a -> begin
       "Beast:"^
-      "\tID:"^(string_of_int a.id)^
-      "\tName:"^(a.name)^
-      "\tDescr:"^(a.descr)^
-      "\tHP:"^(string_of_int a.hp)^
-      "\tSpells:"^(string_of_inventory a.spells)
+      "\n\tID:"^(string_of_int a.id)^
+      "\n\tName:"^(a.name)^
+      "\n\tDescr:"^(a.descr)^
+      "\n\tHP:"^(string_of_int a.hp)^
+      "\n\tSpells:"^(string_of_inventory a.spells)
     end
   | ISpell s -> begin
       "Spell:"^
-      "\tID:"^(string_of_int s.id)^
-      "\tIncant:"^(s.incant)^
-      "\tDescr:"^(s.descr)^
-      "\tEffect:"^(string_of_int s.effect)
+      "\n\tID:"^(string_of_int s.id)^
+      "\n\tIncant:"^(s.incant)^
+      "\n\tDescr:"^(s.descr)^
+      "\n\tEffect:"^(string_of_int s.effect)
     end
   | IPotion s -> begin
       "Potion:"^
-      "\tID:"^(string_of_int s.id)^
-      "\tName:"^(s.name)^
-      "\tDescr:"^(s.descr)^
-      "\tEffect:"^(string_of_int s.effect)
+      "\n\tID:"^(string_of_int s.id)^
+      "\n\tName:"^(s.name)^
+      "\n\tDescr:"^(s.descr)^
+      "\n\tEffect:"^(string_of_int s.effect)
     end
   | IVoid -> "void"
 
@@ -170,8 +170,22 @@ let string_of_diff d =
   in
   let printloc = "("^string_of_int curx^", " ^string_of_int cury^")" in
 
-  ("applying diff: " ^ id ^ " at "^printloc^" to "^item)
+  ("Diff: " ^ id ^ " at "^printloc^" to "^item)
 
+let string_of_diff_simple d = match d with
+  | Add x -> "ADD " ^ (string_of_int x.id)
+  | Remove x -> "RMV " ^ (string_of_int x.id)
+  | Change x -> "CHG " ^ (string_of_int x.id)
+
+let string_of_difflist client_diffs =
+  let rec difflist str (id, lst) =
+    List.fold_left (fun a b -> a^", "^(string_of_diff_simple b))
+      ("["^(string_of_int id)^"]") lst
+  in
+  List.fold_left difflist "client_diffs:\t" client_diffs
+
+    (* str ^"["^(string_of_int id)^"]"^
+    (string_of_diff_simple diff)^",\n" *)
 
 let print_libmap lmap =
   print_endline "---------------------------";
@@ -240,15 +254,19 @@ let unwrap_potion = function
   | _ -> raise (ApplyDiffError "wrong item type" )
 
 let complete_item_player (w: world) (i: player) : item =
-  let old_item = unwrap_player (LibMap.find (i.id) w.items) in
-  IPlayer ({
-      id = i.id;
-      name = if is_null_string i.name then old_item.name else i.name;
-      hp = if is_null_int i.hp then old_item.hp else i.hp;
-      score = if is_null_int i.hp then old_item.score else i.score;
-      inventory = if is_null_list i.inventory then old_item.inventory
-        else i.inventory;
-    })
+  print_endline "Completing player...";
+  if LibMap.mem i.id w.items then
+    let old_item = unwrap_player (LibMap.find (i.id) w.items) in
+    print_endline (if is_null_string i.name then old_item.name else i.name);
+    IPlayer ({
+        id = i.id;
+        name = if is_null_string i.name then old_item.name else i.name;
+        hp = if is_null_int i.hp then old_item.hp else i.hp;
+        score = if is_null_int i.hp then old_item.score else i.score;
+        inventory = if is_null_list i.inventory then old_item.inventory
+          else i.inventory;
+      })
+  else IPlayer(i)
 
 let complete_item_animal (w: world) (i: ai) : item =
   let old_item = unwrap_animal (LibMap.find (i.id) w.items) in
@@ -316,18 +334,21 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
+  print_endline "Adding...";
   let item_to_edit = complete_item w d.newitem in
   let new_items = LibMap.add d.id item_to_edit w.items in
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  let new_items = LibMap.remove d.id w.items in
+  print_endline "Removing...";
+  let new_items = w.items in
   apply_diff_case d new_items w remove_item_from_list
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
+  print_endline "Changing...";
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
@@ -343,10 +364,10 @@ let rec apply_diff_helper (d: diff) (w: world) : world =
  * minimodel based on the diff *)
 let rec apply_diff (d: diff) (w: world) : world =
   try
+    print_endline ("Applying diff " ^(string_of_diff_simple d));
     apply_diff_helper d w
   with
   | _ -> raise (ApplyDiffError "incompatible with the current world")
-
 
 let init size =
   let emptyroom = {descr="This is a room!"; items = []} in
