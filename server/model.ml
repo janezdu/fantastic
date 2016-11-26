@@ -1,3 +1,5 @@
+
+
 (* locations of rooms are in cartesian coordinate with the bottom-left cell
  * being (0,0). X-axis is horizontal and increases value moving to the right.
  * Y-axis increases value ass moving up. *)
@@ -102,6 +104,84 @@ type diff =
   | Add of diffparam
   | Remove of diffparam
   | Change of diffparam
+
+let string_of_inventory inv =
+  let rec string_list str = function
+    [] -> str
+    | h::t -> string_list (str^(string_of_int h)^",") t
+  in
+  (string_list "" inv)
+
+let string_of_item i =
+  match i with
+  | IPlayer p -> begin
+      "Player:"^
+      "\tID:"^(string_of_int p.id)^
+      "\tName:"^(p.name)^
+      "\tHP:"^(string_of_int p.hp)^
+      "\tScore:"^(string_of_int p.score)^
+      "\tInventory:"^(string_of_inventory p.inventory)
+  end
+  | IAnimal a -> begin
+      "Beast:"^
+      "\tID:"^(string_of_int a.id)^
+      "\tName:"^(a.name)^
+      "\tDescr:"^(a.descr)^
+      "\tHP:"^(string_of_int a.hp)^
+      "\tSpells:"^(string_of_inventory a.spells)
+    end
+  | IPolice a -> begin
+      "Beast:"^
+      "\tID:"^(string_of_int a.id)^
+      "\tName:"^(a.name)^
+      "\tDescr:"^(a.descr)^
+      "\tHP:"^(string_of_int a.hp)^
+      "\tSpells:"^(string_of_inventory a.spells)
+    end
+  | ISpell s -> begin
+      "Spell:"^
+      "\tID:"^(string_of_int s.id)^
+      "\tIncant:"^(s.incant)^
+      "\tDescr:"^(s.descr)^
+      "\tEffect:"^(string_of_int s.effect)
+    end
+  | IPotion s -> begin
+      "Potion:"^
+      "\tID:"^(string_of_int s.id)^
+      "\tName:"^(s.name)^
+      "\tDescr:"^(s.descr)^
+      "\tEffect:"^(string_of_int s.effect)
+    end
+  | IVoid -> "void"
+
+let string_of_diff d =
+  let item = match d with
+    | Add x | Remove x | Change x -> string_of_item x.newitem
+  in
+
+  let id = match d with
+    | Add x -> "ADD " ^ (string_of_int x.id)
+    | Remove x -> "RMV " ^ (string_of_int x.id)
+    | Change x -> "CHG " ^ (string_of_int x.id)
+  in
+
+  let (curx, cury) = match d with
+    | Add x | Remove x | Change x -> x.loc
+  in
+  let printloc = "("^string_of_int curx^", " ^string_of_int cury^")" in
+
+  ("applying diff: " ^ id ^ " at "^printloc^" to "^item)
+
+
+let print_libmap lmap =
+  print_endline "---------------------------";
+  LibMap.iter (fun index item->
+      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
+                       (string_of_int index)
+                       (string_of_item item);)) lmap;
+  print_endline "---------------------------"
+
+
 
 (* [remove_item_from_list x i] removes item [i] from list [x].
  * If [x] does not contain [i], returns [x] *)
@@ -265,7 +345,7 @@ let rec apply_diff (d: diff) (w: world) : world =
   try
     apply_diff_helper d w
   with
-  | _ -> raise (ApplyDiffError "incompatible with the current world") 
+  | _ -> raise (ApplyDiffError "incompatible with the current world")
 
 
 let init size =

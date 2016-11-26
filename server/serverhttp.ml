@@ -8,10 +8,8 @@ open Controller
 type status = OK | Invalid
 type json = Yojson.Basic.json
 
-exception WorldFailure of string
+exception WorldFailure = Controller.WorldFailure
 exception BadRequest of string
-
-
 
 (* [start pw] will start a game server; join game with password [pw] *)
 let start s = failwith "unimplemented"
@@ -35,10 +33,10 @@ let loginsallowed = ref true
 let handleQuery req body cid =
   match Uri.path (Request.uri req) with
   | "/move" -> begin
-      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
-          ( print_endline cmdbody;
-            pushClientUpdate cid cmdbody "move"))
-      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+        body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+            ( print_endline cmdbody;
+              pushClientUpdate cid cmdbody "move"))
+        >>= (fun body -> Server.respond_string ~status:`OK ~body ())
     end
   | "/use" -> begin
       body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
@@ -82,7 +80,7 @@ let server =
       print_endline ("\n\n===================================================="^
                      "\nstarted callback");
       print_endline (req |> Request.uri |> Uri.to_string);
-      print_endline (Uri.path (Request.uri req));
+      (* print_endline (Uri.path (Request.uri req)); *)
       (* let uri = req |> Request.uri |> Uri.to_string in *)
       (* let meth = req |> Request.meth |> Code.string_of_method in *)
       (* let headers = req |> Request.headers |> Header.to_string in *)
@@ -110,7 +108,8 @@ let server =
           handleQuery req body cid
         end
       | Login (name) -> begin
-          print_endline ("hanlding login "^name);
+          print_endline ("handling login "^name);
+          print_endline ("I am allowed to register: "^(string_of_bool !loginsallowed));
           if !loginsallowed then handleLogin req body name
           (* TODO rolling login: keep list of old diffs in state *)
           else raise (BadRequest ("too late to log in"))
