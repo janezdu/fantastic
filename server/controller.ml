@@ -44,12 +44,14 @@ let rec remove_from_list x = function
 let translate_to_diff snapshot j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = snapshot in
-  (* let flatworld = !fw in *)
   let (curx, cury) = List.assoc cid flatworld.players in
   print_endline ("("^(string_of_int curx)^", "^(string_of_int cury)^")");
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
-  let IPlayer (player) = flatworld.items |> LibMap.find cid in
+  let player =
+    match flatworld.items |> LibMap.find cid with
+    | IPlayer (p) -> p | _ -> failwith "badplayer"
+  in
   if r = "move" then begin
     let newx = json |> member "newx" |> to_int in
     let newy = json |> member "newy" |> to_int in
@@ -109,8 +111,6 @@ let translate_to_diff snapshot j r cid =
                                           inventory=new_inv}}
           in
           [
-            Change {loc=cur_loc; id=cid;
-                    newitem=IPlayer {player with inventory=new_inv}};
             diff_player
           ]
         end
@@ -163,59 +163,67 @@ let rec remove x l = match l with
 
 (* [translate_to_json d] returns a json based on diffs *)
 let translate_to_single_json diff =
-  let objecttype item = match item with
+
+  let otype newitem = match newitem with
     | IPlayer _ -> "player"
-    | IAnimal _ |IPolice _ -> "ai"
-    | IPotion _ | ISpell _ -> "inv_item"
-    | _ -> failwith "invalid item"
+    | IAnimal _ -> "animal"
+    | IPolice _ -> "police"
+    | IPotion _ -> "potion"
+    | ISpell _ -> "spell"
+    | IVoid -> failwith "invalid item"
   in
+  let new_item_json newitem = match newitem with
+    | IPlayer player ->
+      `Assoc [
+      ("id", `Int player.id);
+      ("name", `String player.name);
+      ("hp", `Int player.hp);
+      ("score", `Int player.score);
+      ("inventory", `List (List.map (fun i -> `Int i) player.inventory))
+      ]
+    | IAnimal ai | IPolice ai->
+      `Assoc [
+      ("id", `Int ai.id);
+      ("hp", `Int ai.hp);
+      ]
+    | _ -> failwith "invalid item type to change"
+  in
+
   match diff with
   | Add {loc; id; newitem} ->
     `Assoc [
       ("difftype", `String "add");
       ("roomx", `Int (fst loc));
       ("roomy", `Int (snd loc));
-      ("objecttype", `String (objecttype newitem));
-      ("id", `Int id)
+      ("objecttype", `String (otype newitem));
+      ("id", `Int id);
+      ("item", new_item_json newitem)
     ]
   | Remove {loc; id; newitem} ->
     `Assoc [
       ("difftype", `String "remove");
       ("roomx", `Int (fst loc));
       ("roomy", `Int (snd loc));
-      ("objecttype", `String (objecttype newitem));
+      ("objecttype", `String (otype newitem));
       ("id", `Int id)
     ]
   | Change {loc; id; newitem} ->
-      let otype = objecttype newitem in
-      let new_item_json = match newitem with
-        | IPlayer player ->
-          `Assoc [
-          ("id", `Int player.id);
-          ("name", `String player.name);
-          ("hp", `Int player.hp);
-          ("score", `Int player.score);
-          ("inventory", `List (List.map (fun i -> `Int i) player.inventory))
-          ]
-        | IAnimal ai | IPolice ai->
-          `Assoc [
-          ("id", `Int ai.id);
-          ("hp", `Int ai.hp);
-          ]
-        | _ -> failwith "invalid item type to change"
-      in
       `Assoc [
       ("difftype", `String "change");
       ("roomx", `Int (fst loc));
       ("roomy", `Int (snd loc));
-      ("objecttype", `String otype);
-      (otype, new_item_json)
+      ("objecttype", `String (otype newitem));
+      ("id", `Int id);
+      ("item", new_item_json newitem)
     ]
 
 (* [translate_to_json d] returns a json based on diffs *)
 let translate_to_json difflist =
   let diffs_json =
-    `List (List.map (fun x -> translate_to_single_json x) difflist) in
+    let diffs = `List (List.map
+                         (fun x -> translate_to_single_json x) difflist) in
+    `Assoc [("diffs", diffs)]
+  in
   Yojson.Basic.to_string diffs_json
 (* returns the diff for a client when it asks for an update *)
 let getClientUpdate cid =
@@ -237,7 +245,7 @@ let getClientUpdate cid =
  *
  * This is only called inside pushClientUpdate and registerUser, so the world
  * really does only *react* to things that users do. *)
-let react oldstate newstate (cmd:string) cid = newstate
+let react oldstate newstate (cmd:string) cmdtype cid = newstate
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -273,7 +281,7 @@ let pushClientUpdate cid cmd cmdtype =
                          a history of all diffs that have happened in the game
                          so far. This is only here because if a new player joins
                          the game, they need the entire history in diffs. *)
-                      alldiffs = diffs@snapshot.alldiffs} cmd cid in
+                      alldiffs = diffs@snapshot.alldiffs} cmd cmdtype cid in
     (* [toflush] are the diffs that the client will be getting. *)
     let toflush = List.assoc cid afterstate.client_diffs in
     (* Flush [toflush] from the list of client_diffs. *)
