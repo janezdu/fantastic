@@ -44,12 +44,14 @@ let rec remove_from_list x = function
 let translate_to_diff snapshot j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = snapshot in
-  (* let flatworld = !fw in *)
   let (curx, cury) = List.assoc cid flatworld.players in
   print_endline ("("^(string_of_int curx)^", "^(string_of_int cury)^")");
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
-  let IPlayer (player) = flatworld.items |> LibMap.find cid in
+  let player =
+    match flatworld.items |> LibMap.find cid with
+    | IPlayer (p) -> p | _ -> failwith "badplayer"
+  in
   if r = "move" then begin
     let newx = json |> member "newx" |> to_int in
     let newy = json |> member "newy" |> to_int in
@@ -220,7 +222,7 @@ let translate_to_json difflist =
   let diffs_json =
     let diffs = `List (List.map
                          (fun x -> translate_to_single_json x) difflist) in
-    `Assoc [("diff", diffs)]
+    `Assoc [("diffs", diffs)]
   in
   Yojson.Basic.to_string diffs_json
 (* returns the diff for a client when it asks for an update *)
