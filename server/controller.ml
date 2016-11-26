@@ -88,27 +88,33 @@ let translate_to_diff snapshot j r cid =
             (* if target_hp + spell.effect <= 0
             then Remove {loc=cur_loc; id=target_id; newitem=wrapped_target}
             else  *)
-              Change {loc=cur_loc; id=target_id; newitem=new_target}
+            Change {loc=cur_loc; id=target_id; newitem=new_target}
           in
           [
-            Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
-            diff_target
+            diff_target;
+            Change {loc=cur_loc; id=cid;
+                    newitem=IPlayer {player with inventory=new_inv}}
           ]
         end
       | IPotion potion ->
         begin
           let diff_player =
             if player.hp + potion.effect <= 0
-            then Remove {loc=cur_loc; id=cid; newitem=IPlayer player}
+            then Remove {loc=cur_loc; id=cid;
+                         newitem=IPlayer {player with
+                                          inventory = new_inv}}
             else Change {loc=cur_loc; id=cid;
-                         newitem=IPlayer {player with hp = player.hp + potion.effect}}
+                         newitem=IPlayer {player with
+                                          hp = player.hp + potion.effect;
+                                          inventory=new_inv}}
           in
           [
-            Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
+            Change {loc=cur_loc; id=cid;
+                    newitem=IPlayer {player with inventory=new_inv}};
             diff_player
           ]
         end
-      | _ -> failwith "not a spell/potion"
+      | _ -> raise (IllegalStep "not a spell/potion")
     with
     | IllegalStep msg -> raise (IllegalStep msg)
     | _ -> failwith "weird error ?? "
