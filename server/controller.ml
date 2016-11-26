@@ -220,7 +220,7 @@ let translate_to_json difflist =
   let diffs_json =
     let diffs = `List (List.map
                          (fun x -> translate_to_single_json x) difflist) in
-    `Assoc [("diffs", diffs)]
+    `Assoc [("diff", diffs)]
   in
   Yojson.Basic.to_string diffs_json
 (* returns the diff for a client when it asks for an update *)
