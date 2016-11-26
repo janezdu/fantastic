@@ -1,5 +1,7 @@
 type room_loc = int * int
 
+exception ApplyDiffError of string
+
 (* A map module that uses room locations to look up properties of and contents
  * of a room. See [type world] for more details. *)
 module RoomMap : sig
@@ -151,5 +153,16 @@ type diff =
 
 val apply_diff: diff -> world -> world
 
-(* creates an initial world *)
-val init : unit -> world
+(* init [i] creates a i x i size world*)
+val init: int -> world
+
+(* prints out a libmap *)
+val print_libmap : item LibMap.t -> unit
+
+val string_of_diff : diff -> string
+
+val string_of_item : item -> string
+
+val string_of_inventory : int list -> string
+
+val string_of_difflist : (int * diff list) list -> string

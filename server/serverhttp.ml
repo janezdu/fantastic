@@ -8,7 +8,7 @@ open Controller
 type status = OK | Invalid
 type json = Yojson.Basic.json
 
-exception WorldFailure of string
+exception WorldFailure = Controller.WorldFailure
 exception BadRequest of string
 
 (* [start pw] will start a game server; join game with password [pw] *)
@@ -24,84 +24,107 @@ let send_response j s = failwith "unimplemented"
 (* [send_status] sense a response without a body*)
 let send_status s = failwith "unimplemented"
 
-let x = true
+type mode = Login of string | Query of int | Badmode
+
+(* let loginsallowed = ref true *)
+
+(* A method that handles legal queries once gameplay starts. Does not handle
+ * login *)
+let handleQuery req body cid =
+  match Uri.path (Request.uri req) with
+  | "/move" -> begin
+        body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+            ( print_endline cmdbody;
+              pushClientUpdate cid cmdbody "move"))
+        >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/use" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline cmdbody;
+            try
+              pushClientUpdate cid cmdbody "use"
+            with
+            | WorldFailure msg -> begin
+                print_endline "got to error";
+                raise (WorldFailure msg)
+            end))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/take" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline cmdbody;
+            pushClientUpdate cid cmdbody "take"))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/drop" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline cmdbody;
+            pushClientUpdate cid cmdbody "drop"))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | "/update" -> begin
+      body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
+          ( print_endline ("[UPDATE]: "^(string_of_int cid));
+            getClientUpdate cid))
+      >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+    end
+  | _ -> begin
+    Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
+    end
+
+(* A method that deals with user registration only. *)
+let handleLogin req body name =
+  let cid = registerUser name in
+  print_endline (name ^ "'s clieentid is "^(string_of_int cid));
+  Server.respond_string ~status:`OK ~body: (string_of_int cid) ()
+
 
 (* a server is a function that gets data, compute and respond *)
 let server =
-(*     let callback _conn req body =
-    let uri = req |> Request.uri |> Uri.to_string in
-    let meth = req |> Request.meth |> Code.string_of_method in
-    let headers = req |> Request.headers |> Header.to_string in
-    body |> Cohttp_lwt_body.to_string >|= (fun body ->
-      (Printf.sprintf "Uri: %s\nMethod: %s\nHeaders\nHeaders: %s\nBody: %s"
-         uri meth headers body))
-    >>= (fun body -> Server.respond_string ~status:`OK ~body ())
-  in
-  Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ()) *)
   let callback _conn req body =
     try
-
-
-
-      print_endline "started callback";
+      print_endline ("\n\n===================================================="^
+                     "\nstarted callback");
       print_endline (req |> Request.uri |> Uri.to_string);
-      print_endline (Uri.path (Request.uri req));
+      (* print_endline (Uri.path (Request.uri req)); *)
       (* let uri = req |> Request.uri |> Uri.to_string in *)
       (* let meth = req |> Request.meth |> Code.string_of_method in *)
       (* let headers = req |> Request.headers |> Header.to_string in *)
       let queryparams = req |> Request.uri |> Uri.query in
 
-      let cid = begin
-        try List.assoc "client_id" queryparams |> List.hd |> int_of_string
-        with
-        | _ -> raise (BadRequest ("No username selected"));
-      end in
+      let reqmode =
+        if List.mem_assoc "client_id" queryparams then
+          let cid = List.assoc "client_id" queryparams
+                    |> List.hd |> int_of_string in
+          if (not (check_clientid cid)) then raise (BadRequest "Invalid user")
+          else Query (cid)
+        else if List.mem_assoc "username" queryparams then
+          begin
+            let name = List.assoc "username" queryparams |> List.hd in
+            (* print_endline ("New player: " ^ name); *)
+            Login (name)
+          end
+        else Badmode
+      in
 
-      print_endline (string_of_int cid);
-      (* let mvregexp = Str.regexp ".*move.*" in
-
-         if Str.string_match mvregexp uri 0 then *)
-      
-      match Uri.path (Request.uri req) with
-      | "/move" -> begin
-          body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
-            ( print_endline cmdbody;
-              pushClientUpdate cid cmdbody "move"))
-          >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+      match reqmode with
+      | Query (cid) -> begin
+          print_endline ("hanlding player "^(string_of_int cid));
+          handleQuery req body cid
         end
-      | "/update" -> begin
-          body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
-              ("not done implementing update tho" ))
-          >>= (fun body -> Server.respond_string ~status:`OK ~body ())
-        end
-      | _ -> begin
-          Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" ()
-        end
-
-      (* else failwith "Can only handle move" *)
-      (*   begin
-          body |> Cohttp_lwt_body.to_string >|= (fun body ->
-          (Printf.sprintf "Uri: %s\nMethod: %s\nHeaders\nHeaders: %s\nBody: %s"
-             uri meth headers body))
-          >>= (fun body -> Server.respond_string ~status:`OK ~body ())
-        end *)
-(*         (* GET Request *)
-        (* let resbody = translate_to_json (getClientUpdate cmd json cid) in *)
-
-
-      (* after code that parses POST update *)
-      body (*...*)
-
-
-      if x then
-          body |> Cohttp_lwt_body.to_string >|= (fun body ->
-            (Printf.sprintf "We're fantastic!"))
-           >>= (fun body -> Server.respond_string ~status:`OK ~body ()) *)
+      | Login (name) -> begin
+          print_endline ("handling login "^name);
+          handleLogin req body name
+      end
+      | Badmode -> raise (BadRequest ("Badly formed uri, missing query"))
 
     with
-    | WorldFailure msg -> (Server.respond_string ~status:`OK ~body:"no username" ())
-    | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:"" ()
-    | _ -> Server.respond_string ~status:`Bad_request ~body:"idk even" ()
+    | WorldFailure msg -> begin
+        print_endline msg;
+        Server.respond_string ~status:`Bad_request ~body:"no username" ()
+      end
+    | BadRequest msg -> Server.respond_string ~status:`Bad_request ~body:msg ()
+    (* | _ -> Server.respond_string ~status:`Bad_request ~body:"idk even" () *)
 
   in
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
