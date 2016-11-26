@@ -11,8 +11,8 @@ type json = Yojson.Basic.json
 exception WorldFailure = Controller.WorldFailure
 exception BadRequest of string
 
-(* [start pw] will start a game server; join game with password [pw] *)
-let start s = failwith "unimplemented"
+(* [start pw] will start a game server*)
+let start () = failwith "unimplemented"
 
 type mode = Login of string | Query of int | Badmode
 

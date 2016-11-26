@@ -161,59 +161,67 @@ let rec remove x l = match l with
 
 (* [translate_to_json d] returns a json based on diffs *)
 let translate_to_single_json diff =
-  let objecttype item = match item with
+
+  let otype newitem = match newitem with
     | IPlayer _ -> "player"
-    | IAnimal _ |IPolice _ -> "ai"
-    | IPotion _ | ISpell _ -> "inv_item"
-    | _ -> failwith "invalid item"
+    | IAnimal _ -> "animal"
+    | IPolice _ -> "police"
+    | IPotion _ -> "potion"
+    | ISpell _ -> "spell"
+    | IVoid -> failwith "invalid item"
   in
+  let new_item_json newitem = match newitem with
+    | IPlayer player ->
+      `Assoc [
+      ("id", `Int player.id);
+      ("name", `String player.name);
+      ("hp", `Int player.hp);
+      ("score", `Int player.score);
+      ("inventory", `List (List.map (fun i -> `Int i) player.inventory))
+      ]
+    | IAnimal ai | IPolice ai->
+      `Assoc [
+      ("id", `Int ai.id);
+      ("hp", `Int ai.hp);
+      ]
+    | _ -> failwith "invalid item type to change"
+  in
+
   match diff with
   | Add {loc; id; newitem} ->
     `Assoc [
       ("difftype", `String "add");
       ("roomx", `Int (fst loc));
       ("roomy", `Int (snd loc));
-      ("objecttype", `String (objecttype newitem));
-      ("id", `Int id)
+      ("objecttype", `String (otype newitem));
+      ("id", `Int id);
+      ("item", new_item_json newitem)
     ]
   | Remove {loc; id; newitem} ->
     `Assoc [
       ("difftype", `String "remove");
       ("roomx", `Int (fst loc));
       ("roomy", `Int (snd loc));
-      ("objecttype", `String (objecttype newitem));
+      ("objecttype", `String (otype newitem));
       ("id", `Int id)
     ]
   | Change {loc; id; newitem} ->
-      let otype = objecttype newitem in
-      let new_item_json = match newitem with
-        | IPlayer player ->
-          `Assoc [
-          ("id", `Int player.id);
-          ("name", `String player.name);
-          ("hp", `Int player.hp);
-          ("score", `Int player.score);
-          ("inventory", `List (List.map (fun i -> `Int i) player.inventory))
-          ]
-        | IAnimal ai | IPolice ai->
-          `Assoc [
-          ("id", `Int ai.id);
-          ("hp", `Int ai.hp);
-          ]
-        | _ -> failwith "invalid item type to change"
-      in
       `Assoc [
       ("difftype", `String "change");
       ("roomx", `Int (fst loc));
       ("roomy", `Int (snd loc));
-      ("objecttype", `String otype);
-      (otype, new_item_json)
+      ("objecttype", `String (otype newitem));
+      ("id", `Int id);
+      ("item", new_item_json newitem)
     ]
 
 (* [translate_to_json d] returns a json based on diffs *)
 let translate_to_json difflist =
   let diffs_json =
-    `List (List.map (fun x -> translate_to_single_json x) difflist) in
+    let diffs = `List (List.map
+                         (fun x -> translate_to_single_json x) difflist) in
+    `Assoc [("diffs", diffs)]
+  in
   Yojson.Basic.to_string diffs_json
 (* returns the diff for a client when it asks for an update *)
 let getClientUpdate cid =
