@@ -109,8 +109,6 @@ let translate_to_diff snapshot j r cid =
                                           inventory=new_inv}}
           in
           [
-            Change {loc=cur_loc; id=cid;
-                    newitem=IPlayer {player with inventory=new_inv}};
             diff_player
           ]
         end
