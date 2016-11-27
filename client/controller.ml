@@ -310,7 +310,7 @@ let print_inv w =
   print_endline ""
 
 let print_help () =
-  print_endline "Game instruction goes here"
+  print_endline "Game instruction goes here\n"
 
 (************************** update world **************************************)
 
@@ -368,7 +368,9 @@ let update_client_id name =
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
   match code with
-  | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+  | 200 -> body >>= fun x ->
+    if c = "quit" then (print_endline x; ignore (exit 0); return w)
+    else translate_to_diff x |> apply_diff_list w |> return
   | 403 -> (print_endline "Invalid move. Please try again.\n"; repl w)
   | 409 -> repl_helper c w
   | 404 -> (print_endline "Invalid move. Please try again.\n"; repl w)
@@ -424,4 +426,8 @@ let rec main file_name =
   | Sys_error explanation ->
     (print_endline explanation;
     print_string "\n";
+    main (read_line ()))
+  | _ ->
+    (print_endline ("There is a problem with the connection."^
+    "Please try again");
     main (read_line ()))

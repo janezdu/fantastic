@@ -271,7 +271,7 @@ let rec apply_diff_list (w: world) (ds: diff list) : world =
   | d::ds' -> apply_diff w d
 
 let init size =
-  let emptyroom = {descr="This is a room!"; items = []} in
+  let emptyroom = {descr="This is a room!"; items = [1;2;1234]} in
   let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
             |> RoomMap.add (1,0) emptyroom
             |> RoomMap.add (1,1) emptyroom
