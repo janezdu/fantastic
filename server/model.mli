@@ -1,5 +1,7 @@
 type room_loc = int * int
 
+exception ApplyDiffError of string
+
 (* A map module that uses room locations to look up properties of and contents
  * of a room. See [type world] for more details. *)
 module RoomMap : sig
@@ -81,6 +83,7 @@ type spell = {
 
 type potion = {
   id : int;
+  name: string;
   descr : string;
   effect : int;
 }
@@ -88,6 +91,7 @@ type potion = {
 (* fields that can be updated in a move *)
 type player = {
   id : int;
+  name: string;
   hp : int;
   score : int;
   inventory : int list;
@@ -100,6 +104,12 @@ type ai = {
   hp : int;
   spells : int list;
 }
+
+val fnull_int: unit -> int
+
+val fnull_string: unit -> string
+
+val fnull_list: unit -> int list
 
 (* A type that is one of several records, all of which contain enough
  * information to represent both the static and dynamic parts of an item.
@@ -120,14 +130,16 @@ type item =
  * in the room. *)
 type room = {
   descr : string;
-  items : item list;
+  items : int list;
 }
 
 type world = {
   rooms: room RoomMap.t;
-  player: (int * room_loc) list;
+  players: (int * room_loc) list;
   items: item LibMap.t
 }
+
+type constructing_ai_lib = item LibMap.t
 
 type diffparam = {loc: room_loc; id: int; newitem: item}
 
@@ -138,7 +150,19 @@ type diff =
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
+
 val apply_diff: diff -> world -> world
 
-(* [validate w d] returns true if applying [d] to [w] is legal, false ow*)
-val validate: world -> diff -> bool
+(* init [i] creates a i x i size world*)
+val init: int -> world
+
+(* prints out a libmap *)
+val print_libmap : item LibMap.t -> unit
+
+val string_of_diff : diff -> string
+
+val string_of_item : item -> string
+
+val string_of_inventory : int list -> string
+
+val string_of_difflist : (int * diff list) list -> string

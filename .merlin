@@ -1,0 +1,10 @@
+PKG lwt cohttp.lwt yojson str
+
+B _build/
+
+
+S server
+S client
+
+B server/_build
+B client/_build

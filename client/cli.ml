@@ -36,6 +36,8 @@ let parse_command (lst)=
     | h::[] when (String.trim h="view")-> ViewState
     | h::[] when (String.trim h="help") -> Help
 
+    | h::[] -> Move (String.trim h)(*new stuff*)
+
     | _ -> failwith "Illegal"
 
 (* [split_to_list str] is a string that results from splitting [str] into a
@@ -92,5 +94,4 @@ let parse_c command =
 
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)
-
 let parse_comm d = parse_c d

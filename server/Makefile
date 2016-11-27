@@ -1,5 +1,11 @@
 build:
-	ocamlbuild -pkgs yojson,cohttp.lwt serverhttp.byte
+	ocamlbuild -pkgs yojson,cohttp.lwt,str serverhttp.byte
+
+ast:
+	ocamlbuild -pkgs yojson,cohttp.lwt,str -tag bin-annot -tag thread serverhttp.byte
+
+start:
+	ocamlbuild -use-ocamlfind -pkgs yojson,cohttp.lwt,str -tag bin-annot -tag thread serverhttp.byte && ./serverhttp.byte
 
 clean:
 	ocamlbuild -clean

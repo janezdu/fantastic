@@ -16,6 +16,7 @@ type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
 
+
 let client_id = ref (-1)
 let username = ref ""
 
@@ -151,6 +152,7 @@ type comm_json =
   | JViewState
   | JHelp
 
+
 (* [init_state json] creates the inital world for the game *)
 let add_room room_map room_json = 
   let loc = room_json |> member "loc" in
@@ -182,6 +184,7 @@ let init_state j =
   let player_lst = j |> member "players" |> to_list |>
     List.map make_player in
   {rooms = actual_rooms; players = player_lst; items = items}
+
 
 let rec remove i lst =
   match lst with

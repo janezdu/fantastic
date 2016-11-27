@@ -1,0 +1,71 @@
+
+
+
+#require "yojson"
+#require "cohttp.lwt"
+#require "str"
+
+
+
+(** This loads the compiled modules from this directory *)
+#directory "_build";;
+
+#load "model.cmo";;
+#load "serverhttp.cmo";;
+#load "controller.cmo";;
+
+(** For convenience, we open a bunch of modules *)
+open Controller
+open Model
+open Serverhttp
+
+
+let translate_to_single_json diff =
+  let objecttype item = match item with
+    | IPlayer _ -> "player"
+    | IAnimal _ |IPolice _ -> "ai"
+    | IPotion _ | ISpell _ -> "inv_item"
+    | _ -> failwith "invalid item"
+  in
+  match diff with
+  | Add {loc; id; newitem} ->
+    `Assoc [
+      ("difftype", `String "add");
+      ("roomx", `Int (fst loc));
+      ("roomy", `Int (snd loc));
+      ("objecttype", `String (objecttype newitem));
+      ("id", `Int id)
+    ]
+  | Remove {loc; id; newitem} ->
+    `Assoc [
+      ("difftype", `String "remove");
+      ("roomx", `Int (fst loc));
+      ("roomy", `Int (snd loc));
+      ("objecttype", `String (objecttype newitem));
+      ("id", `Int id)
+    ]
+  | Change {loc; id; newitem} ->
+      let otype = objecttype newitem in
+      let new_item_json = match newitem with
+        | IPlayer player ->
+          `Assoc [
+          ("id", `Int player.id);
+          ("name", `String player.name);
+          ("hp", `Int player.hp);
+          ("score", `Int player.score);
+          ("inventory", `List (List.map (fun i -> `Int i) player.inventory))
+          ]
+        | IAnimal ai | IPolice ai->
+          `Assoc [
+          ("id", `Int ai.id);
+          ("hp", `Int ai.hp);
+          ]
+        | _ -> failwith "invalid item type to change"
+      in
+      `Assoc [
+      ("difftype", `String "change");
+      ("roomx", `Int (fst loc));
+      ("roomy", `Int (snd loc));
+      ("objecttype", `String otype);
+      (otype, new_item_json)
+    ]
