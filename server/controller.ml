@@ -83,7 +83,7 @@ let translate_to_diff snapshot j r cid =
             | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
             | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
             | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
-            | _ -> raise (IllegalStep "Bad target, not a player/ai") 
+            | _ -> raise (IllegalStep "Bad target, not a player/ai")
           in
           Change {loc=cur_loc; id=target_id; newitem=new_target}
         in
@@ -273,9 +273,9 @@ let pushClientUpdate cid cmd cmdtype =
     toflush |> translate_to_json
   with
   | IllegalStep msg -> raise (WorldFailure msg)
-  | _ -> begin
+  (* | _ -> begin
       (* endWrite (); *)
-      raise (WorldFailure ("error applying to world")) end
+      raise (WorldFailure ("error applying to world")) end *)
 
 
 let check_clientid cid = LibMap.mem cid (!state).flatworld.items
