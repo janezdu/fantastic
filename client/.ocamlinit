@@ -19,3 +19,6 @@ open Yojson.Basic.Util
 open Cli
 open Model
 open Controller
+
+let w = init 4;;
+client_id := 1234;;
