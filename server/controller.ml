@@ -21,7 +21,7 @@ let p = print_endline
 let newid = ref 1000
 
 (* todo: implement this in translate_to_diff *)
-type cmd = Move | Use | Take | Drop
+(* type cmd = Move | Use | Take | Drop *)
 
 exception IllegalStep of string
 (* exception IllegalMove
@@ -50,111 +50,90 @@ let translate_to_diff snapshot j r cid =
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
   let player =
     match flatworld.items |> LibMap.find cid with
-    | IPlayer (p) -> p | _ -> failwith "badplayer"
+    | IPlayer (p) -> p | _ -> raise (IllegalStep "Not a player, cannot move")
   in
   if r = "move" then begin
     let newx = json |> member "newx" |> to_int in
     let newy = json |> member "newy" |> to_int in
+    if (abs(newx - curx) + abs(newy - cury)) <> 1 then
+      raise (IllegalStep "Cannot step to non-adjacent.")
+    else
     print_endline "got newx and newy from json";
-    [
-      Remove {loc=(curx, cury); id=cid; newitem=IPlayer player};
+    [ Remove {loc=(curx, cury); id=cid; newitem=IPlayer player};
       Add {loc=(newx, newy); id=cid; newitem=IPlayer player}
     ]
   end
   else if r = "use" then begin
-    try
-      let item_id = json |> member "id" |> to_int in
-      print_endline (string_of_int item_id);
-      let target_id = json |> member "target" |> to_int in
-      let new_inv = remove_from_list item_id player.inventory in
-      print_endline (string_of_inventory new_inv);
+    let item_id = json |> member "id" |> to_int in
+    print_endline (string_of_int item_id);
+    let target_id = json |> member "target" |> to_int in
+    let new_inv = remove_from_list item_id player.inventory in
+    print_endline (string_of_inventory new_inv);
 
-      if (not (LibMap.mem target_id flatworld.items)) then
-        begin
-          print_endline "attacking bad thing";
-          raise (IllegalStep "Not an available target")
-        end
-      else
-      let wrapped_target = flatworld.items |> LibMap.find target_id in
-      let wrapped_item = flatworld.items |> LibMap.find item_id in
-      match wrapped_item with
-      | ISpell spell ->
-        begin
-          let diff_target =
-            let (new_target, target_hp) = match wrapped_target with
-              | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
-              | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
-              | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
-              | _ -> failwith "not a player/ai"
-            in
-            (* if target_hp + spell.effect <= 0
-            then Remove {loc=cur_loc; id=target_id; newitem=wrapped_target}
-            else  *)
-            Change {loc=cur_loc; id=target_id; newitem=new_target}
+    if (not (LibMap.mem target_id flatworld.items)) then
+      raise (IllegalStep ("Bad target: "^(string_of_int target_id)))
+    else
+    let wrapped_target = flatworld.items |> LibMap.find target_id in
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    match wrapped_item with
+    | ISpell spell ->
+      begin
+        let diff_target =
+          let (new_target, target_hp) = match wrapped_target with
+            | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
+            | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
+            | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
+            | _ -> raise (IllegalStep "Bad target, not a player/ai") 
           in
-          [
-            diff_target;
-            Change {loc=cur_loc; id=cid;
-                    newitem=IPlayer {player with inventory=new_inv}}
-          ]
-        end
-      | IPotion potion ->
-        begin
-          let diff_player =
-            if player.hp + potion.effect <= 0
-            then Remove {loc=cur_loc; id=cid;
-                         newitem=IPlayer {player with
-                                          inventory = new_inv}}
-            else Change {loc=cur_loc; id=cid;
-                         newitem=IPlayer {player with
-                                          hp = player.hp + potion.effect;
-                                          inventory=new_inv}}
-          in
-          [
-            diff_player
-          ]
-        end
-      | _ -> raise (IllegalStep "not a spell/potion")
-    with
-    | IllegalStep msg -> raise (IllegalStep msg)
-    | _ -> failwith "weird error ?? "
+          Change {loc=cur_loc; id=target_id; newitem=new_target}
+        in
+        [ diff_target;
+          Change {loc=cur_loc; id=cid;
+                  newitem=IPlayer {player with inventory=new_inv}}
+        ]
+      end
+    | IPotion potion ->
+        if player.hp + potion.effect <= 0
+        then Remove {loc=cur_loc; id=cid;
+                     newitem=IPlayer {player with
+                                      inventory = new_inv}}::[]
+        else Change {loc=cur_loc; id=cid;
+                       newitem=IPlayer {player with
+                                        hp = player.hp + potion.effect;
+                                        inventory=new_inv}}::[]
+    | _ -> raise (IllegalStep "not a spell/potion")
   end
   else if r = "take" then begin
-    try
-      let item_id = json |> member "id" |> to_int in
-      if (not (List.mem item_id cur_room.items)) then
-        raise (IllegalStep "Not in room")
-      else
-      let wrapped_item = flatworld.items |> LibMap.find item_id in
-      let _ = match wrapped_item with
-        | ISpell _| IPotion _ -> true |_ -> failwith "not a spell/potion"
-      in
-      [
-        Remove {loc=cur_loc; id=item_id; newitem=wrapped_item};
-        Change {loc=cur_loc; id=cid;
-                newitem=IPlayer {player with inventory=item_id::player.inventory}}
-      ]
-    with _ -> raise (IllegalStep "Bad take")
+    let item_id = json |> member "id" |> to_int in
+    if (not (List.mem item_id cur_room.items)) then
+      raise (IllegalStep "Not in room")
+    else
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    let _ = match wrapped_item with
+      | ISpell _| IPotion _ -> true |_ ->
+        raise (IllegalStep "not a spell/potion")
+    in
+    [ Remove {loc=cur_loc; id=item_id; newitem=wrapped_item};
+      Change {loc=cur_loc; id=cid;
+              newitem=IPlayer {player with
+                               inventory=item_id::player.inventory}}
+    ]
   end
   else if r = "drop" then begin
-    try
-      let item_id = json |> member "id" |> to_int in
-      let wrapped_item = flatworld.items |> LibMap.find item_id in
-      let _ = match wrapped_item with
-        | ISpell _| IPotion _ -> true |_ -> failwith "not a spell/potion"
-      in
-      let _ = remove_from_list item_id player.inventory in
-      let new_inv = remove_from_list item_id player.inventory in
-      [
-        Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
-        Add {loc=cur_loc; id=item_id; newitem=wrapped_item}
-      ]
-    with
-    | _ -> raise (IllegalStep "Bad drop")
+    let item_id = json |> member "id" |> to_int in
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    let _ = match wrapped_item with
+      | ISpell _ | IPotion _ -> true |_ ->
+        raise (IllegalStep "not a spell/potion") in
+    let _ = remove_from_list item_id player.inventory in
+    let new_inv = remove_from_list item_id player.inventory in
+    [ Change {loc=cur_loc; id=cid;
+              newitem=IPlayer {player with inventory=new_inv}};
+      Add {loc=cur_loc; id=item_id; newitem=wrapped_item}
+    ]
   end
   else
     []
-
 
 let rec remove x l = match l with
   | [] -> failwith "no such element"
@@ -236,8 +215,7 @@ let getClientUpdate cid =
     state := newstate;
     translate_to_json diffs_to_apply
   with
-  | _ ->
-    failwith "illegal client"
+  | _ -> raise (IllegalStep "Bad clientid")
 
 (* This method looks at the cmd and decides if there are any reactions the
  * world will make. For example, if the user attack an animal, this method
