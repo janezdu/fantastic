@@ -19,13 +19,6 @@ type directive = Cli.directive
 let client_id = ref (-1)
 let username = ref ""
 
-(* status codes *)
-let ok = 200
-let forbidden = 403
-let conflict = 409
-let non_found = 404
-let unauthorized = 401
-
 (************************** translate_to_diff *********************************)
 
 (* [null_int] represents null of type int *)
@@ -272,9 +265,10 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | ViewState -> JViewState
   | Help -> JHelp
 
-let print_string_list = function
+let rec print_string_list lst =
+  match lst with
   | [] -> ()
-  | h::t -> print_endline h
+  | h::t -> print_endline h; print_string_list t
 
 let get_item_name_by_id lib id =
   match LibMap.find id lib with
@@ -289,12 +283,19 @@ let rec get_curr_loc = function
   | [] -> (-1,-1)
   | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
 
+let rec elim_dup acc = function
+  | [] -> acc
+  | h::t -> if List.mem h t then elim_dup acc t else elim_dup (acc@[h]) t
+
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
   print_endline ("Room description: " ^ room.descr);
-  print_endline "In the room, there are: ";
-  print_string_list (List.map (get_item_name_by_id w.items) room.items)
+  print_endline "\nIn the room, there are: ";
+  let item_list_dup = List.map (get_item_name_by_id w.items) room.items in
+  let item_list = elim_dup [] item_list_dup in
+  print_string_list item_list;
+  print_endline ""
 
 let unwrap_player = function
   | IPlayer x -> x
@@ -303,7 +304,10 @@ let unwrap_player = function
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
   print_endline "Your inventory contains: ";
-  print_string_list (List.map (get_item_name_by_id w.items) p.inventory)
+  let inv_list_dup = List.map (get_item_name_by_id w.items) p.inventory in
+  let inv_list = elim_dup [] inv_list_dup in
+  print_string_list inv_list;
+  print_endline ""
 
 let print_help () =
   print_endline "Game instruction goes here"
@@ -319,11 +323,11 @@ let rec request_and_update_world (w: world) : world Lwt.t =
 
 (* [auto_update_world w] is the most up-to-date world from the server.
  * It requests to update every 500ms *)
-let rec auto_update_world (is_loop: bool) (w: world) : world Lwt.t =
+(* let rec auto_update_world (is_loop: bool) (w: world) : world Lwt.t =
   if is_loop then
-    Lwt_unix.sleep 0.5 >>= fun () -> request_and_update_world w
+    OS.Time.sleep 0.05 >>= fun () -> request_and_update_world w
     >>= auto_update_world is_loop
-  else return w
+  else return w *)
 
 (************************** eval command **************************************)
 
@@ -331,8 +335,8 @@ let rec auto_update_world (is_loop: bool) (w: world) : world Lwt.t =
  * based on [comm] for command that needs to update the world.
  * For commands that don't, pulls infos from the current world state.
  * Returns a tuple of status code and body Lwt.t *)
-let do_command comm current_player curr_world : (int * string Lwt.t) Lwt.t =
-  auto_update_world false curr_world >>= fun curr_world ->
+let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
+  request_and_update_world w >>= fun curr_world ->
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x "move" current_player
   | JDrink x -> send_post_request x "use" current_player
@@ -365,23 +369,25 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
   match code with
   | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
-  | 403 ->
-    (print_endline "Invalid move. Please try again.";
-    auto_update_world true w >>= repl)
-  | 409 -> request_and_update_world w >>= repl_helper c
-  | 404 ->
-    (print_endline "Invalid move. Please try again.";
-    auto_update_world true w >>= repl)
-  | 401 -> repl_helper c w
-  | _ -> request_and_update_world w >>= repl_helper c
+  | 403 -> (print_endline "Invalid move. Please try again.\n"; repl w)
+  | 409 -> repl_helper c w
+  | 404 -> (print_endline "Invalid move. Please try again.\n"; repl w)
+  | 400 ->
+    (print_endline "Bad request. ";
+    body >>= fun x -> print_endline x;
+    repl_helper c w)
+  | 401 ->
+    (print_endline "Incorrect client_id. ";
+    body >>= fun x -> print_endline x; repl_helper c w)
+  | _ -> return w
 
 and repl (w: world): world Lwt.t =
+  request_and_update_world w >>= fun new_world ->
   let c = String.lowercase_ascii (read_line ()) in
   try
-    repl_helper c w >>= fun repl_world -> auto_update_world true repl_world
-    >>= repl
+    request_and_update_world new_world >>= repl_helper c >>= repl
   with
-  | _ -> (print_endline "Invalid command. Please try again."; repl w)
+  | _ -> (print_endline "Invalid command. Please try again.\n"; repl w)
 
 (******************************* main functions *******************************)
 
@@ -397,14 +403,13 @@ let cut_file_type file_name =
  * var welcome_msg : string -> state -> unit *)
 let welcome_msg file_name st =
   print_endline ("Welcome back to the magical world of J.K. Rowling" ^
-    "Fantastic Beasts And Where To Find Them: ");
-  print_endline (cut_file_type file_name);
+    "\nFantastic Beasts And Where To Find Them: \n");
+  (* print_endline (cut_file_type file_name); *)
   do_command "look" !client_id st
 
 let start_chain (file_name: string) (w: world) =
-  auto_update_world true w >>= fun x ->
-  welcome_msg file_name x |> ignore;
-  x |> repl
+  request_and_update_world w >>= fun new_world ->
+  welcome_msg file_name new_world |> ignore; repl new_world
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
