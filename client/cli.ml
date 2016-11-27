@@ -33,8 +33,8 @@ let parse_command lst=
     | h::[] when (String.trim h="quit")-> Quit
     | h::[] when (String.trim h="inv" || String.trim h = "inventory") ->
         Inventory
-    | h::[] when (String.trim h="View")-> ViewState
-    | h::[] when (String.trim h="Help") -> Help
+    | h::[] when (String.trim h="view")-> ViewState
+    | h::[] when (String.trim h="help") -> Help
     | h::[] -> Move (String.trim h)(*new stuff*)
     | _ -> failwith "Illegal"
 
