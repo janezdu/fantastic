@@ -33,7 +33,7 @@ let handleQuery req body cid : string Lwt.t =
                 return (pushClientUpdate cid cmdbody (strip path))
               with
               | WorldFailure msg -> begin
-                  print_endline "got to error";
+                  print_endline msg;
                   Lwt.fail (WorldFailure msg)
                 end
               | _ -> failwith "Legal uri but broken non-worldfailure"))
