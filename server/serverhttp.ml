@@ -33,7 +33,7 @@ let handleQuery req body cid : string Lwt.t =
                 return (pushClientUpdate cid cmdbody (strip path))
               with
               | WorldFailure msg -> begin
-                  print_endline "got to error";
+                  print_endline msg;
                   Lwt.fail (WorldFailure msg)
                 end
               | _ -> failwith "Legal uri but broken non-worldfailure"))
@@ -65,8 +65,7 @@ let server =
       if List.mem_assoc "client_id" queryparams then
         let cid = List.assoc "client_id" queryparams
                   |> List.hd |> int_of_string in
-        if (not (check_clientid cid)) then raise (BadRequest "Invalid user")
-        else Query (cid)
+        Query (cid)
       else if List.mem_assoc "username" queryparams then
         begin
           let name = List.assoc "username" queryparams |> List.hd in
