@@ -1,5 +1,5 @@
 (* directive is what the player types into the command line*)
-type directive = string
+
 
 (* command is a variant type of the possible commands a player
  * could make *)
@@ -22,7 +22,7 @@ type command =
  *           ["command variant"; "object of command"]
  *           ["direction of go command"]
  *)
-let parse_command lst=
+let parse_command (lst)=
     match lst with
     | h::t::[] when (h="move") -> Move (String.trim t)
     | h::t::[] when (h="drink") -> Drink (String.trim t)
@@ -35,7 +35,9 @@ let parse_command lst=
         Inventory
     | h::[] when (String.trim h="view")-> ViewState
     | h::[] when (String.trim h="help") -> Help
+
     | h::[] -> Move (String.trim h)(*new stuff*)
+
     | _ -> failwith "Illegal"
 
 (* [split_to_list str] is a string that results from splitting [str] into a
@@ -88,7 +90,7 @@ let parse_c command =
     let c = String.trim (String.lowercase_ascii command) in
     let spl = split_to_list c in
     let sep_com = sep_dir spl in
-    parse_command sep_com
+    parse_command sep_com  
 
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)

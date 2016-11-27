@@ -268,7 +268,8 @@ let rec apply_diff (w: world) (d: diff) : world =
 let rec apply_diff_list (w: world) (ds: diff list) : world =
   match ds with
   | [] -> w
-  | d::ds' -> apply_diff w d
+
+  | d::ds' -> apply_diff_list (apply_diff w d) ds'
 
 let init size =
   let emptyroom = {descr="This is a room!"; items = [1;2;1234]} in
@@ -392,3 +393,4 @@ let print_libmap lmap =
                        (string_of_int index)
                        (string_of_item item);)) lmap;
   print_endline "---------------------------"
+

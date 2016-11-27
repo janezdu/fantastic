@@ -14,7 +14,8 @@ type diff = Model.diff
 type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
-type directive = Cli.directive
+
+
 
 let client_id = ref (-1)
 let username = ref ""
@@ -151,15 +152,91 @@ type comm_json =
   | JViewState
   | JHelp
 
+
 (* [init_state json] creates the inital world for the game *)
-let init_state json =
-  let player_id = json |> member "player" |> to_int in
-  let player_x = json |> member "x" |> to_int in
-  let player_y = json |> member "y" |> to_int in
-  let my_rooms = RoomMap.(empty |> add (0,0) {descr= "hi"; items = [1]}) in
-  let my_players = [(player_id, (player_x, player_y))] in
-  let my_items = LibMap.empty in
-  {rooms = my_rooms; players = my_players; items = my_items}
+let add_room room_map room_json = 
+  let loc = room_json |> member "loc" in
+  let x = loc |> member "x" |> to_int in
+  let y = loc |> member "y" |> to_int in
+  let items = room_json |> member "items" |> to_list |> List.map to_int in
+  let des = room_json |> member "descr" |> to_string in
+  let room = {descr = des; items = items} in
+  RoomMap.add (x,y) room room_map
+
+let add_spell item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let incantation = item_json |> member "incant" |> to_string in
+  let description = item_json |> member "descr" |> to_string in 
+  let effect = item_json |> member "effect" |> to_int in 
+  let spell = ISpell {id = id; incant = incantation; descr = description ; 
+              effect = effect} in
+  LibMap.add id spell item_map
+
+let add_potion item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let descr = item_json |> member "descr" |> to_string in
+  let effect = item_json |> member "effect" |> to_int in
+  let potion = IPotion {id = id; name = name; descr = descr ; effect = effect} in
+  LibMap.add id potion item_map
+
+let add_player item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let hp = item_json |> member "hp" |> to_int in 
+  let score = item_json |> member "score" |> to_int in 
+  let inv = item_json |> member "inv" |> to_list |> List.map to_int in 
+  let player = IPlayer {id = id; name = name; hp = hp; score = score; inventory = inv} in
+  LibMap.add id player item_map
+
+let add_police item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let hp = item_json |> member "hp" |> to_int in 
+  let descr = item_json |> member "descr" |> to_string in 
+  let spells = item_json |> member "spells" |> to_list |> List.map to_int in 
+  let ai = IPolice {id = id; name = name; hp = hp; descr = descr; spells = spells} in
+  LibMap.add id ai item_map
+
+let add_beast item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let hp = item_json |> member "hp" |> to_int in 
+  let descr = item_json |> member "descr" |> to_string in 
+  let spells = item_json |> member "spells" |> to_list |> List.map to_int in 
+  let ai = IAnimal {id = id; name = name; hp = hp; descr = descr; spells = spells} in
+  LibMap.add id ai item_map
+
+let add_item item_map item_json = 
+  let item_type = item_json |> member "item type" |> to_string in
+  match item_type with
+  | "spell" -> add_spell item_map item_json
+  | "potion" -> add_potion item_map item_json
+  | "player" -> add_player item_map item_json
+  | "police" -> add_police item_map item_json
+  | "animal" -> add_beast item_map item_json
+  | _ -> failwith "invalid item type"
+  
+
+
+let make_player player_json = 
+  let id = player_json |> member "id" |> to_int in
+  let x = player_json |> member "x" |> to_int in 
+  let y=  player_json |> member "y" |> to_int in
+  (id, (x,y))
+
+(* [init_state json] creates the inital world for the game *)
+let init_state j =
+  let orig_room = RoomMap.empty in
+  let orig_item = LibMap.empty in
+  let rooms = j |> member "rooms" |> to_list in
+  let actual_rooms = List.fold_left add_room orig_room rooms in
+  let items = j |> member "items" |> to_list |>
+    List.fold_left add_item orig_item in
+  let player_lst = j |> member "players" |> to_list |>
+    List.map make_player in
+  {rooms = actual_rooms; players = player_lst; items = items}
+
 
 let rec remove i lst =
   match lst with
@@ -192,11 +269,11 @@ let find_item i (w:world)=
 let interp_move (m:string) current_player (w:world): comm_json =
   match (String.lowercase_ascii m) with
   | "north" ->
-  	let curr_loc = List.assoc current_player w.players in
-  	let new_loc_x = fst curr_loc in
-  	let new_loc_y = snd curr_loc + 1 in
-  	JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
-  	(string_of_int new_loc_y) ^ "}")
+    let curr_loc = List.assoc current_player w.players in
+    let new_loc_x = fst curr_loc in
+    let new_loc_y = snd curr_loc + 1 in
+    JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
+    (string_of_int new_loc_y) ^ "}")
   | "south" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
@@ -224,7 +301,7 @@ let interp_move (m:string) current_player (w:world): comm_json =
    * (matches incantation) *)
 let interp_spell s (w:world): comm_json =
    match (find_item s w) with
-   | Some s -> failwith "Unimplemented"
+   | Some s -> JSpell ("{\"Id\":" ^ (string_of_int s) ^ "}")
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
