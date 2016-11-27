@@ -214,7 +214,7 @@ let add_item item_map item_json =
   | "potion" -> add_potion item_map item_json
   | "player" -> add_player item_map item_json
   | "police" -> add_police item_map item_json
-  | "beast" -> add_beast item_map item_json
+  | "animal" -> add_beast item_map item_json
   | _ -> failwith "invalid item type"
   
 
