@@ -367,7 +367,6 @@ let update_client_id name =
 
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
-  body >>= fun x -> print_endline x;
   match code with
   | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
   | 403 -> (print_endline "Invalid move. Please try again.\n"; repl w)
@@ -388,7 +387,7 @@ and repl (w: world): world Lwt.t =
   try
     request_and_update_world new_world >>= repl_helper c >>= repl
   with
-  | _ -> (print_endline "Invalid command. Please try again.\n\n"; repl w)
+  | _ -> (print_endline "Invalid command. Please try again.\n"; repl w)
 
 (******************************* main functions *******************************)
 
