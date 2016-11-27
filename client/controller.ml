@@ -418,7 +418,7 @@ let start_chain (file_name: string) (w: world) =
 let rec main file_name =
   try
     let init_state_var = init_state (Yojson.Basic.from_file file_name) in
-    print_endline "What's your name?";
+    print_endline "What's your neame?";
     username := (read_line ());
     update_client_id !username;
     Lwt_main.run (start_chain file_name init_state_var)
