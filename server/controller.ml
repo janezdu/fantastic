@@ -65,10 +65,10 @@ let translate_to_diff snapshot j r cid =
   end
   else if r = "use" then begin
     let item_id = json |> member "id" |> to_int in
-    print_endline (string_of_int item_id);
+    print_endline ("Begin to use "^(string_of_int item_id));
     let target_id = json |> member "target" |> to_int in
     let new_inv = remove_from_list item_id player.inventory in
-    print_endline (string_of_inventory new_inv);
+    print_endline ("New inventory: "^(string_of_inventory new_inv));
 
     if (not (LibMap.mem target_id flatworld.items)) then
       raise (IllegalStep ("Bad target: "^(string_of_int target_id)))
@@ -83,7 +83,7 @@ let translate_to_diff snapshot j r cid =
             | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
             | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
             | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
-            | _ -> raise (IllegalStep "Bad target, not a player/ai") 
+            | _ -> raise (IllegalStep "Bad target, not a player/ai")
           in
           Change {loc=cur_loc; id=target_id; newitem=new_target}
         in
@@ -221,9 +221,83 @@ let getClientUpdate cid =
  * world will make. For example, if the user attack an animal, this method
  * will create the world 1 time step later, after the beast attacks back.
  *
- * This is only called inside pushClientUpdate and registerUser, so the world
+ * This is only called inside pushClientUpdate, so the world
  * really does only *react* to things that users do. *)
-let react oldstate newstate (cmd:string) cmdtype cid = newstate
+let react oldstate newstate (cmd:string) cmdtype cid =
+  let spawn_item state =
+    let {flatworld;client_diffs;alldiffs} = state in
+    if (Random.int 10) < 3 then
+      let rand_loc = (Random.int 50, Random.int 50) in
+      let item_id = Random.int 100 in
+      let item = flatworld.items |> LibMap.find item_id in
+      let old_room = flatworld.rooms |> RoomMap.find rand_loc in
+      let new_room = {old_room with items = item_id::old_room.items} in
+      let new_room_map = flatworld.rooms |> RoomMap.add rand_loc new_room in
+      let diff = Add {loc=rand_loc;id=item_id;newitem=item} in
+      let new_client_diffs =
+        List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs
+      in
+      {flatworld={flatworld with rooms=new_room_map};
+       client_diffs=new_client_diffs;
+       alldiffs=diff::alldiffs
+      }
+    else state
+  in
+  let scoring state =
+    let {flatworld;client_diffs;alldiffs} = state in
+    let _ = print_libmap flatworld.items in
+    let cur_loc = List.assoc cid flatworld.players in
+
+    if cmdtype = "use" then
+      let player = match flatworld.items |> LibMap.find cid with
+        | IPlayer p -> p
+        | _ -> raise (IllegalStep ("Not a player, bad cid, tbh "^
+                      "how did you even get here")) in
+      let new_player = IPlayer {player with score = player.score + 50} in
+      let new_item_map = flatworld.items |> LibMap.add cid new_player in
+      let diff = Change {loc=cur_loc;id=cid;newitem=new_player} in
+      let new_client_diffs =
+        List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs
+      in
+      {flatworld={flatworld with items=new_item_map};
+       client_diffs=new_client_diffs;
+       alldiffs=diff::alldiffs
+      }
+    else state
+  in
+  let chasing state =
+    let {flatworld;client_diffs;alldiffs} = state in
+    let old_loc = List.assoc cid oldstate.flatworld.players in
+    let new_loc = List.assoc cid flatworld.players in
+    let old_room = flatworld.rooms |> RoomMap.find old_loc in
+    let new_room = flatworld.rooms |> RoomMap.find new_loc in
+    let is_police id =
+      let item = flatworld.items |> LibMap.find id in
+      match item with
+      | IPolice ai -> true
+      | _ -> false
+    in
+    try
+      let police_id = List.find (fun x -> is_police x) old_room.items in
+      let police = flatworld.items |> LibMap.find police_id in
+      let new_room_map = flatworld.rooms
+                         |> RoomMap.add old_loc
+                           {old_room with items=(remove police_id old_room.items)}
+                         |> RoomMap.add new_loc
+                           {new_room with items=police_id::new_room.items}
+      in
+      let diff1 = Remove {loc=old_loc;id=police_id;newitem=police} in
+      let diff2 = Add {loc=new_loc;id=police_id;newitem=police} in
+      let new_client_diffs =
+        List.map (fun (id,diffs) -> (id, diff1::diff2::diffs)) client_diffs
+      in
+      {flatworld={flatworld with rooms=new_room_map};
+       client_diffs=new_client_diffs;
+       alldiffs=diff1::diff2::alldiffs
+      }
+    with _ -> state
+  in newstate |> spawn_item |> scoring |> chasing
+
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -273,9 +347,9 @@ let pushClientUpdate cid cmd cmdtype =
     toflush |> translate_to_json
   with
   | IllegalStep msg -> raise (WorldFailure msg)
-  | _ -> begin
+  (* | _ -> begin
       (* endWrite (); *)
-      raise (WorldFailure ("error applying to world")) end
+      raise (WorldFailure ("error applying to world")) end *)
 
 
 let check_clientid cid = LibMap.mem cid (!state).flatworld.items
