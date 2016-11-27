@@ -218,8 +218,8 @@ let complete_item w = function
 
 (* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
  * apply_diff_remove, and apply_diff_change *)
-let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
-  (f: int -> int list -> int list) : world =
+let apply_diff_case (new_items: item LibMap.t) (w: world)
+  (f: int -> int list -> int list) (d: diffparam) : world =
   let loc = d.loc in
   let id_to_edit = d.id in
   let curr_rooms = RoomMap.find loc w.rooms in
@@ -233,34 +233,39 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
 
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
-let apply_diff_add (d: diffparam) (w: world) : world =
+let apply_diff_add (w: world) (d: diffparam) : world =
   let item_to_edit = complete_item w d.newitem in
   let new_items = LibMap.add d.id item_to_edit w.items in
-  apply_diff_case d new_items w (fun x y -> x::y)
+  apply_diff_case new_items w (fun x y -> x::y) d
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
-let apply_diff_remove (d: diffparam) (w: world) : world =
-  let new_items = LibMap.remove d.id w.items in
-  apply_diff_case d new_items w remove_item_from_list
+let apply_diff_remove (w: world) (d: diffparam) : world =
+  let new_items = w.items in
+  apply_diff_case new_items w remove_item_from_list d
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
-let apply_diff_change (d: diffparam) (w: world) : world =
-  let new_w = apply_diff_remove d w in
-  apply_diff_add d new_w
+let apply_diff_change (w: world) (d: diffparam) : world =
+  let new_w = apply_diff_remove w d in
+  apply_diff_add new_w d
 
 (* [apply_diff_helper d w] is the same as apply_diff except it might raise
  * different exception messages *)
-let rec apply_diff_helper (d: diff) (w: world) : world =
+let rec apply_diff_helper (w: world) (d: diff) : world =
   match d with
-  | Add x -> apply_diff_add x w
-  | Remove x -> apply_diff_remove x w
-  | Change x -> apply_diff_change x w
+  | Add x -> apply_diff_add w x
+  | Remove x -> apply_diff_remove w x
+  | Change x -> apply_diff_change w x
 
 (* [apply_diff d w] takes in a difference and returns an updated
  * minimodel based on the diff *)
-let rec apply_diff (d: diff) (w: world) : world =
+let rec apply_diff (w: world) (d: diff) : world =
   try
-    apply_diff_helper d w
+    apply_diff_helper w d
   with
   | _ -> failwith "incompatible with the current world"
+
+let rec apply_diff_list (w: world) (ds: diff list) : world =
+  match ds with
+  | [] -> w
+  | d::ds' -> apply_diff_list (apply_diff w d) ds'
