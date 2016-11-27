@@ -52,7 +52,11 @@ let translate_to_diff snapshot j r cid =
     match flatworld.items |> LibMap.find cid with
     | IPlayer (p) -> p | _ -> raise (IllegalStep "Not a player, cannot move")
   in
-  if r = "move" then begin
+  if r = "quit" then begin
+    print_endline ("player "^(string_of_int cid)^" is quitting");
+    [ Remove {loc=cur_loc; id=cid; newitem=IVoid};]
+  end
+  else if r = "move" then begin
     let newx = json |> member "newx" |> to_int in
     let newy = json |> member "newy" |> to_int in
     if (abs(newx - curx) + abs(newy - cury)) <> 1 then
@@ -149,7 +153,7 @@ let translate_to_single_json diff =
     | IPolice _ -> "police"
     | IPotion _ -> "potion"
     | ISpell _ -> "spell"
-    | IVoid -> failwith "invalid item"
+    | IVoid -> "void"
   in
   let new_item_json newitem = match newitem with
     | IPlayer player ->
@@ -245,7 +249,6 @@ let react oldstate newstate (cmd:string) cmdtype cid =
   in
   let scoring state =
     let {flatworld;client_diffs;alldiffs} = state in
-    let _ = print_libmap flatworld.items in
     let cur_loc = List.assoc cid flatworld.players in
 
     if cmdtype = "use" then

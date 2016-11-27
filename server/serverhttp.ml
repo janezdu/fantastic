@@ -26,7 +26,7 @@ let handleQuery req body cid : string Lwt.t =
   try
     let path = Uri.path (Request.uri req) in
     match path with
-    | "/move" | "/use" | "/take" | "/drop" -> begin
+    | "/move" | "/use" | "/take" | "/drop"  -> begin
         body |> Cohttp_lwt_body.to_string >>= (fun cmdbody ->
             ( print_endline cmdbody;
               try
@@ -36,6 +36,15 @@ let handleQuery req body cid : string Lwt.t =
                   print_endline msg;
                   Lwt.fail (WorldFailure msg)
                 end))
+      end
+    | "/quit" -> begin
+        try
+          return (pushClientUpdate cid "{}" (strip path))
+        with
+        | WorldFailure msg -> begin
+            print_endline msg;
+            Lwt.fail (WorldFailure msg)
+          end
       end
     | "/update" -> body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
         ( print_endline ("[UPDATE]: "^(string_of_int cid));
