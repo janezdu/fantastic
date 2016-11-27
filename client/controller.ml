@@ -163,9 +163,61 @@ let add_room room_map room_json =
   let room = {descr = des; items = items} in
   RoomMap.add (x,y) room room_map
 
-let add_item item_map item_json = 
+let add_spell item_map item_json =
   let id = item_json |> member "id" |> to_int in 
-  LibMap.empty
+  let incantation = item_json |> member "incant" |> to_string in
+  let description = item_json |> member "descr" |> to_string in 
+  let effect = item_json |> member "effect" |> to_int in 
+  let spell = ISpell {id = id; incant = incantation; descr = description ; 
+              effect = effect} in
+  LibMap.add id spell item_map
+
+let add_potion item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let descr = item_json |> member "descr" |> to_string in
+  let effect = item_json |> member "effect" |> to_int in
+  let potion = IPotion {id = id; name = name; descr = descr ; effect = effect} in
+  LibMap.add id potion item_map
+
+let add_player item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let hp = item_json |> member "hp" |> to_int in 
+  let score = item_json |> member "score" |> to_int in 
+  let inv = item_json |> member "inv" |> to_list |> List.map to_int in 
+  let player = IPlayer {id = id; name = name; hp = hp; score = score; inventory = inv} in
+  LibMap.add id player item_map
+
+let add_police item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let hp = item_json |> member "hp" |> to_int in 
+  let descr = item_json |> member "descr" |> to_string in 
+  let spells = item_json |> member "spells" |> to_list |> List.map to_int in 
+  let ai = IPolice {id = id; name = name; hp = hp; descr = descr; spells = spells} in
+  LibMap.add id ai item_map
+
+let add_beast item_map item_json =
+  let id = item_json |> member "id" |> to_int in 
+  let name = item_json |> member "name" |> to_string in 
+  let hp = item_json |> member "hp" |> to_int in 
+  let descr = item_json |> member "descr" |> to_string in 
+  let spells = item_json |> member "spells" |> to_list |> List.map to_int in 
+  let ai = IAnimal {id = id; name = name; hp = hp; descr = descr; spells = spells} in
+  LibMap.add id ai item_map
+
+let add_item item_map item_json = 
+  let item_type = item_json |> member "item type" |> to_string in
+  match item_type with
+  | "spell" -> add_spell item_map item_json
+  | "potion" -> add_potion item_map item_json
+  | "player" -> add_player item_map item_json
+  | "police" -> add_police item_map item_json
+  | "beast" -> add_beast item_map item_json
+  | _ -> failwith "invalid item type"
+  
+
 
 let make_player player_json = 
   let id = player_json |> member "id" |> to_int in
