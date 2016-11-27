@@ -1,21 +1,20 @@
+
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
 
 type diff_json = string
 
+let valid_actions =
+  ["move"; "use"; "take"; "drop"; "quit"; "update"]
+
 let make_query_helper action cid =
   "/" ^ action ^ "?client_id=" ^ (string_of_int cid)
 
 (* [make_query action cid] is [action]?client_id=[cid] *)
 let make_query action cid =
-  match action with
-  | "move" -> make_query_helper "move" cid
-  | "use" -> make_query_helper "use" cid
-  | "take" -> make_query_helper "take" cid
-  | "drop" -> make_query_helper "drop" cid
-  | "quit" -> make_query_helper "quit" cid
-  | _ -> failwith "invalid command"
+  if List.mem action valid_actions then make_query_helper action cid
+  else failwith "invalid action"
 
 (* [make_login_query name] is login?username=[name] *)
 let make_login_query name =
@@ -38,14 +37,13 @@ let get_body query =
 (* [send_json j} sends a json to the servers. Returns diff list *)
 let send_post_request (j: diff_json) (action: string) (client_id: int) =
   let query = make_query action client_id in
-  Lwt_main.run (post_body j query)
+  Lwt_main.run (post_body j query) |> return
 
 (* [send_json j} sends a json to the servers. Returns diff list *)
 let send_get_request (action: string) (client_id: int) =
   let query = make_query action client_id in
-  Lwt_main.run (get_body query)
+  Lwt_main.run (get_body query) |> return
 
 let send_login_request (name: string) =
   let query = make_login_query name in
-  Lwt_main.run (get_body query)
-
+  Lwt_main.run (get_body query) |> return

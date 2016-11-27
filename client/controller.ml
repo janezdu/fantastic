@@ -19,13 +19,6 @@ type current_player_id = int
 let client_id = ref (-1)
 let username = ref ""
 
-(* status codes *)
-let ok = 200
-let forbidden = 403
-let conflict = 409
-let non_found = 404
-let unauthorized = 401
-
 (************************** translate_to_diff *********************************)
 
 (* [null_int] represents null of type int *)
@@ -159,8 +152,6 @@ type comm_json =
   | JHelp
 
 (* [init_state json] creates the inital world for the game *)
-
-
 let add_room room_map room_json = 
   let loc = room_json |> member "loc" in
   let x = loc |> member "x" |> to_int in
@@ -191,10 +182,6 @@ let init_state j =
   let player_lst = j |> member "players" |> to_list |>
     List.map make_player in
   {rooms = actual_rooms; players = player_lst; items = items}
-  
-
-    
-
 
 let rec remove i lst =
   match lst with
@@ -259,7 +246,7 @@ let interp_move (m:string) current_player (w:world): comm_json =
    * (matches incantation) *)
 let interp_spell s (w:world): comm_json =
    match (find_item s w) with
-   | Some s -> failwith "Unimplemented"
+   | Some s -> JSpell ("{\"Id\":" ^ (string_of_int s) ^ "}")
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
@@ -300,9 +287,10 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | ViewState -> JViewState
   | Help -> JHelp
 
-let print_string_list = function
+let rec print_string_list lst =
+  match lst with
   | [] -> ()
-  | h::t -> print_endline h
+  | h::t -> print_endline h; print_string_list t
 
 let get_item_name_by_id lib id =
   match LibMap.find id lib with
@@ -317,12 +305,19 @@ let rec get_curr_loc = function
   | [] -> (-1,-1)
   | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
 
+let rec elim_dup acc = function
+  | [] -> acc
+  | h::t -> if List.mem h t then elim_dup acc t else elim_dup (acc@[h]) t
+
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
   print_endline ("Room description: " ^ room.descr);
-  print_endline "In the room, there are: ";
-  print_string_list (List.map (get_item_name_by_id w.items) room.items)
+  print_endline "\nIn the room, there are: ";
+  let item_list_dup = List.map (get_item_name_by_id w.items) room.items in
+  let item_list = elim_dup [] item_list_dup in
+  print_string_list item_list;
+  print_endline ""
 
 let unwrap_player = function
   | IPlayer x -> x
@@ -331,34 +326,57 @@ let unwrap_player = function
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
   print_endline "Your inventory contains: ";
-  print_string_list (List.map (get_item_name_by_id w.items) p.inventory)
+  let inv_list_dup = List.map (get_item_name_by_id w.items) p.inventory in
+  let inv_list = elim_dup [] inv_list_dup in
+  print_string_list inv_list;
+  print_endline ""
 
 let print_help () =
   print_endline "Game instruction goes here"
+
+(************************** update world **************************************)
+
+(* keep requesting until it's approved then apply diffs to the world *)
+let rec request_and_update_world (w: world) : world Lwt.t =
+  send_get_request "update" !client_id >>= fun (code, body) ->
+  if code = 200 then
+    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+  else request_and_update_world w
+
+(* [auto_update_world w] is the most up-to-date world from the server.
+ * It requests to update every 500ms *)
+(* let rec auto_update_world (is_loop: bool) (w: world) : world Lwt.t =
+  if is_loop then
+    OS.Time.sleep 0.05 >>= fun () -> request_and_update_world w
+    >>= auto_update_world is_loop
+  else return w *)
+
+(************************** eval command **************************************)
 
 (* [do_command comm current_player world] calls a post or get request
  * based on [comm] for command that needs to update the world.
  * For commands that don't, pulls infos from the current world state.
  * Returns a tuple of status code and body Lwt.t *)
-let do_command comm current_player world =
-  match interpret_command comm current_player world with
+let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
+  request_and_update_world w >>= fun curr_world ->
+  match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x "move" current_player
   | JDrink x -> send_post_request x "use" current_player
   | JSpell x -> send_post_request x "use" current_player
   | JQuit -> send_get_request "quit" current_player
   | JTake x -> send_post_request x"take" current_player
   | JDrop x -> send_post_request x "drop" current_player
-  | JLook -> print_room world; (-1, return "")
-  | JInv -> print_inv world; (-1, return "")
-  | JViewState -> print_room world; (-1, return "")
-  | JHelp -> print_help (); (-1, return "")
+  | JLook -> print_room curr_world; return ((-1, return ""))
+  | JInv -> print_inv curr_world; return ((-1, return ""))
+  | JViewState -> print_room curr_world; return ((-1, return ""))
+  | JHelp -> print_help (); return ((-1, return ""))
 
 (********************************** repl **************************************)
 
 (*  localhost:8000/login?username=chau *)
 (* request client_id from server. ?? maybe i need to check other resp code *)
 let rec update_client_id_helper name =
-  return (send_login_request name) >>= fun (code, body) ->
+  send_login_request name >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x -> translate_to_client_id x; return ()
   else
@@ -369,27 +387,31 @@ let rec update_client_id_helper name =
 let update_client_id name =
   ignore (update_client_id_helper name)
 
-(* keep requesting until it's approved then apply diffs to the world *)
-let rec request_and_update_world (w: world) : world Lwt.t =
-  return (send_get_request "update" !client_id) >>= fun (code, body) ->
-  if code = 200 then
-    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
-  else request_and_update_world w
-
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
-  return (do_command c !client_id w) >>= fun (code, body) ->
+  do_command c !client_id w >>= fun (code, body) ->
   match code with
-  | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> repl
-  | 403 -> (print_endline "Invalid move. Please try again."; repl w)
-  | 409 -> request_and_update_world w >>= repl_helper c
-  | 404 -> (print_endline "Invalid move. Please try again."; repl w)
-  | 401 -> (update_client_id !username; repl_helper c w)
-  | _ -> request_and_update_world w >>= repl_helper c
+  | 200 -> body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+  | 403 -> (print_endline "Invalid move. Please try again.\n"; repl w)
+  | 409 -> repl_helper c w
+  | 404 -> (print_endline "Invalid move. Please try again.\n"; repl w)
+  | 400 ->
+    (print_endline "Bad request. ";
+    body >>= fun x -> print_endline x;
+    repl_helper c w)
+  | 401 ->
+    (print_endline "Incorrect client_id. ";
+    body >>= fun x -> print_endline x; repl_helper c w)
+  | _ -> return w
 
 and repl (w: world): world Lwt.t =
+  request_and_update_world w >>= fun new_world ->
   let c = String.lowercase_ascii (read_line ()) in
-  try repl_helper c w with
-  | _ -> (print_endline "Invalid command. Please try again."; repl w)
+  try
+    request_and_update_world new_world >>= repl_helper c >>= repl
+  with
+  | _ -> (print_endline "Invalid command. Please try again.\n"; repl w)
+
+(******************************* main functions *******************************)
 
 (* Helper function:
  * [cut_file_type file_name] cuts the .filetype out of a file name
@@ -403,9 +425,13 @@ let cut_file_type file_name =
  * var welcome_msg : string -> state -> unit *)
 let welcome_msg file_name st =
   print_endline ("Welcome back to the magical world of J.K. Rowling" ^
-    "Fantastic Beasts And Where To Find Them:");
-  print_endline (cut_file_type file_name);
+    "\nFantastic Beasts And Where To Find Them: \n");
+  (* print_endline (cut_file_type file_name); *)
   do_command "look" !client_id st
+
+let start_chain (file_name: string) (w: world) =
+  request_and_update_world w >>= fun new_world ->
+  welcome_msg file_name new_world |> ignore; repl new_world
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
@@ -415,8 +441,7 @@ let rec main file_name =
     print_endline "What's your name?";
     username := (read_line ());
     update_client_id !username;
-    ignore (welcome_msg file_name init_state_var);
-    Lwt_main.run (repl init_state_var)
+    Lwt_main.run (start_chain file_name init_state_var)
   with
   | Sys_error explanation ->
     (print_endline explanation;

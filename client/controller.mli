@@ -31,7 +31,7 @@ val interpret_command: string -> int -> world -> comm_json
 (* [do_command comm current_player world] requests to server for [comm]
  * that needs a server update, and pull info from the client's world
  * for commands that doesn't need server connection. *)
-val do_command: string -> int -> world -> int * string Lwt.t
+val do_command: string -> int -> world -> (int * string Lwt.t) Lwt.t
 
 (* [repl w] keeps running the game by reading the cli, evaluate the command,
  * process, and loop *)
@@ -39,4 +39,3 @@ val repl: world -> world Lwt.t
 
 (* [main file_name] starts the game. It is the entry point of this module *)
 val main: string -> world
-

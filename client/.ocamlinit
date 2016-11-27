@@ -4,9 +4,13 @@
 #directory "_build"
 #load "model.cmo";;
 #load "clienthttp.cmo";;
-
 #load "cli.cmo";;
 #load "controller.cmo"
+
+#use "cli.ml"
+#use "clienthttp.ml"
+#use "model.ml"
+#use "controller.ml"
 
 open Lwt
 open Cohttp
@@ -15,7 +19,3 @@ open Yojson.Basic.Util
 open Cli
 open Model
 open Controller
-
-#use "model.ml"
-#use "controller.ml"
-
