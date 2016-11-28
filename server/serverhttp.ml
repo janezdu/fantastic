@@ -28,7 +28,9 @@ let handleQuery req body cid : string Lwt.t =
     match path with
     | "/move" | "/use" | "/take" | "/drop"  -> begin
         body |> Cohttp_lwt_body.to_string >>= (fun cmdbody ->
-            ( print_endline cmdbody;
+            ( print_endline ("\n\n===================================================="^
+                             "\nstarted callback for POST request");
+              print_endline ("Body: "^ cmdbody);
               try
                 return (pushClientUpdate cid cmdbody (strip path))
               with
@@ -47,7 +49,8 @@ let handleQuery req body cid : string Lwt.t =
           end
       end
     | "/update" -> body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
-        ( print_endline ("[UPDATE]: "^(string_of_int cid));
+        (
+          (* print_endline ("[UPDATE]: "^(string_of_int cid)); *)
           getClientUpdate cid))
     | _ -> begin return ("u dun guffed off")
       (* Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" () *)
@@ -64,9 +67,9 @@ let handleLogin req body name =
 (* a server is a function that gets data, compute and respond *)
 let server =
   let callback _conn req body =
-    print_endline ("\n\n===================================================="^
+    (* print_endline ("\n\n===================================================="^
                    "\nstarted callback");
-    print_endline (req |> Request.uri |> Uri.to_string);
+    print_endline (req |> Request.uri |> Uri.to_string); *)
     let queryparams = req |> Request.uri |> Uri.query in
 
     let reqmode =
@@ -92,7 +95,6 @@ let server =
 
     match reqmode with
       | Query (cid) -> begin
-          print_endline ("hanlding player "^(string_of_int cid));
           Lwt.catch (fun () ->
               handleQuery req body cid >>=
               (fun body -> Server.respond_string ~status:`OK ~body ())
