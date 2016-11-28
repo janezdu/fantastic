@@ -20,6 +20,7 @@ let pr msg = if debugging then print_endline msg else ignore ()
 let debugging = Model.debugging
 
 let newid = ref 1000
+let _ = Random.self_init ()
 
 (* todo: implement this in translate_to_diff *)
 (* type cmd = Move | Use | Take | Drop *)
@@ -72,6 +73,7 @@ let translate_to_diff snapshot j r cid =
   else if r = "use" then begin
     let item_id = json |> member "id" |> to_int in
     pr ("Begin to use "^(string_of_int item_id));
+    pr ("Player inv: "^(string_of_inventory player.inventory));
     let target_id = json |> member "target" |> to_int in
     let new_inv = remove_from_list item_id player.inventory in
     pr ("New inventory: "^(string_of_inventory new_inv));
@@ -373,7 +375,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       end
       | _ -> failwith "not a beast"
     with _ -> state
-  in newstate (*|> spawn_item*) |> scoring |> chasing |> beast_killing
+  in newstate |> (* spawn_item  |> *) scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.

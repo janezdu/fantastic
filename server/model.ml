@@ -340,11 +340,8 @@ let apply_diff_add (d: diffparam) (w: world) : world =
   let item_to_edit = complete_item w d.newitem in
   (* pr ("Got complete item "^(string_of_item item_to_edit));
   print_libmap w.items; *)
-  (* print_libmap *)
-  let new_items =
-    if not (LibMap.mem d.id w.items) then
-      LibMap.add d.id item_to_edit w.items
-    else w.items in
+  let new_items = LibMap.add d.id item_to_edit w.items in
+
   print_libmap w.items;
   apply_diff_case d new_items w (fun x y -> x::y)
 

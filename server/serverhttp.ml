@@ -32,9 +32,9 @@ let handleQuery req body cid : string Lwt.t =
     match path with
     | "/move" | "/use" | "/take" | "/drop"  -> begin
         body |> Cohttp_lwt_body.to_string >>= (fun cmdbody ->
-            ( print_endline ("\n\n===================================================="^
+            ( (*print_endline ("\n\n===================================================="^
                              "\nstarted callback for POST request");
-              print_endline ("Body: "^ cmdbody);
+              print_endline ("Body: "^ cmdbody); *)
               try
                 return (pushClientUpdate cid cmdbody (strip path))
               with
