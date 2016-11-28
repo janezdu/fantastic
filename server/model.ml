@@ -385,13 +385,15 @@ let rec apply_diff (d: diff) (w: world) : world =
   | _ -> raise (ApplyDiffError "incompatible with the current world")
 
 let init size =
-  let emptyroom = {descr="This is a room!"; items = []} in
-  let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
-            |> RoomMap.add (1,0) emptyroom
-            |> RoomMap.add (1,1) emptyroom
-            |> RoomMap.add (0,1) emptyroom
-  in
-  let players = [1234, (0,0)] in
+  let room00 = {descr="This is a room!"; items = [1;2;1234]} in
+  let room10 = {descr="This is a room!"; items = [2;3]} in
+  let room01 = {descr="This is a room!"; items = [1;3]} in
+  let room11 = {descr="This is a room!"; items = [1;1]} in
+  let map = RoomMap.empty |> RoomMap.add (0,0) room00
+            |> RoomMap.add (1,0) room10
+            |> RoomMap.add (1,1) room01
+            |> RoomMap.add (0,1) room11 in
+  let players = [(1234, (0,0))] in
   let items = LibMap.empty
               |> LibMap.add 1 (ISpell {id = 1;
                                        incant = "lumos";

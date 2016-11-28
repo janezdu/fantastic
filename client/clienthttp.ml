@@ -1,3 +1,4 @@
+
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
@@ -36,13 +37,13 @@ let get_body query =
 (* [send_json j} sends a json to the servers. Returns diff list *)
 let send_post_request (j: diff_json) (action: string) (client_id: int) =
   let query = make_query action client_id in
-  Lwt_main.run (post_body j query) |> return
+  post_body j query
 
 (* [send_json j} sends a json to the servers. Returns diff list *)
 let send_get_request (action: string) (client_id: int) =
   let query = make_query action client_id in
-  Lwt_main.run (get_body query) |> return
+  get_body query
 
 let send_login_request (name: string) =
   let query = make_login_query name in
-  Lwt_main.run (get_body query) |> return
+  get_body query
