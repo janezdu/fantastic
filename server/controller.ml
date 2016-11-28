@@ -169,7 +169,18 @@ let translate_to_single_json diff =
       ("id", `Int ai.id);
       ("hp", `Int ai.hp);
       ]
-    | _ -> failwith "invalid item type to change"
+    | ISpell s ->
+      `Assoc [
+        ("id", `Int s.id);
+      ]
+    | IPotion s->
+      `Assoc [
+        ("id", `Int s.id);
+      ]
+    | IVoid ->
+      `Assoc [
+        ("id", `Int (-1));
+      ]
   in
 
   match diff with
