@@ -1,6 +1,7 @@
 #require "yojson"
 #require "lwt"
 #require "cohttp.lwt"
+#require "str"
 #directory "_build"
 #load "model.cmo";;
 #load "clienthttp.cmo";;
@@ -19,6 +20,7 @@ open Yojson.Basic.Util
 open Cli
 open Model
 open Controller
+open Str
 
 let w = init 4;;
 client_id := 1234;;

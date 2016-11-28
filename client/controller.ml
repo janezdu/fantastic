@@ -322,9 +322,12 @@ let interp_move (m:string) current_player (w:world): comm_json =
 (* Note : find the room the player is in*
    * find the spell that they want to use in the inventory
    * (matches incantation) *)
-let interp_spell s (w:world): comm_json =
+let interp_spell s  t (w:world): comm_json =
    match (find_item s w) with
-   | Some s -> JSpell ("{\"Id\":" ^ (string_of_int s) ^ "}")
+   | Some s ->
+     (match (find_item t w) with
+     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"Target\" "^(string_of_int t)^"}")
+     | None -> raise NotAnItem)
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
@@ -332,7 +335,7 @@ let interp_spell s (w:world): comm_json =
 (* Note: find the room the object is in, find the item they want to take*)
 let interp_take t (w:world): comm_json =
    match (find_item t w) with
-   | Some t -> JTake ("{\"Id\":" ^ (string_of_int t) ^ "}")
+   | Some t -> JTake ("{\"id\":" ^ (string_of_int t) ^ "}")
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
@@ -340,7 +343,7 @@ let interp_take t (w:world): comm_json =
 (* find room player is in, find item they want to drop in inventory*)
 let interp_drop d (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JTake ("{\"Id\":" ^ (string_of_int d) ^ "}")
+   | Some d -> JTake ("{\"id\":" ^ (string_of_int d) ^ "}")
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
@@ -348,14 +351,14 @@ let interp_drop d (w:world): comm_json =
 (* find room player is in, find item they want to drop in inventory*)
 let interp_drink d (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JDrink ("{\"Id\":" ^ (string_of_int d) ^ "}")
+   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ "}")
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
 let interpret_command (c: string) current_player (w: world) : comm_json=
   match (parse_comm c) with
   | Move s -> interp_move s current_player w
-  | Spell s -> interp_spell s w
+  | Spell (s,t) -> interp_spell s t w
   | Quit -> JQuit
   | Take s -> interp_take s w
   | Drop s -> interp_drop s w
@@ -415,6 +418,7 @@ let rec make_key_pair_item_helper tbl acc = function
 
 let make_key_pair_item tbl lst = make_key_pair_item_helper tbl [] lst
 
+(* print out current room that the player is in *)
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
@@ -466,6 +470,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x cmove current_player
   | JDrink x ->
+    (* debugging *)
     (print_endline x;
     send_post_request x cuse current_player)
   | JSpell x -> send_post_request x cuse current_player
@@ -498,16 +503,16 @@ let update_client_id name =
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
   (* for debugging *)
-  (print_int code;
-  body >>= fun x -> print_endline x; return w)
-  (* if code = 200 then
+(*   (print_int code;
+  body >>= fun x -> print_endline x; return w) *)
+  if code = 200 then
     body >>= fun x ->
     if c = cquit then
       (print_endline quit_msg; ignore (exit 0); return w)
     else
       (body >>= fun x -> print_endline x;
       translate_to_diff x |> apply_diff_list w |> return)
-  else (body >>= fun x -> print_endline x; return w) *)
+  else (body >>= fun x -> print_endline x; return w)
 
 and repl (w: world): world Lwt.t =
   request_and_update_world w >>= fun new_world ->

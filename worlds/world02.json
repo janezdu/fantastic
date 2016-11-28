@@ -1,0 +1,61 @@
+{
+	"rooms":
+		[ 
+			{"loc": {"x": 0, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 1, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 2, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 3, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 4, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 5, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 6, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 7, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 8, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 9, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 10, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 11, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 12, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 13, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 14, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 15, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 16, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 17, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 18, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 19, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			
+			{"loc": {"x": 0, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 1, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 2, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 3, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 4, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 5, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 6, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 7, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 8, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 9, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 10, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 11, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 12, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 13, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 14, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 15, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 16, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 17, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 18, "y": 1}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 19, "y": 1}, "items": [0, 1234], "descr": "room1"}
+			
+		],
+	"players": 
+		[
+			{"id": 1234, "x": 0, "y": 0}, {"id": 1234, "x": 19, "y": 1},
+			{"id": 1234, "x": 0, "y": 19}, {"id": 1234, "x": 1, "y": 0}
+		],
+	"items": 
+		[
+			{"item type": "spell", "id": 0, "incant": "alohamora", 
+				"descr": "unlocks things", "effect": 0},
+			{"item type": "spell", "id": 1, "incant": "revelio", 
+				"descr": "reveals things", "effect": 0},
+			{"item type": "player", "id": 1234, "name": "bob", "hp": 100, 
+				"score": 0, "inv": [1]}
+		]
+}

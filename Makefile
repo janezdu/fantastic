@@ -18,4 +18,3 @@ tester:
 
 clean:
 	ocamlbuild -clean
-	$(CLEAN) -C client

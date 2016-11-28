@@ -395,4 +395,37 @@ let print_libmap lmap =
                        (string_of_int index)
                        (string_of_item item);)) lmap;
   print_endline "---------------------------"
+(*
+let get_item_name_by_id lib id =
+  match LibMap.find id lib with
+  | IPlayer x -> x.name
+  | IAnimal x -> x.name
+  | IPolice x -> x.name
+  | ISpell x -> x.incant
+  | IPotion x -> x.name
+  | IVoid -> ""
+
+(* print a room of [loc] in world [w] *)
+let print_a_room loc w =
+  let room = RoomMap.find (loc) w.rooms in
+  let item_list_dup =
+    List.map (get_item_name_by_id w.items) w.items in
+  let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
+  let item_list_no_dup = elim_dup item_list_dup in
+  let key_pair_item = make_key_pair_item tbl item_list_no_dup in
+  print_string_list_with_number key_pair_item;
+  print_endline ""
+
+let print_roommap rmap =
+  print_endline "---------------------------";
+  LibMap.iter (fun index item->
+      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
+                       (string_of_int index)
+                       (string_of_item item);)) lmap;
+  print_endline "---------------------------" *)
+
+
+
+
+
 
