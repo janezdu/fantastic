@@ -58,8 +58,8 @@ let translate_to_diff snapshot j r cid =
     [ Remove {loc=cur_loc; id=cid; newitem=IVoid};]
   end
   else if r = "move" then begin
-    let newx = json |> member "newx" |> to_int in
-    let newy = json |> member "newy" |> to_int in
+    let newx = json |> member "new_x" |> to_int in
+    let newy = json |> member "new_y" |> to_int in
     if (abs(newx - curx) + abs(newy - cury)) <> 1 then
       raise (IllegalStep "Cannot step to non-adjacent.")
     else
