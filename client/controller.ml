@@ -541,7 +541,7 @@ let cut_file_type file_name =
  * var show_welcome_msg : string -> state -> unit *)
 let show_welcome_msg file_name st =
   print_string (welcome_msg);
-  print_endline (cut_file_type file_name);
+  (* print_endline (cut_file_type file_name); *)
   print_endline "";
   do_command clook !client_id st
 
