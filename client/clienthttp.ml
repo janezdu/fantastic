@@ -1,3 +1,4 @@
+
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
@@ -31,18 +32,19 @@ let get_body query =
   (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   let received_body = body |> Cohttp_lwt_body.to_string in
+  print_endline received_body;
   return (code, received_body)
 
 (* [send_json j} sends a json to the servers. Returns diff list *)
 let send_post_request (j: diff_json) (action: string) (client_id: int) =
   let query = make_query action client_id in
-  Lwt_main.run (post_body j query) |> return
+  post_body j query
 
 (* [send_json j} sends a json to the servers. Returns diff list *)
 let send_get_request (action: string) (client_id: int) =
   let query = make_query action client_id in
-  Lwt_main.run (get_body query) |> return
+  get_body query
 
 let send_login_request (name: string) =
   let query = make_login_query name in
-  Lwt_main.run (get_body query) |> return
+  get_body query

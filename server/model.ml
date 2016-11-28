@@ -254,10 +254,10 @@ let unwrap_potion = function
   | _ -> raise (ApplyDiffError "wrong item type" )
 
 let complete_item_player (w: world) (i: player) : item =
-  print_endline "Completing player...";
+  (* print_endline "Completing player..."; *)
   if LibMap.mem i.id w.items then
     let old_item = unwrap_player (LibMap.find (i.id) w.items) in
-    print_endline (if is_null_string i.name then old_item.name else i.name);
+    (* print_endline (if is_null_string i.name then old_item.name else i.name); *)
     IPlayer ({
         id = i.id;
         name = if is_null_string i.name then old_item.name else i.name;
@@ -334,14 +334,14 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
-  print_endline "Adding...";
+  (* print_endline "Adding..."; *)
   let item_to_edit = complete_item w d.newitem in
   let new_items = LibMap.add d.id item_to_edit w.items in
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  print_endline "Removing...";
+  (* print_endline "Removing..."; *)
   let new_items = match d.newitem with
     | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
     | ISpell _ | IPotion _ | IVoid -> w.items
@@ -362,7 +362,7 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
-  print_endline "Changing...";
+  (* print_endline "Changing..."; *)
 
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
@@ -385,19 +385,21 @@ let rec apply_diff (d: diff) (w: world) : world =
   | _ -> raise (ApplyDiffError "incompatible with the current world")
 
 let init size =
-  let emptyroom = {descr="This is a room!"; items = []} in
-  let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
-            |> RoomMap.add (1,0) emptyroom
-            |> RoomMap.add (1,1) emptyroom
-            |> RoomMap.add (0,1) emptyroom
-  in
-  let players = [1234, (0,0)] in
+  let room00 = {descr="This is a room!"; items = [1;2;1234]} in
+  let room10 = {descr="This is a room!"; items = [2;3]} in
+  let room01 = {descr="This is a room!"; items = [1;3]} in
+  let room11 = {descr="This is a room!"; items = [1;1]} in
+  let map = RoomMap.empty |> RoomMap.add (0,0) room00
+            |> RoomMap.add (1,0) room10
+            |> RoomMap.add (1,1) room01
+            |> RoomMap.add (0,1) room11 in
+  let players = [(1234, (0,0))] in
   let items = LibMap.empty
               |> LibMap.add 1 (ISpell {id = 1;
                                        incant = "lumos";
                                        descr = "a light spell";
                                        effect = 10})
-              |> LibMap.add 2 (ISpell {id = 1;
+              |> LibMap.add 2 (ISpell {id = 2;
                                        incant = "avada kedavra";
                                        descr = "a death spell";
                                        effect = -1000})

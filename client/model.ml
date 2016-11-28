@@ -268,22 +268,25 @@ let rec apply_diff (w: world) (d: diff) : world =
 let rec apply_diff_list (w: world) (ds: diff list) : world =
   match ds with
   | [] -> w
-  | d::ds' -> apply_diff w d
+
+  | d::ds' -> apply_diff_list (apply_diff w d) ds'
 
 let init size =
-  let emptyroom = {descr="This is a room!"; items = []} in
-  let map = RoomMap.empty |> RoomMap.add (0,0) emptyroom
-            |> RoomMap.add (1,0) emptyroom
-            |> RoomMap.add (1,1) emptyroom
-            |> RoomMap.add (0,1) emptyroom
-  in
-  let players = [1234, (0,0)] in
+  let room00 = {descr="This is a room!"; items = [1;2;1234]} in
+  let room10 = {descr="This is a room!"; items = [2;3]} in
+  let room01 = {descr="This is a room!"; items = [1;3]} in
+  let room11 = {descr="This is a room!"; items = [1;1]} in
+  let map = RoomMap.empty |> RoomMap.add (0,0) room00
+            |> RoomMap.add (1,0) room10
+            |> RoomMap.add (1,1) room01
+            |> RoomMap.add (0,1) room11 in
+  let players = [(1234, (0,0))] in
   let items = LibMap.empty
               |> LibMap.add 1 (ISpell {id = 1;
                                        incant = "lumos";
                                        descr = "a light spell";
                                        effect = 10})
-              |> LibMap.add 2 (ISpell {id = 1;
+              |> LibMap.add 2 (ISpell {id = 2;
                                        incant = "avada kedavra";
                                        descr = "a death spell";
                                        effect = -1000})
@@ -392,3 +395,4 @@ let print_libmap lmap =
                        (string_of_int index)
                        (string_of_item item);)) lmap;
   print_endline "---------------------------"
+

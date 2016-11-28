@@ -1,8 +1,6 @@
 (* identification of each client *)
 type diff = Model.diff
 type json = string
-type cmd
-
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not
  * involve any diffs; that is, accessing info from the record is just an access,

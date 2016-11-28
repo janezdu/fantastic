@@ -1,6 +1,4 @@
 open Model
-open Concurrent
-
 open Yojson.Basic.Util
 
 (* identification of each client *)
@@ -21,7 +19,7 @@ let p = print_endline
 let newid = ref 1000
 
 (* todo: implement this in translate_to_diff *)
-type cmd = Move | Use | Take | Drop
+(* type cmd = Move | Use | Take | Drop *)
 
 exception IllegalStep of string
 (* exception IllegalMove
@@ -45,116 +43,100 @@ let translate_to_diff snapshot j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = snapshot in
   let (curx, cury) = List.assoc cid flatworld.players in
-  print_endline ("("^(string_of_int curx)^", "^(string_of_int cury)^")");
+  print_endline ("Old location of player: ("^(string_of_int curx)
+                 ^", "^(string_of_int cury)^")");
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
   let player =
     match flatworld.items |> LibMap.find cid with
-    | IPlayer (p) -> p | _ -> failwith "badplayer"
+    | IPlayer (p) -> p | _ -> raise (IllegalStep "Not a player, cannot move")
   in
-  if r = "move" then begin
-    let newx = json |> member "newx" |> to_int in
-    let newy = json |> member "newy" |> to_int in
-    print_endline "got newx and newy from json";
-    [
-      Remove {loc=(curx, cury); id=cid; newitem=IPlayer player};
-      Add {loc=(newx, newy); id=cid; newitem=IPlayer player}
+  if r = "quit" then begin
+    print_endline ("player "^(string_of_int cid)^" is quitting");
+    [ Remove {loc=cur_loc; id=cid; newitem=IVoid};]
+  end
+  else if r = "move" then begin
+    let new_x = json |> member "new_x" |> to_int in
+    let new_y = json |> member "new_y" |> to_int in
+    if (abs(new_x - curx) + abs(new_y - cury)) <> 1 then
+      raise (IllegalStep "Cannot step to non-adjacent.")
+    else
+    print_endline "got new_x and new_y from json";
+    [ Remove {loc=(curx, cury); id=cid; newitem=IPlayer player};
+      Add {loc=(new_x, new_y); id=cid; newitem=IPlayer player}
     ]
   end
   else if r = "use" then begin
-    try
-      let item_id = json |> member "id" |> to_int in
-      print_endline (string_of_int item_id);
-      let target_id = json |> member "target" |> to_int in
-      let new_inv = remove_from_list item_id player.inventory in
-      print_endline (string_of_inventory new_inv);
+    let item_id = json |> member "id" |> to_int in
+    print_endline ("Begin to use "^(string_of_int item_id));
+    let target_id = json |> member "target" |> to_int in
+    let new_inv = remove_from_list item_id player.inventory in
+    print_endline ("New inventory: "^(string_of_inventory new_inv));
 
-      if (not (LibMap.mem target_id flatworld.items)) then
-        begin
-          print_endline "attacking bad thing";
-          raise (IllegalStep "Not an available target")
-        end
-      else
-      let wrapped_target = flatworld.items |> LibMap.find target_id in
-      let wrapped_item = flatworld.items |> LibMap.find item_id in
-      match wrapped_item with
-      | ISpell spell ->
-        begin
-          let diff_target =
-            let (new_target, target_hp) = match wrapped_target with
-              | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
-              | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
-              | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
-              | _ -> failwith "not a player/ai"
-            in
-            (* if target_hp + spell.effect <= 0
-            then Remove {loc=cur_loc; id=target_id; newitem=wrapped_target}
-            else  *)
-            Change {loc=cur_loc; id=target_id; newitem=new_target}
+    if (not (LibMap.mem target_id flatworld.items)) then
+      raise (IllegalStep ("Bad target: "^(string_of_int target_id)))
+    else
+    let wrapped_target = flatworld.items |> LibMap.find target_id in
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    match wrapped_item with
+    | ISpell spell ->
+      begin
+        let diff_target =
+          let (new_target, target_hp) = match wrapped_target with
+            | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
+            | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
+            | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
+            | _ -> raise (IllegalStep "Bad target, not a player/ai")
           in
-          [
-            diff_target;
-            Change {loc=cur_loc; id=cid;
-                    newitem=IPlayer {player with inventory=new_inv}}
-          ]
-        end
-      | IPotion potion ->
-        begin
-          let diff_player =
-            if player.hp + potion.effect <= 0
-            then Remove {loc=cur_loc; id=cid;
-                         newitem=IPlayer {player with
-                                          inventory = new_inv}}
-            else Change {loc=cur_loc; id=cid;
-                         newitem=IPlayer {player with
-                                          hp = player.hp + potion.effect;
-                                          inventory=new_inv}}
-          in
-          [
-            diff_player
-          ]
-        end
-      | _ -> raise (IllegalStep "not a spell/potion")
-    with
-    | IllegalStep msg -> raise (IllegalStep msg)
-    | _ -> failwith "weird error ?? "
+          Change {loc=cur_loc; id=target_id; newitem=new_target}
+        in
+        [ diff_target;
+          Change {loc=cur_loc; id=cid;
+                  newitem=IPlayer {player with inventory=new_inv}}
+        ]
+      end
+    | IPotion potion ->
+        if player.hp + potion.effect <= 0
+        then Remove {loc=cur_loc; id=cid;
+                     newitem=IPlayer {player with
+                                      inventory = new_inv}}::[]
+        else Change {loc=cur_loc; id=cid;
+                       newitem=IPlayer {player with
+                                        hp = player.hp + potion.effect;
+                                        inventory=new_inv}}::[]
+    | _ -> raise (IllegalStep "not a spell/potion")
   end
   else if r = "take" then begin
-    try
-      let item_id = json |> member "id" |> to_int in
-      if (not (List.mem item_id cur_room.items)) then
-        raise (IllegalStep "Not in room")
-      else
-      let wrapped_item = flatworld.items |> LibMap.find item_id in
-      let _ = match wrapped_item with
-        | ISpell _| IPotion _ -> true |_ -> failwith "not a spell/potion"
-      in
-      [
-        Remove {loc=cur_loc; id=item_id; newitem=wrapped_item};
-        Change {loc=cur_loc; id=cid;
-                newitem=IPlayer {player with inventory=item_id::player.inventory}}
-      ]
-    with _ -> raise (IllegalStep "Bad take")
+    let item_id = json |> member "id" |> to_int in
+    if (not (List.mem item_id cur_room.items)) then
+      raise (IllegalStep "Not in room")
+    else
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    let _ = match wrapped_item with
+      | ISpell _| IPotion _ -> true |_ ->
+        raise (IllegalStep "not a spell/potion")
+    in
+    [ Remove {loc=cur_loc; id=item_id; newitem=wrapped_item};
+      Change {loc=cur_loc; id=cid;
+              newitem=IPlayer {player with
+                               inventory=item_id::player.inventory}}
+    ]
   end
   else if r = "drop" then begin
-    try
-      let item_id = json |> member "id" |> to_int in
-      let wrapped_item = flatworld.items |> LibMap.find item_id in
-      let _ = match wrapped_item with
-        | ISpell _| IPotion _ -> true |_ -> failwith "not a spell/potion"
-      in
-      let _ = remove_from_list item_id player.inventory in
-      let new_inv = remove_from_list item_id player.inventory in
-      [
-        Change {loc=cur_loc; id=cid; newitem=IPlayer {player with inventory=new_inv}};
-        Add {loc=cur_loc; id=item_id; newitem=wrapped_item}
-      ]
-    with
-    | _ -> raise (IllegalStep "Bad drop")
+    let item_id = json |> member "id" |> to_int in
+    let wrapped_item = flatworld.items |> LibMap.find item_id in
+    let _ = match wrapped_item with
+      | ISpell _ | IPotion _ -> true |_ ->
+        raise (IllegalStep "not a spell/potion") in
+    let _ = remove_from_list item_id player.inventory in
+    let new_inv = remove_from_list item_id player.inventory in
+    [ Change {loc=cur_loc; id=cid;
+              newitem=IPlayer {player with inventory=new_inv}};
+      Add {loc=cur_loc; id=item_id; newitem=wrapped_item}
+    ]
   end
   else
     []
-
 
 let rec remove x l = match l with
   | [] -> failwith "no such element"
@@ -170,7 +152,7 @@ let translate_to_single_json diff =
     | IPolice _ -> "police"
     | IPotion _ -> "potion"
     | ISpell _ -> "spell"
-    | IVoid -> failwith "invalid item"
+    | IVoid -> "void"
   in
   let new_item_json newitem = match newitem with
     | IPlayer player ->
@@ -229,23 +211,96 @@ let translate_to_json difflist =
 let getClientUpdate cid =
   try
     let snapshot = !state in
-    print_endline (string_of_difflist snapshot.client_diffs);
+    print_endline ("Client diffs returned: "^
+                   (string_of_difflist snapshot.client_diffs));
     let diffs_to_apply = List.assoc cid snapshot.client_diffs in
     let newdiffs = (cid, [])::(List.remove_assoc cid snapshot.client_diffs) in
     let newstate = {snapshot with client_diffs = newdiffs} in
     state := newstate;
     translate_to_json diffs_to_apply
   with
-  | _ ->
-    failwith "illegal client"
+  | _ -> raise (IllegalStep "Bad clientid")
 
 (* This method looks at the cmd and decides if there are any reactions the
  * world will make. For example, if the user attack an animal, this method
  * will create the world 1 time step later, after the beast attacks back.
  *
- * This is only called inside pushClientUpdate and registerUser, so the world
+ * This is only called inside pushClientUpdate, so the world
  * really does only *react* to things that users do. *)
-let react oldstate newstate (cmd:string) cmdtype cid = newstate
+let react oldstate newstate (cmd:string) cmdtype cid =
+  let spawn_item state =
+    let {flatworld;client_diffs;alldiffs} = state in
+    if (Random.int 10) < 3 then
+      let rand_loc = (Random.int 50, Random.int 50) in
+      let item_id = Random.int 100 in
+      let item = flatworld.items |> LibMap.find item_id in
+      let old_room = flatworld.rooms |> RoomMap.find rand_loc in
+      let new_room = {old_room with items = item_id::old_room.items} in
+      let new_room_map = flatworld.rooms |> RoomMap.add rand_loc new_room in
+      let diff = Add {loc=rand_loc;id=item_id;newitem=item} in
+      let new_client_diffs =
+        List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs
+      in
+      {flatworld={flatworld with rooms=new_room_map};
+       client_diffs=new_client_diffs;
+       alldiffs=diff::alldiffs
+      }
+    else state
+  in
+  let scoring state =
+    let {flatworld;client_diffs;alldiffs} = state in
+    let cur_loc = List.assoc cid flatworld.players in
+
+    if cmdtype = "use" then
+      let player = match flatworld.items |> LibMap.find cid with
+        | IPlayer p -> p
+        | _ -> raise (IllegalStep ("Not a player, bad cid, tbh "^
+                      "how did you even get here")) in
+      let new_player = IPlayer {player with score = player.score + 50} in
+      let new_item_map = flatworld.items |> LibMap.add cid new_player in
+      let diff = Change {loc=cur_loc;id=cid;newitem=new_player} in
+      let new_client_diffs =
+        List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs
+      in
+      {flatworld={flatworld with items=new_item_map};
+       client_diffs=new_client_diffs;
+       alldiffs=diff::alldiffs
+      }
+    else state
+  in
+  let chasing state =
+    let {flatworld;client_diffs;alldiffs} = state in
+    let old_loc = List.assoc cid oldstate.flatworld.players in
+    let new_loc = List.assoc cid flatworld.players in
+    let old_room = flatworld.rooms |> RoomMap.find old_loc in
+    let new_room = flatworld.rooms |> RoomMap.find new_loc in
+    let is_police id =
+      let item = flatworld.items |> LibMap.find id in
+      match item with
+      | IPolice ai -> true
+      | _ -> false
+    in
+    try
+      let police_id = List.find (fun x -> is_police x) old_room.items in
+      let police = flatworld.items |> LibMap.find police_id in
+      let new_room_map = flatworld.rooms
+                         |> RoomMap.add old_loc
+                           {old_room with items=(remove police_id old_room.items)}
+                         |> RoomMap.add new_loc
+                           {new_room with items=police_id::new_room.items}
+      in
+      let diff1 = Remove {loc=old_loc;id=police_id;newitem=police} in
+      let diff2 = Add {loc=new_loc;id=police_id;newitem=police} in
+      let new_client_diffs =
+        List.map (fun (id,diffs) -> (id, diff1::diff2::diffs)) client_diffs
+      in
+      {flatworld={flatworld with rooms=new_room_map};
+       client_diffs=new_client_diffs;
+       alldiffs=diff1::diff2::alldiffs
+      }
+    with _ -> state
+  in newstate |> spawn_item |> scoring |> chasing
+
 
 (* tries to change the model based on a client's request.
  * Returns a string that is a jsondiff, i.e. a string formatted with the json
@@ -253,6 +308,7 @@ let react oldstate newstate (cmd:string) cmdtype cid = newstate
 let pushClientUpdate cid cmd cmdtype =
   try
     print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
+    print_endline cmdtype;
     (* Basically we're just pulling the state out of its ref. *)
     let snapshot = !state in
     (* [diffs] is a list of type diff (add remove change). This is the result
@@ -271,7 +327,6 @@ let pushClientUpdate cid cmd cmdtype =
     (* Add the new diffs to every player's stack. *)
     let addDiffsToAll = List.map
         (fun (id,lst) -> (id, diffs@lst)) snapshot.client_diffs in
-    print_endline (string_of_difflist addDiffsToAll);
 
     (* Aplpy react *)
     let afterstate =
@@ -288,16 +343,16 @@ let pushClientUpdate cid cmd cmdtype =
     let flushed = (cid, [])::(List.remove_assoc cid afterstate.client_diffs) in
 
     state := {afterstate with client_diffs = flushed};
-
-    print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
+(*
+    print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs])); *)
     print_libmap afterstate.flatworld.items;
 
     toflush |> translate_to_json
   with
   | IllegalStep msg -> raise (WorldFailure msg)
-  | _ -> begin
+  (* | _ -> begin
       (* endWrite (); *)
-      raise (WorldFailure ("error applying to world")) end
+      raise (WorldFailure ("error applying to world")) end *)
 
 
 let check_clientid cid = LibMap.mem cid (!state).flatworld.items
