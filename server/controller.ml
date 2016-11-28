@@ -45,7 +45,8 @@ let translate_to_diff snapshot j r cid =
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = snapshot in
   let (curx, cury) = List.assoc cid flatworld.players in
-  print_endline ("("^(string_of_int curx)^", "^(string_of_int cury)^")");
+  print_endline ("Old location of player: ("^(string_of_int curx)
+                 ^", "^(string_of_int cury)^")");
   let cur_loc = (curx, cury) in
   let cur_room = RoomMap.find (curx, cury) flatworld.rooms in
   let player =
@@ -326,7 +327,6 @@ let pushClientUpdate cid cmd cmdtype =
     (* Add the new diffs to every player's stack. *)
     let addDiffsToAll = List.map
         (fun (id,lst) -> (id, diffs@lst)) snapshot.client_diffs in
-    print_endline (string_of_difflist addDiffsToAll);
 
     (* Aplpy react *)
     let afterstate =
@@ -343,8 +343,8 @@ let pushClientUpdate cid cmd cmdtype =
     let flushed = (cid, [])::(List.remove_assoc cid afterstate.client_diffs) in
 
     state := {afterstate with client_diffs = flushed};
-
-    print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
+(*
+    print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs])); *)
     print_libmap afterstate.flatworld.items;
 
     toflush |> translate_to_json
