@@ -14,9 +14,9 @@
 		[
 			{"item type": "spell", "id": 1, "incant": "lumos",
 				"descr": "a light spell", "effect": 10},
-			{"item type": "spell", "id": 1, "incant": "avada kedavra",
+			{"item type": "spell", "id": 2, "incant": "avada kedavra",
 				"descr": "a death spell", "effect": -1000},
-			{"item type": "potion", "id": 1, "name": "pepperup potion",
+			{"item type": "potion", "id": 3, "name": "pepperup potion",
 				"descr": "warms and energizes", "effect": 30},
 			{"item type": "player", "id": 1234, "name": "rebecca", "hp": 1000,
 				"score": 1000, "inv":  [1,2,2,2,2,2,3,3]}

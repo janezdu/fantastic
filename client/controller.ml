@@ -493,16 +493,16 @@ let update_client_id name =
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
   (* for debugging *)
-  (* (print_int code;
-  body >>= fun x -> print_endline x; return w) *)
-  if code = 200 then
+  (print_int code;
+  body >>= fun x -> print_endline x; return w)
+  (* if code = 200 then
     body >>= fun x ->
     if c = cquit then
       (print_endline quit_msg; ignore (exit 0); return w)
     else
       (body >>= fun x -> print_endline x;
       translate_to_diff x |> apply_diff_list w |> return)
-  else (body >>= fun x -> print_endline x; return w)
+  else (body >>= fun x -> print_endline x; return w) *)
 
 and repl (w: world): world Lwt.t =
   request_and_update_world w >>= fun new_world ->
