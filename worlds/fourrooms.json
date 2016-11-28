@@ -1,0 +1,24 @@
+{
+	"rooms":
+		[
+			{"loc": {"x": 0, "y": 0}, "items": [1,2,1234], "descr": "This is a room!"},
+			{"loc": {"x": 0, "y": 1}, "items": [2,3], "descr": "This is a room!"},
+			{"loc": {"x": 1, "y": 0}, "items": [1,3], "descr": "This is a room!"},
+			{"loc": {"x": 1, "y": 1}, "items": [1,1], "descr": "This is a room!"}
+		],
+	"players":
+		[
+			{"id": 1234, "x": 0, "y": 0}
+		],
+	"items":
+		[
+			{"item type": "spell", "id": 1, "incant": "lumos",
+				"descr": "a light spell", "effect": 10},
+			{"item type": "spell", "id": 1, "incant": "avada kedavra",
+				"descr": "a death spell", "effect": -1000},
+			{"item type": "potion", "id": 1, "name": "pepperup potion",
+				"descr": "warms and energizes", "effect": 30},
+			{"item type": "player", "id": 1234, "name": "rebecca", "hp": 1000,
+				"score": 1000, "inv":  [1,2,2,2,2,2,3,3]}
+		]
+}

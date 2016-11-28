@@ -1,6 +1,4 @@
 open Model
-open Concurrent
-
 open Yojson.Basic.Util
 
 (* identification of each client *)
@@ -58,9 +56,9 @@ let translate_to_diff snapshot j r cid =
     [ Remove {loc=cur_loc; id=cid; newitem=IVoid};]
   end
   else if r = "move" then begin
-    let newx = json |> member "new_x" |> to_int in
-    let newy = json |> member "new_y" |> to_int in
-    if (abs(newx - curx) + abs(newy - cury)) <> 1 then
+    let new_x = json |> member "new_x" |> to_int in
+    let new_y = json |> member "new_y" |> to_int in
+    if (abs(new_x - curx) + abs(new_y - cury)) <> 1 then
       raise (IllegalStep "Cannot step to non-adjacent.")
     else
     print_endline "got new_x and new_y from json";

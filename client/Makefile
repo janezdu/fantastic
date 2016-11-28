@@ -1,8 +1,5 @@
 build:
-	ocamlbuild -pkgs yojson,lwt,cohttp.lwt controller.byte
+	ocamlbuild -pkgs yojson,lwt,cohttp.lwt controller.byte && ocamlbuild -pkgs oUnit,yojson,str,lwt,cohttp.lwt,ANSITerminal main.byte
 
 clean:
-	camlbuild -clean
-
-play:
-	ocamlbuild -pkgs oUnit,yojson,str,lwt,cohttp.lwt,ANSITerminal main.byte && ./main.byte
+	ocamlbuild -clean

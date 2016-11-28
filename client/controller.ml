@@ -18,6 +18,32 @@ type current_player_id = int
 let client_id = ref (-1)
 let username = ref ""
 
+let cquit = "quit"
+let clook = "look"
+let cmove = "move"
+let ctake = "take"
+let cdrop = "drop"
+let cupdate = "update"
+let cuse = "use"
+
+let welcome_msg = "Welcome back to the magical world of J.K. Rowling" ^
+  "\nFantastic Beasts And Where To Find Them: "
+let ask_name_msg = "What should I call you?\n"
+let game_instruction_msg = "Game instruction goes here\n"
+let invalid_move_msg = "Invalid move. Please try again.\n"
+let bad_req_msg = "Bad request\n"
+let incorrect_client_id_msg = "Incorrect client_id.\n"
+let invalid_command_msg = "Invalid command. Please try again.\n"
+let trouble_login_msg = "We are having trouble logging in." ^
+  "Please check if you have the right version of world\n"
+let trouble_connection_msg = "There is a problem with the connection. "^
+  "Please enter the file name again\n"
+let next_cmd_msg = "what's next?\n"
+let room_desc_msg = "Room description: "
+let room_item_msg = "\nIn the room, there are: "
+let inv_item_msg = "Your inventory contains: "
+let quit_msg = "bye!\n"
+
 (************************** translate_to_diff *********************************)
 
 (* [null_int] represents null of type int *)
@@ -174,7 +200,7 @@ let add_potion item_map item_json =
   let name = item_json |> member "name" |> to_string in
   let descr = item_json |> member "descr" |> to_string in
   let effect = item_json |> member "effect" |> to_int in
-  let potion = IPotion {id = id; name = name; descr = descr ; effect = effect} in
+  let potion = IPotion {id = id; name = name; descr = descr; effect = effect} in
   LibMap.add id potion item_map
 
 let add_player item_map item_json =
@@ -183,7 +209,8 @@ let add_player item_map item_json =
   let hp = item_json |> member "hp" |> to_int in
   let score = item_json |> member "score" |> to_int in
   let inv = item_json |> member "inv" |> to_list |> List.map to_int in
-  let player = IPlayer {id = id; name = name; hp = hp; score = score; inventory = inv} in
+  let player = IPlayer
+    {id = id; name = name; hp = hp; score = score; inventory = inv} in
   LibMap.add id player item_map
 
 let add_police item_map item_json =
@@ -192,7 +219,8 @@ let add_police item_map item_json =
   let hp = item_json |> member "hp" |> to_int in
   let descr = item_json |> member "descr" |> to_string in
   let spells = item_json |> member "spells" |> to_list |> List.map to_int in
-  let ai = IPolice {id = id; name = name; hp = hp; descr = descr; spells = spells} in
+  let ai = IPolice
+    {id = id; name = name; hp = hp; descr = descr; spells = spells} in
   LibMap.add id ai item_map
 
 let add_beast item_map item_json =
@@ -201,7 +229,8 @@ let add_beast item_map item_json =
   let hp = item_json |> member "hp" |> to_int in
   let descr = item_json |> member "descr" |> to_string in
   let spells = item_json |> member "spells" |> to_list |> List.map to_int in
-  let ai = IAnimal {id = id; name = name; hp = hp; descr = descr; spells = spells} in
+  let ai = IAnimal
+    {id = id; name = name; hp = hp; descr = descr; spells = spells} in
   LibMap.add id ai item_map
 
 let add_item item_map item_json =
@@ -217,7 +246,7 @@ let add_item item_map item_json =
 let make_player player_json =
   let id = player_json |> member "id" |> to_int in
   let x = player_json |> member "x" |> to_int in
-  let y=  player_json |> member "y" |> to_int in
+  let y =  player_json |> member "y" |> to_int in
   (id, (x,y))
 
 (* [init_state json] creates the inital world for the game *)
@@ -255,8 +284,8 @@ let check_match i key v=
 (* [find_item i w] finds item id based on name in world w*)
 let find_item i (w:world)=
   let items = w.items in
-  LibMap.fold (fun k v acc -> if (check_match i k v) then
-    Some k else acc) items None
+  LibMap.fold (fun k v acc ->
+    if (check_match i k v) then Some k else acc) items None
 
 (* [interp_move m w] returns a command_json based on a
  * move command m and world w*)
@@ -336,10 +365,15 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | ViewState -> JViewState
   | Help -> JHelp
 
-let rec print_string_list lst =
-  match lst with
+let rec print_string_list = function
   | [] -> ()
   | h::t -> print_endline h; print_string_list t
+
+let rec print_string_list_with_number = function
+  | [] -> ()
+  | (s,n)::t ->
+    (print_endline (s ^ " (" ^ (string_of_int n) ^ ") ");
+    print_string_list_with_number t)
 
 let get_item_name_by_id lib id =
   match LibMap.find id lib with
@@ -354,18 +388,45 @@ let rec get_curr_loc = function
   | [] -> (-1,-1)
   | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
 
-let rec elim_dup acc = function
+let rec elim_dup_helper acc = function
   | [] -> acc
-  | h::t -> if List.mem h t then elim_dup acc t else elim_dup (acc@[h]) t
+  | h::t ->
+    if List.mem h t then elim_dup_helper acc t
+    else elim_dup_helper (acc@[h]) t
+
+let elim_dup lst = elim_dup_helper [] lst
+
+let rec fold_dup tbl = function
+  | [] -> tbl
+  | h::t ->
+    if Hashtbl.mem tbl h then
+      let n = Hashtbl.find tbl h in
+      Hashtbl.add tbl h (n+1);
+      fold_dup tbl t
+    else
+      (Hashtbl.add tbl h 1;
+      fold_dup tbl t)
+
+let rec make_key_pair_item_helper tbl acc = function
+  | [] -> acc
+  | h::t ->
+    let v = Hashtbl.find tbl h in
+    make_key_pair_item_helper tbl (acc@[(h,v)]) t
+
+let make_key_pair_item tbl lst = make_key_pair_item_helper tbl [] lst
 
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
-  print_endline ("Room description: " ^ room.descr);
-  print_endline "\nIn the room, there are: ";
-  let item_list_dup = List.map (get_item_name_by_id w.items) room.items in
-  let item_list = elim_dup [] item_list_dup in
-  print_string_list item_list;
+  print_endline (room_desc_msg ^ room.descr);
+  print_endline room_item_msg;
+  let id_list_no_self = List.filter (fun x -> x <> !client_id) room.items in
+  let item_list_dup =
+    List.map (get_item_name_by_id w.items) id_list_no_self in
+  let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
+  let item_list_no_dup = elim_dup item_list_dup in
+  let key_pair_item = make_key_pair_item tbl item_list_no_dup in
+  print_string_list_with_number key_pair_item;
   print_endline ""
 
 let unwrap_player = function
@@ -374,31 +435,25 @@ let unwrap_player = function
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
-  print_endline "Your inventory contains: ";
+  print_endline inv_item_msg;
   let inv_list_dup = List.map (get_item_name_by_id w.items) p.inventory in
-  let inv_list = elim_dup [] inv_list_dup in
-  print_string_list inv_list;
+  let tbl = fold_dup (Hashtbl.create 10) inv_list_dup in
+  let inv_list_no_dup = elim_dup inv_list_dup in
+  let key_pair_item = make_key_pair_item tbl inv_list_no_dup in
+  print_string_list_with_number key_pair_item;
   print_endline ""
 
 let print_help () =
-  print_endline "Game instruction goes here\n"
+  print_endline game_instruction_msg
 
 (************************** update world **************************************)
 
 (* keep requesting until it's approved then apply diffs to the world *)
 let rec request_and_update_world (w: world) : world Lwt.t =
-  send_get_request "update" !client_id >>= fun (code, body) ->
+  send_get_request cupdate !client_id >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
   else request_and_update_world w
-
-(* [auto_update_world w] is the most up-to-date world from the server.
- * It requests to update every 500ms *)
-(* let rec auto_update_world (is_loop: bool) (w: world) : world Lwt.t =
-  if is_loop then
-    OS.Time.sleep 0.05 >>= fun () -> request_and_update_world w
-    >>= auto_update_world is_loop
-  else return w *)
 
 (************************** eval command **************************************)
 
@@ -409,12 +464,12 @@ let rec request_and_update_world (w: world) : world Lwt.t =
 let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   request_and_update_world w >>= fun curr_world ->
   match interpret_command comm current_player curr_world with
-  | JMove x -> send_post_request x "move" current_player
-  | JDrink x -> send_post_request x "use" current_player
-  | JSpell x -> send_post_request x "use" current_player
-  | JQuit -> send_get_request "quit" current_player
-  | JTake x -> send_post_request x"take" current_player
-  | JDrop x -> send_post_request x "drop" current_player
+  | JMove x -> send_post_request x cmove current_player
+  | JDrink x -> send_post_request x cuse current_player
+  | JSpell x -> send_post_request x cuse current_player
+  | JQuit -> send_get_request cquit current_player
+  | JTake x -> send_post_request x ctake current_player
+  | JDrop x -> send_post_request x cdrop current_player
   | JLook -> print_room curr_world; return ((-1, return ""))
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
@@ -429,8 +484,7 @@ let rec update_client_id_helper name =
   if code = 200 then
     body >>= fun x -> translate_to_client_id x; return ()
   else
-    (print_endline ("We are having trouble logging in." ^
-    "Please check if you have the right version of world");
+    (print_endline (trouble_login_msg);
     update_client_id_helper name)
 
 let update_client_id name =
@@ -438,29 +492,26 @@ let update_client_id name =
 
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
-  match code with
-  | 200 -> body >>= fun x ->
-    if c = "quit" then (print_endline x; ignore (exit 0); return w)
-    else translate_to_diff x |> apply_diff_list w |> return
-  | 403 -> (print_endline "Invalid move. Please try again.\n"; repl w)
-  | 409 -> repl_helper c w
-  | 404 -> (print_endline "Invalid move. Please try again.\n"; repl w)
-  | 400 ->
-    (print_endline "Bad request. ";
-    body >>= fun x -> print_endline x;
-    repl_helper c w)
-  | 401 ->
-    (print_endline "Incorrect client_id. ";
-    body >>= fun x -> print_endline x; repl_helper c w)
-  | _ -> return w
+  (* for debugging *)
+  (* (print_int code;
+  body >>= fun x -> print_endline x; return w) *)
+  if code = 200 then
+    body >>= fun x ->
+    if c = cquit then
+      (print_endline quit_msg; ignore (exit 0); return w)
+    else
+      (body >>= fun x -> print_endline x;
+      translate_to_diff x |> apply_diff_list w |> return)
+  else (body >>= fun x -> print_endline x; return w)
 
 and repl (w: world): world Lwt.t =
   request_and_update_world w >>= fun new_world ->
+  print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
   try
     request_and_update_world new_world >>= repl_helper c >>= repl
   with
-  | _ -> (print_endline "Invalid command. Please try again.\n"; repl w)
+  | _ -> (print_endline invalid_command_msg; repl w)
 
 (******************************* main functions *******************************)
 
@@ -472,33 +523,35 @@ let cut_file_type file_name =
   String.sub file_name 0 dot_idx
 
 (* Helper for main:
- * [welcome_msg file_name st] prints messages before starting the game
- * var welcome_msg : string -> state -> unit *)
-let welcome_msg file_name st =
-  print_endline ("Welcome back to the magical world of J.K. Rowling" ^
-    "\nFantastic Beasts And Where To Find Them: \n");
-  (* print_endline (cut_file_type file_name); *)
-  do_command "look" !client_id st
+ * [show_welcome_msg file_name st] prints messages before starting the game
+ * var show_welcome_msg : string -> state -> unit *)
+let show_welcome_msg file_name st =
+  print_string (welcome_msg);
+  print_endline (cut_file_type file_name);
+  print_endline "";
+  do_command clook !client_id st
 
 let start_chain (file_name: string) (w: world) =
   request_and_update_world w >>= fun new_world ->
-  welcome_msg file_name new_world |> ignore; repl new_world
+  show_welcome_msg file_name new_world |> ignore; repl new_world
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
 let rec main file_name =
   try
-    let init_state_var = init_state (Yojson.Basic.from_file file_name) in
-    print_endline "What should I call you?";
+    let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
+    let init_state_var = init_state file in
+    print_endline ask_name_msg;
+    print_string "> ";
     username := (read_line ());
     update_client_id !username;
     Lwt_main.run (start_chain file_name init_state_var)
   with
   | Sys_error explanation ->
     (print_endline explanation;
-    print_string "\n";
+    print_string "\n> ";
     main (read_line ()))
   | _ ->
-    (print_endline ("There is a problem with the connection."^
-    "Please try again");
+    (print_endline (trouble_connection_msg);
+    print_string "> ";
     main (read_line ()))

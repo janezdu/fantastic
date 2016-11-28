@@ -148,9 +148,7 @@ type diff =
 
 (* [apply_diff d] takes in a difference and returns an updated
  * minimodel based on the diff.*)
-
 val apply_diff: world -> diff -> world
-
 
 val apply_diff_list: world -> diff list -> world
 
