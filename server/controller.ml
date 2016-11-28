@@ -58,14 +58,14 @@ let translate_to_diff snapshot j r cid =
     [ Remove {loc=cur_loc; id=cid; newitem=IVoid};]
   end
   else if r = "move" then begin
-    let newx = json |> member "newx" |> to_int in
-    let newy = json |> member "newy" |> to_int in
-    if (abs(newx - curx) + abs(newy - cury)) <> 1 then
+    let new_x = json |> member "new_x" |> to_int in
+    let new_y = json |> member "new_y" |> to_int in
+    if (abs(new_x - curx) + abs(new_y - cury)) <> 1 then
       raise (IllegalStep "Cannot step to non-adjacent.")
     else
-    print_endline "got newx and newy from json";
+    print_endline "got new_x and new_y from json";
     [ Remove {loc=(curx, cury); id=cid; newitem=IPlayer player};
-      Add {loc=(newx, newy); id=cid; newitem=IPlayer player}
+      Add {loc=(new_x, new_y); id=cid; newitem=IPlayer player}
     ]
   end
   else if r = "use" then begin
