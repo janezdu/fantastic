@@ -1,5 +1,5 @@
+open Str
 (* directive is what the player types into the command line*)
-
 
 (* command is a variant type of the possible commands a player
  * could make *)
@@ -28,12 +28,11 @@ let parse_command (lst)=
     match lst with
     | h::t::[] when (h="move") -> Move (String.trim t)
     | h::t::[] when (h="drink") -> Drink (String.trim t)
-    | h::t::[] when (h="spell") -> 
-      let spell_str = (String.trim t) in 
+    | h::t::[] when (h="spell") ->
+      let spell_str = (String.trim t) in
       let spell_lst = Str.split (Str.regexp ",") spell_str in
-      let spell_name = String.trim (List.nth spell_lst 0) in 
+      let spell_name = String.trim (List.nth spell_lst 0) in
       let spell_target = String.trim (List.nth spell_lst 1) in
-      let spell_tup =  (spell_name, spell_target ) in
       Spell (spell_name,spell_target)
     | h::t::[] when (h="drop") -> Drop (String.trim t)
     | h::t::[] when (h="take") -> Take (String.trim t)
