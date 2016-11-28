@@ -308,6 +308,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
 let pushClientUpdate cid cmd cmdtype =
   try
     print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
+    print_endline cmdtype;
     (* Basically we're just pulling the state out of its ref. *)
     let snapshot = !state in
     (* [diffs] is a list of type diff (add remove change). This is the result

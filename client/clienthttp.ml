@@ -32,6 +32,7 @@ let get_body query =
   (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   let received_body = body |> Cohttp_lwt_body.to_string in
+  print_endline received_body;
   return (code, received_body)
 
 (* [send_json j} sends a json to the servers. Returns diff list *)
