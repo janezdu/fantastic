@@ -299,7 +299,60 @@ let react oldstate newstate (cmd:string) cmdtype cid =
        alldiffs=diff1::diff2::alldiffs
       }
     with _ -> state
-  in newstate |> spawn_item |> scoring |> chasing
+  in 
+  let beast_killing state = 
+    try 
+      let {flatworld;client_diffs;alldiffs} = state in
+      let IPlayer player = flatworld.items |> LibMap.find cid in
+      let command = Yojson.Basic.from_string cmd in
+      let target_id = command |> member "target" |> to_int in
+      let target = flatworld.items |> LibMap.find target_id in
+      let cur_loc = List.assoc cid flatworld.players in
+      let cur_room = flatworld.rooms |> RoomMap.find cur_loc in
+      match target with 
+      | IAnimal animal -> begin 
+        let rec contains x l = match l with [] -> false 
+          | h::t -> if h = x then true else contains x t
+        in
+        let is_animal_alive = contains target_id cur_room.items in
+        if is_animal_alive then 
+            if player.hp <= 20  
+            then begin
+              let new_room_map = flatworld.rooms
+                         |> RoomMap.add cur_loc
+                           {cur_room with items=(remove cid cur_room.items)} in
+              let diff = Remove {loc=cur_loc;id=cid;newitem=IPlayer player} 
+              in
+              let new_client_diffs =
+                List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs in
+              let new_flat_world = 
+                {rooms=new_room_map;
+                players=List.remove_assoc cid flatworld.players;
+                items=flatworld.items}
+              in
+              {flatworld=new_flat_world;
+               client_diffs=new_client_diffs;
+               alldiffs=diff::alldiffs
+              }
+            end
+            else begin
+              let new_player = IPlayer {player with hp = player.hp - 20} in
+              let new_item_map = flatworld.items |> LibMap.add cid new_player in
+              let diff = Change {loc=cur_loc;id=cid;newitem=new_player} in
+              let new_client_diffs =
+                List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs
+              in 
+              {flatworld={flatworld with items=new_item_map};
+               client_diffs=new_client_diffs;
+               alldiffs=diff::alldiffs
+              }
+            end
+        else state   
+      end
+      | _ -> failwith "not a beast"
+    with _ -> state
+  in 
+  newstate |> spawn_item |> scoring |> chasing
 
 
 (* tries to change the model based on a client's request.
