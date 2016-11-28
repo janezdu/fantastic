@@ -509,6 +509,7 @@ and repl (w: world): world Lwt.t =
   print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
   try
+    print_endline "to repl";
     request_and_update_world new_world >>= repl_helper c >>= repl
   with
   | _ -> (print_endline invalid_command_msg; repl w)
