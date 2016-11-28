@@ -125,6 +125,7 @@ let translate_to_diff snapshot j r cid =
   else if r = "drop" then begin
     let item_id = json |> member "id" |> to_int in
     let wrapped_item = flatworld.items |> LibMap.find item_id in
+    print_endline (string_of_item wrapped_item);
     let _ = match wrapped_item with
       | ISpell _ | IPotion _ -> true |_ ->
         raise (IllegalStep "not a spell/potion") in
