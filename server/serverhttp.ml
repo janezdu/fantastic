@@ -36,7 +36,7 @@ let handleQuery req body cid : string Lwt.t =
                   print_endline msg;
                   Lwt.fail (WorldFailure msg)
                 end
-              | _ -> failwith "Legal uri but broken non-worldfailure"))
+              | _ -> failwith "Legal uri but broken non-world failure"))
       end
     | "/update" -> body |> Cohttp_lwt_body.to_string >|= (fun cmdbody ->
         ( print_endline ("[UPDATE]: "^(string_of_int cid));
