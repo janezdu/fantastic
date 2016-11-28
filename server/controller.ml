@@ -213,7 +213,8 @@ let translate_to_json difflist =
 let getClientUpdate cid =
   try
     let snapshot = !state in
-    print_endline (string_of_difflist snapshot.client_diffs);
+    print_endline ("Client diffs returned: "^
+                   (string_of_difflist snapshot.client_diffs));
     let diffs_to_apply = List.assoc cid snapshot.client_diffs in
     let newdiffs = (cid, [])::(List.remove_assoc cid snapshot.client_diffs) in
     let newstate = {snapshot with client_diffs = newdiffs} in
