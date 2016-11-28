@@ -299,9 +299,12 @@ let interp_move (m:string) current_player (w:world): comm_json =
 (* Note : find the room the player is in*
    * find the spell that they want to use in the inventory
    * (matches incantation) *)
-let interp_spell s (w:world): comm_json =
+let interp_spell s  t (w:world): comm_json =
    match (find_item s w) with
-   | Some s -> JSpell ("{\"Id\":" ^ (string_of_int s) ^ "}")
+   | Some s ->
+     (match (find_item t w) with
+     | Some t -> JSpell ("{\"Id\":" ^ (string_of_int s) ^", \"Target\" "^(string_of_int t)^"}")
+     | None -> raise NotAnItem)
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
@@ -332,7 +335,7 @@ let interp_drink d (w:world): comm_json =
 let interpret_command (c: string) current_player (w: world) : comm_json=
   match (parse_comm c) with
   | Move s -> interp_move s current_player w
-  | Spell s -> interp_spell s w
+  | Spell (s,t) -> interp_spell s t w
   | Quit -> JQuit
   | Take s -> interp_take s w
   | Drop s -> interp_drop s w

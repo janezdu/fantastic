@@ -13,7 +13,7 @@
 type command =
   | Move of string
   | Drink of string
-  | Spell of string
+  | Spell of string*string
   | Quit
   | Take of string
   | Drop of string
