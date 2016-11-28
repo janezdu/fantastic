@@ -1,3 +1,5 @@
+let debugging = true
+let pr msg = if debugging then print_endline msg else ignore ()
 
 
 (* locations of rooms are in cartesian coordinate with the bottom-left cell
@@ -188,12 +190,12 @@ let string_of_difflist client_diffs =
     (string_of_diff_simple diff)^",\n" *)
 
 let print_libmap lmap =
-  print_endline "---------------------------";
+  pr "---------------------------";
   LibMap.iter (fun index item->
-      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
+      pr (Printf.sprintf "* Index: %s\n  Item: %s"
                        (string_of_int index)
                        (string_of_item item);)) lmap;
-  print_endline "---------------------------"
+  pr "---------------------------"
 
 
 
@@ -208,9 +210,8 @@ let rec remove_item_from_list x = function
 let rec update_players (id: int) (new_loc: room_loc)
     (players: (int * room_loc) list) : (int * room_loc) list =
   match players with
-  | (id', old_loc) as h::t ->
-    if id = id' then (id, new_loc)::t
-    else h::(update_players id new_loc t)
+  | (id', old_loc) as h::t ->(if id = id' then (id, new_loc)::t
+    else h::(update_players id new_loc t))
   | [] -> (id, new_loc)::[]
 
 let fnull_int () = -1
@@ -325,30 +326,38 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
     {curr_rooms with items = f id_to_edit curr_rooms.items} in
+
   let new_rooms = RoomMap.add loc new_room w.rooms in
   let updated_players =
-    if id_to_edit >= 1000 then update_players id_to_edit loc w.players
+    if id_to_edit >= 1000 then (update_players id_to_edit loc w.players)
     else w.players in
   {rooms = new_rooms; players = updated_players; items = new_items}
 
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
-  (* print_endline "Adding..."; *)
+  (* pr "Adding..."; *)
   let item_to_edit = complete_item w d.newitem in
-  let new_items = LibMap.add d.id item_to_edit w.items in
+  (* pr ("Got complete item "^(string_of_item item_to_edit));
+  print_libmap w.items; *)
+  (* print_libmap *)
+  let new_items =
+    if not (LibMap.mem d.id w.items) then
+      LibMap.add d.id item_to_edit w.items
+    else w.items in
+  print_libmap w.items;
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  (* print_endline "Removing..."; *)
+  (* pr "Removing..."; *)
   let new_items = match d.newitem with
     | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
     | ISpell _ | IPotion _ | IVoid -> w.items
     | IPlayer p ->
       if p.hp = 0 then
         begin
-          print_endline ("found a ghost "^ string_of_int p.hp);
+          pr ("found a ghost "^ string_of_int p.hp);
           let ghost = {p with name = p.name ^ "'s ghost'"} in
           let cleancorpse = LibMap.remove d.id w.items in
           LibMap.add d.id (IPlayer ghost) cleancorpse

@@ -11,6 +11,10 @@ type json = Yojson.Basic.json
 exception WorldFailure = Controller.WorldFailure
 exception BadRequest of string
 
+let debugging = Controller.debugging
+let p msg = if debugging then print_endline msg else ignore ()
+
+
 (* [start pw] will start a game server*)
 let start () = failwith "unimplemented"
 
@@ -67,9 +71,9 @@ let handleLogin req body name =
 (* a server is a function that gets data, compute and respond *)
 let server =
   let callback _conn req body =
-    print_endline ("\n\n===================================================="^
+    p ("\n\n===================================================="^
                    "\nstarted callback");
-    print_endline (req |> Request.uri |> Uri.to_string);
+    p (req |> Request.uri |> Uri.to_string);
     let queryparams = req |> Request.uri |> Uri.query in
 
     let reqmode =

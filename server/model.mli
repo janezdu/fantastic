@@ -1,3 +1,5 @@
+val debugging : bool
+
 type room_loc = int * int
 
 exception ApplyDiffError of string
