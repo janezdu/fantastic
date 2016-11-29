@@ -44,6 +44,7 @@ let rec remove_from_list x = function
  * a string [r] that determines what type of cmd is being requested
  * among ["move", "use", "take", "drop"] *)
 let translate_to_diff snapshot j r cid =
+  pr j;
   let json = j |> Yojson.Basic.from_string in
   let {flatworld; client_diffs} = snapshot in
   let (curx, cury) = List.assoc cid flatworld.players in
@@ -62,6 +63,7 @@ let translate_to_diff snapshot j r cid =
   else if r = "move" then begin
     let new_x = json |> member "new_x" |> to_int in
     let new_y = json |> member "new_y" |> to_int in
+    pr "hell there";
     if (abs(new_x - curx) + abs(new_y - cury)) <> 1 then
       raise (IllegalStep "Cannot step to non-adjacent.")
     else
@@ -450,8 +452,12 @@ let registerUser name =
                              inventory = [1;1;1]} in
     (* Create diffs so that other players can add this player *)
     let diffs = [Add {loc = (0,0); id = cid; newitem = newPlayer}] in
+
     (* Create a new flatworld where you have added the new player *)
-    let newworld = List.fold_left (fun a d -> apply_diff d a) (snapshot.flatworld) diffs in
+    let newworld = List.fold_left
+        (fun a d -> apply_diff d a)
+        (snapshot.flatworld) diffs in
+
     (* Add new player to client_diffs *)
     let newclientdiffs = (cid, snapshot.alldiffs)::snapshot.client_diffs  in
     let newdiffs = List.map
