@@ -224,7 +224,7 @@ let complete_item w item =
  * an ai, which has 99 < id < 999
  * requires: [lmap] contains [id] *)
 let remove_ai_from_libmap lmap id =
-  if id > 99 && id < 999 then LibMap.remove id lmap
+  if id > 99 && id < 1000 then LibMap.remove id lmap
   else lmap
 
 (* [apply_diff_case d new_items w f] is helper function for apply_diff_add,

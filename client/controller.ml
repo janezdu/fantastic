@@ -21,11 +21,18 @@ let dim_x = 2
 let client_id = ref (-1)
 let username = ref ""
 
-let cquit = "quit"
-let clook = "look"
 let cmove = "move"
+let cdrink = "drink"
+let cspell = "spell"
+let cquit = "quit"
 let ctake = "take"
 let cdrop = "drop"
+let clook = "look"
+let cinv = "inv"
+let cinventory = "inventory"
+let cview = "view"
+let chelp = "help"
+let ccheck = "check"
 let cupdate = "update"
 let cuse = "use"
 
@@ -39,6 +46,8 @@ let incorrect_client_id_msg = "Incorrect client_id.\n"
 let invalid_command_msg = "Invalid command. Please try again.\n"
 let trouble_login_msg = "We are having trouble logging in." ^
   "Please check if you have the right version of world\n"
+let same_username_msg = "Your username has been used by another player in " ^
+  "the game. Please select a new one."
 let trouble_connection_msg = "There is a problem with the connection. "^
   "We'll start over. Please enter the file name again\n"
 let next_cmd_msg = "what's next?\n"
@@ -47,6 +56,13 @@ let room_item_msg = "\nIn the room, there are: "
 let inv_item_msg = "Your inventory contains: "
 let quit_msg = "bye!\n"
 let take_msg item = "Congratulations! You've taken " ^ item
+let drop_msg item = "You've drop " ^ item
+let move_msg new_loc =
+  "You are now in room "^ (string_of_int_tuple new_loc) ^ "\n"
+let drink_msg drink hp =
+  "You've had " ^ drink ^ ".\n Now your hp is " ^ (string_of_int hp)
+let spell_msg spell target =
+  "You've used " ^ spell ^ " on " ^ target
 
 (************************** translate_to_diff *********************************)
 
@@ -390,8 +406,12 @@ let rec print_string_list = function
 let rec print_string_list_with_number = function
   | [] -> ()
   | (s,n)::t ->
-    (print_endline (s ^ " (" ^ (string_of_int n) ^ ") ");
-    print_string_list_with_number t)
+    if n = 1 then
+      (print_endline s;
+      print_string_list_with_number t)
+    else
+      (print_endline (s ^ " x " ^ (string_of_int n));
+      print_string_list_with_number t)
 
 let get_item_name_by_id lib id =
   match LibMap.find id lib with
@@ -402,9 +422,18 @@ let get_item_name_by_id lib id =
   | IPotion x -> x.name
   | IVoid -> ""
 
+let unwrap_player = function
+  | IPlayer x -> x
+  | _ -> failwith "invalid command"
+
 let rec get_curr_loc = function
   | [] -> (-1,-1)
   | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
+
+let rec get_hp id lmap =
+  let curr_player_item = LibMap.find id lmap in
+  let curr_player = unwrap_player curr_player_item in
+  curr_player.hp
 
 let rec elim_dup_helper acc = function
   | [] -> acc
@@ -446,10 +475,6 @@ let print_room w =
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
   print_string_list_with_number key_pair_item
-
-let unwrap_player = function
-  | IPlayer x -> x
-  | _ -> failwith "invalid command"
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
@@ -505,57 +530,94 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
 
 (*  localhost:8000/login?username=chau *)
 (* request client_id from server. ?? maybe i need to check other resp code *)
-let rec update_client_id_helper name =
+let update_client_id_helper callback name =
   send_login_request name >>= fun (code, body) ->
-  if code = 200 then
-    body >>= fun x -> translate_to_client_id x; return ()
-  else
-    (print_endline (trouble_login_msg);
-    update_client_id_helper name)
+  match code with
+  | 200 -> body >>= fun x -> translate_to_client_id x; return ()
+  | 418 -> (print_endline same_username_msg; callback (); return ())
+  | _ -> (print_endline (trouble_login_msg); callback (); return ())
 
-let update_client_id name =
-  ignore (update_client_id_helper name)
+let update_client_id callback name =
+  ignore (update_client_id_helper callback name)
 
-let get_item_from_cmd c =
-  let c_trim = String.trim c in
-  let space_idx = String.index c_trim ' ' in
-  String.sub c_trim (space_idx+1) (String.length c_trim - space_idx)
+let get_verb_from_cmd c =
+  try
+    let c_trim = String.trim c in
+    let space_idx = String.index c_trim ' ' in
+    let verb =
+      String.sub c_trim (0) (space_idx) in
+    String.trim verb
+  with
+  | _ -> String.trim c
+
+let get_obj_from_cmd c =
+  try
+    let c_trim = String.trim c in
+    let space_idx = String.index c_trim ' ' in
+    let verb =
+      String.sub c_trim (space_idx + 1) (String.length c - space_idx -1) in
+    String.trim verb
+  with
+  | _ -> String.trim c
+
+(* requires: there's a [,] in [c] *)
+let get_spell_from c =
+  let obj = get_obj_from_cmd c in
+  let comma_idx = String.index obj ',' in
+  let spell =
+    String.sub obj 0 (comma_idx -1) in
+  String.trim spell
+
+let get_target_from c =
+  let obj = get_obj_from_cmd c in
+  let comma_idx = String.index obj ',' in
+  let target =
+    String.sub obj (comma_idx + 1) (String.length c - comma_idx -1) in
+  String.trim target
 
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   do_command c !client_id w >>= fun (code, body) ->
-  (* for debugging *)
-(*   (print_int code;
-  body >>= fun x -> print_endline x; return w) *)
   if code = 200 then
     body >>= fun x ->
     (* for debugging *)
-    (body >>= fun x -> print_endline x;
-    translate_to_diff x |> apply_diff_list w |> return)
-    (* match c with
-    | cquit ->
-      begin
-        print_endline quit_msg; ignore (exit 0)
-      end
-    | ctake ->
-      begin
-        print_endline (take_msg item));
-        translate_to_diff x |> apply_diff_list w |> repl_helper cinv
-      end *)
-(*     | cdrop ->
-      begin
-        print_endline (drop_msg item));
-        translate_to_diff x |> apply_diff_list w |> repl_helper cinv
-      end
+  (*   (body >>= fun x -> print_endline x;
+    translate_to_diff x |> apply_diff_list w |> return) *)
+    match get_verb_from_cmd c with
     | cmove ->
-      begin
-        print_endline (move_msg new_loc));
-        translate_to_diff x |> apply_diff_list w |> repl_helper clook
-      end
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline (move_msg (get_curr_loc new_w.players));
+      repl_helper clook new_w)
     | cdrink ->
-      begin
-        print_endline (drink_msg drink));
-        translate_to_diff x |> apply_diff_list w |> repl_helper clook
-      end *)
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      let drink = get_obj_from_cmd c in
+      let new_hp = get_hp !client_id new_w.items in
+      print_endline (drink_msg drink new_hp);
+      repl_helper ccheck new_w)
+    | cspell ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      let spell = get_spell_from c in
+      let target = get_target_from c in
+      print_endline (spell_msg spell target);
+      return new_w)
+    | cquit ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline quit_msg; ignore (exit 0);
+      return new_w)
+    | ctake ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline (take_msg (get_obj_from_cmd c));
+      repl_helper cinv new_w)
+    | cdrop ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline (drop_msg (get_obj_from_cmd c));
+      repl_helper cinv new_w)
+    | _ -> failwith "not recorded command"
   else (body >>= fun x -> print_endline x; return w)
 
 and repl (w: world): world Lwt.t =
@@ -587,6 +649,10 @@ let show_welcome_msg file_name st =
   print_endline "";
   do_command clook !client_id st
 
+let rec register_client () =
+  username := (read_line ());
+  update_client_id register_client !username
+
 let start_chain (file_name: string) (w: world) =
   print_endline "start chain";
   request_and_update_world w >>= fun new_world ->
@@ -600,8 +666,7 @@ let rec main file_name =
     let init_state_var = init_state file in
     print_endline ask_name_msg;
     print_string "> ";
-    username := (read_line ());
-    update_client_id !username;
+    register_client ();
     Lwt_main.run (start_chain file_name init_state_var)
   with
   | Sys_error explanation ->
