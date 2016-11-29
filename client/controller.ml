@@ -500,7 +500,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JLook -> print_room curr_world; return ((-1, return ""))
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
-  | JHelp -> print_help (); return ((-1, return "")))
+  | JHelp -> print_help (); return ((-1, return ""))
   | JCheck -> print_check current_player w; return ((-1, return ""))
 
 (********************************** repl **************************************)
