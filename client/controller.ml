@@ -342,7 +342,7 @@ let interp_spell s  t (w:world): comm_json =
    match (find_item s w) with
    | Some s ->
      (match (find_item t w) with
-     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"Target\" "^(string_of_int t)^"}")
+     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"Target\":"^(string_of_int t)^"}")
      | None -> raise NotAnItem)
    | None -> raise NotAnItem
 
@@ -367,7 +367,7 @@ let interp_drop d (w:world): comm_json =
 (* find room player is in, find item they want to drop in inventory*)
 let interp_drink d (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ "}")
+   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ ", \"Target\":"^(string_of_int t)^"}")
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
