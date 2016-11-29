@@ -603,7 +603,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   if code = 200 then
     body >>= fun x ->
     (* for debugging *)
-    print_endline x;
+    (* print_endline x; *)
   (*   (body >>= fun x -> print_endline x;
     translate_to_diff x |> apply_diff_list w |> return) *)
     match get_verb_from_cmd c with
