@@ -462,6 +462,12 @@ let print_inv w =
 
 let print_help () =
   print_endline game_instruction_msg
+  
+let print_check current_player w =
+  let player = LibMap.find current_player w.items in 
+  match player with
+  | IPlayer p -> print_int p.hp
+  | _ -> failwith "not a player"
 
 (************************** update world **************************************)
 
