@@ -381,6 +381,7 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | Drink s -> interp_drink s current_player w
   | ViewState -> JViewState
   | Help -> JHelp
+  | Check -> JCheck
 
 let rec print_string_list = function
   | [] -> ()
@@ -494,6 +495,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
   | JHelp -> print_help (); return ((-1, return "")))
+  | JCheck -> print_check current_player w; return ((-1, return ""))
 
 (********************************** repl **************************************)
 
