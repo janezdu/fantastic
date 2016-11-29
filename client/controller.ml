@@ -20,6 +20,7 @@ let dim_x = 2
 
 let client_id = ref (-1)
 let username = ref ""
+let ip = ref ""
 
 let cmove = "move"
 let cdrink = "drink"
@@ -520,7 +521,7 @@ let print_check current_player w =
 
 (* keep requesting until it's approved then apply diffs to the world *)
 let rec request_and_update_world (w: world) : world Lwt.t =
-  send_get_request cupdate !client_id >>= fun (code, body) ->
+  send_get_request !ip cupdate !client_id >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x ->
     (* debugging *)
@@ -537,12 +538,12 @@ let rec request_and_update_world (w: world) : world Lwt.t =
 let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   request_and_update_world w >>= fun curr_world ->
   match interpret_command comm current_player curr_world with
-  | JMove x -> send_post_request x cmove current_player
-  | JDrink x -> send_post_request x cuse current_player
-  | JSpell x -> send_post_request x cuse current_player
-  | JQuit -> send_get_request cquit current_player
-  | JTake x -> send_post_request x ctake current_player
-  | JDrop x -> send_post_request x cdrop current_player
+  | JMove x -> send_post_request !ip x cmove current_player
+  | JDrink x -> send_post_request !ip x cuse current_player
+  | JSpell x -> send_post_request !ip x cuse current_player
+  | JQuit -> send_get_request !ip cquit current_player
+  | JTake x -> send_post_request !ip x ctake current_player
+  | JDrop x -> send_post_request !ip x cdrop current_player
   | JLook -> print_room curr_world; return ((-1, return ""))
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
@@ -554,7 +555,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
 (*  localhost:8000/login?username=chau *)
 (* request client_id from server. ?? maybe i need to check other resp code *)
 let update_client_id_helper callback name =
-  send_login_request name >>= fun (code, body) ->
+  send_login_request !ip name >>= fun (code, body) ->
   match code with
   | 200 -> body >>= fun x -> translate_to_client_id x; return ()
   | 418 -> (print_endline same_username_msg; callback (); return ())
@@ -698,9 +699,16 @@ let start_chain (file_name: string) (w: world) =
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
-let rec main file_name =
+let rec main ip_address =
   try
+    ip := ip_address;
     (* debugging *)
+    print_endline "\n\nWelcome to the 3110 Text Adventure Game engine.\n";
+    (* print_endline "Please enter the file of the game you want to load.\n";
+    print_string  "> ";
+    (* debugging *)
+    let file_name = read_line () in *)
+    let file_name = "fourrooms.json" in
     let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
     let init_state_var = init_state file in
     print_endline ask_name_msg;
