@@ -342,7 +342,7 @@ let apply_diff_add (d: diffparam) (w: world) : world =
   print_libmap w.items; *)
   let new_items = LibMap.add d.id item_to_edit w.items in
 
-  print_libmap w.items;
+  (* print_libmap w.items; *)
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
@@ -392,7 +392,7 @@ let rec apply_diff (d: diff) (w: world) : world =
 
 let init size =
   let room00 = {descr="This is a room!"; items = [1;2;1234]} in
-  let room10 = {descr="This is a room!"; items = [2;3]} in
+  let room10 = {descr="This is a room!"; items = [2;3;30;31]} in
   let room01 = {descr="This is a room!"; items = [1;3]} in
   let room11 = {descr="This is a room!"; items = [1;1]} in
   let map = RoomMap.empty |> RoomMap.add (0,0) room00
@@ -412,7 +412,25 @@ let init size =
               |> LibMap.add 3 (IPotion {id = 3;
                                        name = "pepperup potion";
                                         descr = "warms and energizes";
-                                       effect = 30})
+                                        effect = 30})
+              |> LibMap.add 10 (ISpell {id = 10;
+                                       incant = "bite";
+                                       descr = "ouch";
+                                        effect = -20})
+              |> LibMap.add 11 (ISpell {id = 11;
+                                        incant = "transform";
+                                        descr = "a scary looking thing";
+                                        effect = -10})
+              |> LibMap.add 30 (IAnimal {id = 30;
+                                         name = "boggart";
+                                         descr = "pretty scary";
+                                         hp = 50;
+                                         spells= [10;11]})
+              |> LibMap.add 31 (IAnimal {id = 31;
+                                         name = "boggart";
+                                         descr = "pretty scary";
+                                         hp = 50;
+                                         spells= [10;11]})
               |> LibMap.add 1234 (IPlayer {id = 1234;
                                            name = "rebecca";
                                            hp = 1000;

@@ -20,7 +20,7 @@ let pr msg = if debugging then print_endline msg else ignore ()
 let debugging = Model.debugging
 
 let newid = ref 1000
-let _ = Random.self_init ()
+let _ = Random.init 3
 
 (* todo: implement this in translate_to_diff *)
 (* type cmd = Move | Use | Take | Drop *)
@@ -375,7 +375,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       end
       | _ -> failwith "not a beast"
     with _ -> state
-  in newstate |> (* spawn_item  |> *) scoring |> chasing |> beast_killing
+  in newstate |> (* spawn_item |>  *) scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.
@@ -415,10 +415,6 @@ let pushClientUpdate cid cmd cmdtype =
                          so far. This is only here because if a new player joins
                          the game, they need the entire history in diffs. *)
                       alldiffs = diffs@snapshot.alldiffs} cmd cmdtype cid in
-
-    pr "made it out";
-
-
     (* [toflush] are the diffs that the client will be getting. *)
     let toflush = List.assoc cid afterstate.client_diffs in
     (* Flush [toflush] from the list of client_diffs. *)
