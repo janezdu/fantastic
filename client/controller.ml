@@ -52,6 +52,7 @@ let trouble_connection_msg = "There is a problem with the connection. "^
   "We'll start over. Please enter the file name again\n"
 let next_cmd_msg = "what's next?\n"
 let room_desc_msg = "Room description: "
+let room_loc_msg = "Room location: "
 let room_item_msg = "\nIn the room, there are: "
 let inv_item_msg = "Your inventory contains: "
 let quit_msg = "bye!\n"
@@ -473,9 +474,11 @@ let make_key_pair_item tbl lst = make_key_pair_item_helper tbl [] lst
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
+  print_endline (room_loc_msg ^ (string_of_int_tuple loc));
   print_endline (room_desc_msg ^ room.descr);
   print_endline room_item_msg;
-  let id_list_hp = List.filter (fun x -> x > 99) room.items in
+  let id_list_hp =
+    List.filter (fun x -> x > 99 && x <> !client_id) room.items in
   let player_ai_list =
     List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
   let id_list_no_hp = List.filter (fun x -> x < 100) room.items in
@@ -490,7 +493,8 @@ let print_room w =
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
   print_endline inv_item_msg;
-  let id_list_hp = List.filter (fun x -> x > 99) p.inventory in
+  let id_list_hp =
+    List.filter (fun x -> x > 99 && x < 1000) p.inventory in
   let player_ai_list =
     List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
   let inv_list_dup = List.map (get_item_name_by_id w.items) p.inventory in
@@ -587,7 +591,7 @@ let get_target_from c =
   let obj = get_obj_from_cmd c in
   let comma_idx = String.index obj ',' in
   let target =
-    String.sub obj (comma_idx + 1) (String.length c - comma_idx -1) in
+    String.sub obj (comma_idx + 1) (String.length obj - comma_idx -1) in
   String.trim target
 
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
@@ -612,9 +616,14 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
       repl_helper ccheck new_w)
     | "spell" ->
       (body >>= fun x ->
+      print_endline "get in spell";
       let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline "spell new_w = ";
+      print_libmap w.items;
       let spell = get_spell_from c in
+      print_endline "got spell";
       let target = get_target_from c in
+      print_endline "got target";
       print_endline (spell_msg spell target);
       return new_w)
     | "quit" ->
@@ -633,7 +642,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
       print_endline (drop_msg (get_obj_from_cmd c));
       repl_helper cinv new_w)
     | _ -> failwith "not recorded command"
-  else (body >>= fun x -> print_endline x; return w)
+  else (body >>= fun x -> print_endline ("error requesting " ^ x); return w)
 
 and repl (w: world): world Lwt.t =
   request_and_update_world w >>= fun new_world ->
