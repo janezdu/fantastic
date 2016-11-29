@@ -521,7 +521,7 @@ let rec request_and_update_world (w: world) : world Lwt.t =
   if code = 200 then
     body >>= fun x ->
     (* debugging *)
-    print_endline ("diff: "^x);
+    (* print_endline ("diff: "^x); *)
     translate_to_diff x |> apply_diff_list w |> return
   else request_and_update_world w
 
@@ -536,10 +536,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x cmove current_player
   | JDrink x -> send_post_request x cuse current_player
-  | JSpell x ->
-    (* debugging *)
-    (print_endline x;
-    send_post_request x cuse current_player)
+  | JSpell x -> send_post_request x cuse current_player
   | JQuit -> send_get_request cquit current_player
   | JTake x -> send_post_request x ctake current_player
   | JDrop x -> send_post_request x cdrop current_player
