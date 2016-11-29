@@ -208,13 +208,17 @@ let complete_item_potion (w: world) (i: potion) : item =
 
 (* [complete_item w item] fills up missing fields in [item] by
  * taking values from [w] *)
-let complete_item w = function
-  | IPlayer i -> complete_item_player w i
-  | IAnimal i -> complete_item_animal w i
-  | IPolice i -> complete_item_police w i
-  | ISpell i -> complete_item_spell w i
-  | IPotion i -> complete_item_potion w i
-  | IVoid -> IVoid
+let complete_item w item =
+  try
+    match item with
+    | IPlayer i -> complete_item_player w i
+    | IAnimal i -> complete_item_animal w i
+    | IPolice i -> complete_item_police w i
+    | ISpell i -> complete_item_spell w i
+    | IPotion i -> complete_item_potion w i
+    | IVoid -> IVoid
+  with
+  | _ -> item
 
 (* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
  * apply_diff_remove, and apply_diff_change *)
@@ -268,7 +272,6 @@ let rec apply_diff (w: world) (d: diff) : world =
 let rec apply_diff_list (w: world) (ds: diff list) : world =
   match ds with
   | [] -> w
-
   | d::ds' -> apply_diff_list (apply_diff w d) ds'
 
 let init size =

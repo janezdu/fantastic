@@ -174,3 +174,12 @@ val string_of_int_tuple : (int * int) -> string
 val string_of_room : room -> string
 
 val string_of_int_list : int list -> string
+
+(* debugging *)
+val apply_diff : world -> diff -> world
+val apply_diff_helper : world -> diff -> world
+val apply_diff_add : world -> diffparam -> world
+val apply_diff_remove: world -> diffparam -> world
+val apply_diff_change: world -> diffparam -> world
+val complete_item: world -> item -> item
+val complete_item_player : world -> player -> item
