@@ -220,6 +220,13 @@ let complete_item w item =
   with
   | _ -> item
 
+(* removes only ai with id = [id] from [lmap]. Returns [lmap] if [id] is not
+ * an ai, which has 99 < id < 999
+ * requires: [lmap] contains [id] *)
+let remove_ai_from_libmap lmap id =
+  if id > 99 && id < 999 then LibMap.remove id lmap
+  else lmap
+
 (* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
  * apply_diff_remove, and apply_diff_change *)
 let apply_diff_case (new_items: item LibMap.t) (w: world)
@@ -244,7 +251,7 @@ let apply_diff_add (w: world) (d: diffparam) : world =
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (w: world) (d: diffparam) : world =
-  let new_items = w.items in
+  let new_items = remove_ai_from_libmap w.items d.id in
   apply_diff_case new_items w remove_item_from_list d
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
@@ -362,18 +369,15 @@ let string_of_diff d =
   let item = match d with
     | Add x | Remove x | Change x -> string_of_item x.newitem
   in
-
   let id = match d with
     | Add x -> "ADD " ^ (string_of_int x.id)
     | Remove x -> "RMV " ^ (string_of_int x.id)
     | Change x -> "CHG " ^ (string_of_int x.id)
   in
-
   let (curx, cury) = match d with
     | Add x | Remove x | Change x -> x.loc
   in
   let printloc = "("^string_of_int curx^", " ^string_of_int cury^")" in
-
   ("Diff: " ^ id ^ " at "^printloc^" to "^item)
 
 let string_of_diff_simple d = match d with
@@ -387,9 +391,6 @@ let string_of_difflist client_diffs =
       ("["^(string_of_int id)^"]") lst
   in
   List.fold_left difflist "client_diffs:\t" client_diffs
-
-    (* str ^"["^(string_of_int id)^"]"^
-    (string_of_diff_simple diff)^",\n" *)
 
 let print_libmap lmap =
   print_endline "---------------------------";
