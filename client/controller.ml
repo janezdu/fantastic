@@ -479,9 +479,7 @@ let rec request_and_update_world (w: world) : world Lwt.t =
  * For commands that don't, pulls infos from the current world state.
  * Returns a tuple of status code and body Lwt.t *)
 let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
-  print_endline "hi";
   request_and_update_world w >>= fun curr_world ->
-  (print_endline "b4 match";
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x cmove current_player
   | JDrink x -> send_post_request x cuse current_player
@@ -494,8 +492,8 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JLook -> print_room curr_world; return ((-1, return ""))
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
-  | JHelp -> print_help (); return ((-1, return "")))
-  | JCheck -> print_check current_player w; return ((-1, return ""))
+  | JHelp -> (print_help (); return ((-1, return "")))
+  | JCheck -> (print_check current_player w; return (-1, return ""))
 
 (********************************** repl **************************************)
 
