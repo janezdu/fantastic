@@ -462,9 +462,9 @@ let print_inv w =
 
 let print_help () =
   print_endline game_instruction_msg
-  
+
 let print_check current_player w =
-  let player = LibMap.find current_player w.items in 
+  let player = LibMap.find current_player w.items in
   match player with
   | IPlayer p -> print_int p.hp
   | _ -> failwith "not a player"
@@ -485,9 +485,9 @@ let rec request_and_update_world (w: world) : world Lwt.t =
  * For commands that don't, pulls infos from the current world state.
  * Returns a tuple of status code and body Lwt.t *)
 let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
-  print_endline "hi";
+  (* print_endline "hi"; *)
   request_and_update_world w >>= fun curr_world ->
-  (print_endline "b4 match";
+  (* (print_endline "b4 match"; *)
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request x cmove current_player
   | JDrink x -> send_post_request x cuse current_player
