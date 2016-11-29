@@ -672,8 +672,11 @@ and incorrect_command_handler (w: world) _ =
  * [cut_file_type file_name] cuts the .filetype out of a file name
  * var cut_file_type : string -> string *)
 let cut_file_type file_name =
-  let dot_idx = String.rindex file_name '.' in
-  String.sub file_name 0 dot_idx
+  try
+    let dot_idx = String.rindex file_name '.' in
+    String.sub file_name 0 dot_idx
+  with
+  | _ -> ""
 
 (* Helper for main:
  * [show_welcome_msg file_name st] prints messages before starting the game

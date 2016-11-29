@@ -22,14 +22,14 @@ let make_login_query name =
 
 let post_body jstr query =
   Client.post ~body:([jstr] |> Lwt_stream.of_list |> Cohttp_lwt_body.of_stream)
-  (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
+  (Uri.of_string ("http://localhost:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   let received_body = body |> Cohttp_lwt_body.to_string in
   return (code, received_body)
 
 let get_body query =
   Client.get
-  (Uri.of_string ("http://0.0.0.0:8000" ^ query)) >>= fun (resp, body) ->
+  (Uri.of_string ("http://localhost:8000" ^ query)) >>= fun (resp, body) ->
   let code = resp |> Response.status |> Code.code_of_status in
   let received_body = body |> Cohttp_lwt_body.to_string in
   return (code, received_body)
