@@ -422,6 +422,13 @@ let get_item_name_by_id lib id =
   | IPotion x -> x.name
   | IVoid -> ""
 
+let get_item_name_and_hp_by_id lib id =
+  match LibMap.find id lib with
+  | IPlayer x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IAnimal x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IPolice x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | _ -> ""
+
 let unwrap_player = function
   | IPlayer x -> x
   | _ -> failwith "invalid command"
@@ -468,21 +475,29 @@ let print_room w =
   let room = RoomMap.find (loc) w.rooms in
   print_endline (room_desc_msg ^ room.descr);
   print_endline room_item_msg;
-  let id_list_no_self = List.filter (fun x -> x <> !client_id) room.items in
+  let id_list_hp = List.filter (fun x -> x > 99) room.items in
+  let player_ai_list =
+    List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
+  let id_list_no_hp = List.filter (fun x -> x < 100) room.items in
   let item_list_dup =
-    List.map (get_item_name_by_id w.items) id_list_no_self in
+    List.map (get_item_name_by_id w.items) id_list_no_hp in
   let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
+  print_string_list player_ai_list;
   print_string_list_with_number key_pair_item
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
   print_endline inv_item_msg;
+  let id_list_hp = List.filter (fun x -> x > 99) p.inventory in
+  let player_ai_list =
+    List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
   let inv_list_dup = List.map (get_item_name_by_id w.items) p.inventory in
   let tbl = fold_dup (Hashtbl.create 10) inv_list_dup in
   let inv_list_no_dup = elim_dup inv_list_dup in
   let key_pair_item = make_key_pair_item tbl inv_list_no_dup in
+  print_string_list player_ai_list;
   print_string_list_with_number key_pair_item
 
 let print_help () =
@@ -583,36 +598,36 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   (*   (body >>= fun x -> print_endline x;
     translate_to_diff x |> apply_diff_list w |> return) *)
     match get_verb_from_cmd c with
-    | cmove ->
+    | "move" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
       print_endline (move_msg (get_curr_loc new_w.players));
       repl_helper clook new_w)
-    | cdrink ->
+    | "drink" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
       let drink = get_obj_from_cmd c in
       let new_hp = get_hp !client_id new_w.items in
       print_endline (drink_msg drink new_hp);
       repl_helper ccheck new_w)
-    | cspell ->
+    | "spell" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
       let spell = get_spell_from c in
       let target = get_target_from c in
       print_endline (spell_msg spell target);
       return new_w)
-    | cquit ->
+    | "quit" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
       print_endline quit_msg; ignore (exit 0);
       return new_w)
-    | ctake ->
+    | "take" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
       print_endline (take_msg (get_obj_from_cmd c));
       repl_helper cinv new_w)
-    | cdrop ->
+    | "drop" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
       print_endline (drop_msg (get_obj_from_cmd c));
