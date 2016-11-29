@@ -421,9 +421,3 @@ let print_roommap rmap =
                        (string_of_int_tuple loc)
                        (string_of_room room))) rmap;
   print_endline "---------------------------"
-
-
-
-
-
-

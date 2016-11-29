@@ -40,7 +40,7 @@ let invalid_command_msg = "Invalid command. Please try again.\n"
 let trouble_login_msg = "We are having trouble logging in." ^
   "Please check if you have the right version of world\n"
 let trouble_connection_msg = "There is a problem with the connection. "^
-  "Please enter the file name again\n"
+  "We'll start over. Please enter the file name again\n"
 let next_cmd_msg = "what's next?\n"
 let room_desc_msg = "Room description: "
 let room_item_msg = "\nIn the room, there are: "
@@ -562,10 +562,12 @@ and repl (w: world): world Lwt.t =
   request_and_update_world w >>= fun new_world ->
   print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
-  try
-    request_and_update_world new_world >>= repl_helper c >>= repl
-  with
-  | _ -> (print_endline invalid_command_msg; repl w)
+  Lwt.catch (fun () ->
+  request_and_update_world new_world >>= repl_helper c >>= repl)
+  (incorrect_command_handler w)
+
+and incorrect_command_handler (w: world) _ =
+  print_endline invalid_command_msg; repl w
 
 (******************************* main functions *******************************)
 
@@ -581,11 +583,12 @@ let cut_file_type file_name =
  * var show_welcome_msg : string -> state -> unit *)
 let show_welcome_msg file_name st =
   print_string (welcome_msg);
-  (* print_endline (cut_file_type file_name); *)
+  print_endline (cut_file_type file_name);
   print_endline "";
   do_command clook !client_id st
 
 let start_chain (file_name: string) (w: world) =
+  print_endline "start chain";
   request_and_update_world w >>= fun new_world ->
   show_welcome_msg file_name new_world |> ignore; repl new_world
 
@@ -605,7 +608,10 @@ let rec main file_name =
     (print_endline explanation;
     print_string "\n> ";
     main (read_line ()))
-  | _ ->
+  | Unix.Unix_error _ ->
     (print_endline (trouble_connection_msg);
+    print_string "> ";
+    main (read_line ()))
+  | _ -> (print_endline (trouble_connection_msg);
     print_string "> ";
     main (read_line ()))
