@@ -13,12 +13,12 @@ type command =
   | Inventory
   | ViewState
   | Help
-  | Check 
+  | Check
 
-let sep_target t = 
-  let comm_str = (String.trim t) in 
+let sep_target t =
+  let comm_str = (String.trim t) in
   let comm_lst = Str.split (Str.regexp ",") comm_str in
-  let comm_name = String.trim (List.nth comm_lst 0) in 
+  let comm_name = String.trim (List.nth comm_lst 0) in
   let comm_target = String.trim (List.nth comm_lst 1) in
   let comm_tup =  (comm_name, comm_target) in
   comm_tup
@@ -33,14 +33,14 @@ let sep_target t =
 let parse_command (lst)=
     match lst with
     | h::t::[] when (h="move") -> Move (String.trim t)
-    | h::t::[] when (h="drink") -> 
-      (*let tup = sep_target t in 
+    | h::t::[] when (h="drink") ->
+      (*let tup = sep_target t in
       Drink (fst tup, snd tup)*)
       Drink (String.trim t)
-    | h::t::[] when (h="spell") -> 
-      (*let spell_str = (String.trim t) in 
+    | h::t::[] when (h="spell") ->
+      (*let spell_str = (String.trim t) in
       let spell_lst = Str.split (Str.regexp ",") spell_str in
-      let spell_name = String.trim (List.nth spell_lst 0) in 
+      let spell_name = String.trim (List.nth spell_lst 0) in
       let spell_target = String.trim (List.nth spell_lst 1) in
       let spell_tup =  (spell_name, spell_target ) in*)
       let tup = sep_target t in
@@ -109,9 +109,8 @@ let parse_c command =
     let c = String.trim (String.lowercase_ascii command) in
     let spl = split_to_list c in
     let sep_com = sep_dir spl in
-    parse_command sep_com  
+    parse_command sep_com
 
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)
 let parse_comm d = parse_c d
-API Training Shop Blog About
