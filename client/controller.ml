@@ -294,9 +294,9 @@ let find_item i (w:world)=
     if (check_match i k v) then Some k else acc) items None
 
 
-let new_mod_x n x=
-  if n < 0 then (n mod x)
-  else if n >= dim_x then (n mod x)
+let new_mod n x=
+  if n < 0 then ((n mod x)+x) mod x
+  else if n >= x then (n mod x)
   else n
 
 (* [interp_move m w] returns a command_json based on a
@@ -306,24 +306,28 @@ let interp_move (m:string) current_player (w:world): comm_json =
   | "north" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
-    let new_loc_y = snd curr_loc + 1 in
+    let y = snd curr_loc + 1 in
+    let new_loc_y = new_mod y dim_y in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "south" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
-    let new_loc_y = snd curr_loc - 1 in
+    let y = snd curr_loc - 1 in
+    let new_loc_y = new_mod y dim_y in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "east" ->
     let curr_loc = List.assoc current_player w.players in
-    let new_loc_x = fst curr_loc + 1 in
+    let x = fst curr_loc + 1 in
+    let new_loc_x = new_mod x dim_x in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "west" ->
     let curr_loc = List.assoc current_player w.players in
-    let new_loc_x = fst curr_loc - 1 in
+    let x = fst curr_loc - 1 in
+    let new_loc_x = new_mod x dim_x in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
