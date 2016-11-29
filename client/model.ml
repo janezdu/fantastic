@@ -395,34 +395,29 @@ let print_libmap lmap =
                        (string_of_int index)
                        (string_of_item item);)) lmap;
   print_endline "---------------------------"
-(*
-let get_item_name_by_id lib id =
-  match LibMap.find id lib with
-  | IPlayer x -> x.name
-  | IAnimal x -> x.name
-  | IPolice x -> x.name
-  | ISpell x -> x.incant
-  | IPotion x -> x.name
-  | IVoid -> ""
+
+let rec string_of_int_list_helper = function
+  | [] -> ""
+  | h::t -> (string_of_int h) ^ ", " ^ (string_of_int_list_helper t)
+
+let string_of_int_list lst =
+  "[" ^ string_of_int_list_helper lst ^ "]"
 
 (* print a room of [loc] in world [w] *)
-let print_a_room loc w =
-  let room = RoomMap.find (loc) w.rooms in
-  let item_list_dup =
-    List.map (get_item_name_by_id w.items) w.items in
-  let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
-  let item_list_no_dup = elim_dup item_list_dup in
-  let key_pair_item = make_key_pair_item tbl item_list_no_dup in
-  print_string_list_with_number key_pair_item;
-  print_endline ""
+let string_of_room room =
+  "room description: "^ room.descr ^ "\n" ^
+  (string_of_int_list room.items)
+
+let string_of_int_tuple (x,y) =
+  "(" ^ (string_of_int x) ^ ", " ^ (string_of_int y) ^ ")"
 
 let print_roommap rmap =
   print_endline "---------------------------";
-  LibMap.iter (fun index item->
-      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
-                       (string_of_int index)
-                       (string_of_item item);)) lmap;
-  print_endline "---------------------------" *)
+  RoomMap.iter (fun loc room ->
+      print_endline (Printf.sprintf "* loc: %s\n  room: %s"
+                       (string_of_int_tuple loc)
+                       (string_of_room room))) rmap;
+  print_endline "---------------------------"
 
 
 
