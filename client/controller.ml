@@ -365,9 +365,9 @@ let interp_drop d (w:world): comm_json =
 (* [interp_move m w] returns a command_json list based on a move
  * command m and world w *)
 (* find room player is in, find item they want to drop in inventory*)
-let interp_drink d (w:world): comm_json =
+let interp_drink d current_player (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ ", \"Target\":"^(string_of_int t)^"}")
+   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ ", \"Target\":"^(string_of_int current_player )^"}")
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
@@ -380,7 +380,7 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | Drop s -> interp_drop s w
   | Look -> JLook
   | Inventory -> JInv
-  | Drink s -> interp_drink s w
+  | Drink s -> interp_drink s current_player w
   | ViewState -> JViewState
   | Help -> JHelp
   | Check -> JCheck
