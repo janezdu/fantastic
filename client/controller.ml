@@ -57,13 +57,15 @@ let room_item_msg = "\nIn the room, there are: "
 let inv_item_msg = "Your inventory contains: "
 let quit_msg = "bye!\n"
 let take_msg item = "Congratulations! You've taken " ^ item
-let drop_msg item = "You've drop " ^ item
+let drop_msg item = "You've drop " ^ item ^ "\n"
 let move_msg new_loc =
   "You are now in room "^ (string_of_int_tuple new_loc) ^ "\n"
 let drink_msg drink hp =
   "You've had " ^ drink ^ ".\n Now your hp is " ^ (string_of_int hp)
 let spell_msg spell target =
   "You've used " ^ spell ^ " on " ^ target
+let check_msg hp score =
+  "HP: " ^ (string_of_int hp) ^ "\nscore: " ^ (string_of_int score) ^ "\n"
 
 (************************** translate_to_diff *********************************)
 
@@ -510,7 +512,8 @@ let print_help () =
 let print_check current_player w =
   let player = LibMap.find current_player w.items in
   match player with
-  | IPlayer p -> print_int p.hp
+  | IPlayer p ->
+    print_endline (check_msg p.hp p.score)
   | _ -> failwith "not a player"
 
 (************************** update world **************************************)
@@ -650,8 +653,8 @@ and repl (w: world): world Lwt.t =
   (* debugging *)
 (*   print_endline "------------------------------------------------------------";
   print_endline ("rooms: "); print_roommap w.rooms;
-  print_endline "------------------------------------------------------------"; *)
-(*   print_endline ("items: "); print_libmap w.items;
+  print_endline "------------------------------------------------------------";
+  print_endline ("items: "); print_libmap w.items;
   print_endline "------------------------------------------------------------"; *)
   request_and_update_world w >>= fun new_world ->
   print_endline next_cmd_msg; print_string "> ";

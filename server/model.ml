@@ -392,13 +392,13 @@ let rec apply_diff (d: diff) (w: world) : world =
 
 let init size =
   let room00 = {descr="This is a room!"; items = [1;2;1234]} in
-  let room10 = {descr="This is a room!"; items = [2;3;30;31]} in
+  let room10 = {descr="This is a room!"; items = [2;3;100;101]} in
   let room01 = {descr="This is a room!"; items = [1;3]} in
   let room11 = {descr="This is a room!"; items = [1;1]} in
   let map = RoomMap.empty |> RoomMap.add (0,0) room00
             |> RoomMap.add (1,0) room10
-            |> RoomMap.add (1,1) room01
-            |> RoomMap.add (0,1) room11 in
+            |> RoomMap.add (0,1) room01
+            |> RoomMap.add (1,1) room11 in
   let players = [(1234, (0,0))] in
   let items = LibMap.empty
               |> LibMap.add 1 (ISpell {id = 1;
@@ -421,12 +421,12 @@ let init size =
                                         incant = "transform";
                                         descr = "a scary looking thing";
                                         effect = -10})
-              |> LibMap.add 30 (IAnimal {id = 30;
+              |> LibMap.add 30 (IAnimal {id = 100;
                                          name = "boggart";
                                          descr = "pretty scary";
                                          hp = 50;
                                          spells= [10;11]})
-              |> LibMap.add 31 (IAnimal {id = 31;
+              |> LibMap.add 31 (IAnimal {id = 101;
                                          name = "boggart";
                                          descr = "pretty scary";
                                          hp = 50;
