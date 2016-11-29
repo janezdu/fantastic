@@ -15,6 +15,10 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
+
+let dim_x = 2
+let dim_y = 2
+
 let client_id = ref (-1)
 let username = ref ""
 
@@ -175,6 +179,8 @@ type comm_json =
   | JInv
   | JViewState
   | JHelp
+  | JCheck
+
 
 (* [init_state json] creates the inital world for the game *)
 let add_room room_map room_json =
@@ -287,6 +293,12 @@ let find_item i (w:world)=
   LibMap.fold (fun k v acc ->
     if (check_match i k v) then Some k else acc) items None
 
+
+let new_mod_x n x=
+  if n < 0 then (n mod x)
+  else if n >= dim_x then (n mod x)
+  else n
+
 (* [interp_move m w] returns a command_json based on a
  * move command m and world w*)
 let interp_move (m:string) current_player (w:world): comm_json =
@@ -367,6 +379,7 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | Drink s -> interp_drink s w
   | ViewState -> JViewState
   | Help -> JHelp
+  | Check -> JCheck
 
 let rec print_string_list = function
   | [] -> ()
@@ -450,6 +463,12 @@ let print_inv w =
 let print_help () =
   print_endline game_instruction_msg
 
+let print_check current_player w =
+  let player = LibMap.find current_player w.items in 
+  match player with
+  | IPlayer p -> print_int p.hp
+  | _ -> failwith "not a player"
+
 (************************** update world **************************************)
 
 (* keep requesting until it's approved then apply diffs to the world *)
@@ -487,6 +506,8 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
   | JHelp -> print_help (); return ((-1, return ""))
+  | JCheck -> print_check current_player w; return ((-1, return ""))
+
 
 (********************************** repl **************************************)
 
