@@ -486,9 +486,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JDrink x -> send_post_request x cuse current_player
   | JSpell x -> send_post_request x cuse current_player
   | JQuit -> send_get_request cquit current_player
-  | JTake x ->
-    (print_endline x;
-    send_post_request x ctake current_player)
+  | JTake x -> send_post_request x ctake current_player
   | JDrop x -> send_post_request x cdrop current_player
   | JLook -> print_room curr_world; return ((-1, return ""))
   | JInv -> print_inv curr_world; return ((-1, return ""))
