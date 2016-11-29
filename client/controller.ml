@@ -521,7 +521,7 @@ let rec request_and_update_world (w: world) : world Lwt.t =
   if code = 200 then
     body >>= fun x ->
     (* debugging *)
-    (* print_endline ("diff: "^x); *)
+    print_endline ("diff: "^x);
     translate_to_diff x |> apply_diff_list w |> return
   else request_and_update_world w
 
