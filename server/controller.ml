@@ -334,12 +334,12 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       let cur_loc = List.assoc cid flatworld.players in
       let cur_room = flatworld.rooms |> RoomMap.find cur_loc in
       match target with
-      | IAnimal animal -> begin
+      | IAnimal _ | IPolice _ | IPlayer _ -> begin
         let rec contains x l = match l with [] -> false
           | h::t -> if h = x then true else contains x t
         in
-        let is_animal_alive = contains target_id cur_room.items in
-        if is_animal_alive then
+        let is_target_alive = contains target_id cur_room.items in
+        if is_target_alive then
             if player.hp <= 20
             then begin
               let new_room_map = flatworld.rooms
@@ -375,7 +375,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       end
       | _ -> failwith "not a beast"
     with _ -> state
-  in newstate |> (* spawn_item |>  *) scoring |> chasing |> beast_killing
+  in
+  newstate |> (* spawn_item  |> *) scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.
