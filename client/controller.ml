@@ -340,7 +340,7 @@ let interp_spell s  t (w:world): comm_json =
    match (find_item s w) with
    | Some s ->
      (match (find_item t w) with
-     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"Target\":"^(string_of_int t)^"}")
+     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"target\":"^(string_of_int t)^"}")
      | None -> raise NotAnItem)
    | None -> raise NotAnItem
 
@@ -365,7 +365,7 @@ let interp_drop d (w:world): comm_json =
 (* find room player is in, find item they want to drop in inventory*)
 let interp_drink d current_player (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ ", \"Target\":"^(string_of_int current_player )^"}")
+   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ ", \"target\":"^(string_of_int current_player )^"}")
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
@@ -462,9 +462,9 @@ let print_inv w =
 
 let print_help () =
   print_endline game_instruction_msg
-  
+
 let print_check current_player w =
-  let player = LibMap.find current_player w.items in 
+  let player = LibMap.find current_player w.items in
   match player with
   | IPlayer p -> print_int p.hp
   | _ -> failwith "not a player"
