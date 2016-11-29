@@ -227,32 +227,33 @@ let remove_ai_from_libmap lmap id =
   if id > 99 && id < 1000 then LibMap.remove id lmap
   else lmap
 
-(* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
- * apply_diff_remove, and apply_diff_change *)
-let apply_diff_case (new_items: item LibMap.t) (w: world)
-  (f: int -> int list -> int list) (d: diffparam) : world =
-  let loc = d.loc in
+(* [apply_diff_change d w] adds [d] in [w] and returns new world.
+ * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
+let apply_diff_add (w: world) (d: diffparam) : world =
   let id_to_edit = d.id in
+  let item_to_edit = complete_item w d.newitem in
+  let new_items = LibMap.add id_to_edit item_to_edit w.items in
+  let loc = d.loc in
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
-    {curr_rooms with items = f id_to_edit curr_rooms.items} in
+    {curr_rooms with items = (fun x y -> x::y) id_to_edit curr_rooms.items} in
   let new_rooms = RoomMap.add loc new_room w.rooms in
   let updated_players =
     if id_to_edit >= 1000 then update_players id_to_edit loc w.players
     else w.players in
   {rooms = new_rooms; players = updated_players; items = new_items}
 
-(* [apply_diff_change d w] adds [d] in [w] and returns new world.
- * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
-let apply_diff_add (w: world) (d: diffparam) : world =
-  let item_to_edit = complete_item w d.newitem in
-  let new_items = LibMap.add d.id item_to_edit w.items in
-  apply_diff_case new_items w (fun x y -> x::y) d
-
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (w: world) (d: diffparam) : world =
-  let new_items = remove_ai_from_libmap w.items d.id in
-  apply_diff_case new_items w remove_item_from_list d
+  let id_to_edit = d.id in
+  let new_items = remove_ai_from_libmap w.items id_to_edit in
+  let loc = d.loc in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with
+    items = remove_item_from_list id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  {rooms = new_rooms; players = w.players; items = new_items}
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
@@ -276,10 +277,13 @@ let rec apply_diff (w: world) (d: diff) : world =
   with
   | _ -> failwith "incompatible with the current world"
 
-let rec apply_diff_list (w: world) (ds: diff list) : world =
+let rec apply_diff_list_helper (w: world) (ds: diff list) : world =
   match ds with
   | [] -> w
-  | d::ds' -> apply_diff_list (apply_diff w d) ds'
+  | d::ds' -> apply_diff_list_helper (apply_diff w d) ds'
+
+let apply_diff_list (w: world) (ds: diff list) : world =
+  apply_diff_list_helper w (List.rev ds)
 
 let init size =
   let room00 = {descr="This is a room!"; items = [1;2;1234]} in

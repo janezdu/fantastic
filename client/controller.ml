@@ -519,7 +519,10 @@ let print_check current_player w =
 let rec request_and_update_world (w: world) : world Lwt.t =
   send_get_request cupdate !client_id >>= fun (code, body) ->
   if code = 200 then
-    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+    body >>= fun x ->
+    (* debugging *)
+    (* print_endline ("diff: "^x); *)
+    translate_to_diff x |> apply_diff_list w |> return
   else request_and_update_world w
 
 (************************** eval command **************************************)
@@ -534,6 +537,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JMove x -> send_post_request x cmove current_player
   | JDrink x -> send_post_request x cuse current_player
   | JSpell x ->
+    (* debugging *)
     (print_endline x;
     send_post_request x cuse current_player)
   | JQuit -> send_get_request cquit current_player
@@ -599,6 +603,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   if code = 200 then
     body >>= fun x ->
     (* for debugging *)
+    print_endline x;
   (*   (body >>= fun x -> print_endline x;
     translate_to_diff x |> apply_diff_list w |> return) *)
     match get_verb_from_cmd c with
@@ -616,14 +621,9 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
       repl_helper ccheck new_w)
     | "spell" ->
       (body >>= fun x ->
-      print_endline "get in spell";
       let new_w = translate_to_diff x |> apply_diff_list w in
-      print_endline "spell new_w = ";
-      print_libmap w.items;
       let spell = get_spell_from c in
-      print_endline "got spell";
       let target = get_target_from c in
-      print_endline "got target";
       print_endline (spell_msg spell target);
       return new_w)
     | "quit" ->
@@ -642,9 +642,20 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
       print_endline (drop_msg (get_obj_from_cmd c));
       repl_helper cinv new_w)
     | _ -> failwith "not recorded command"
-  else (body >>= fun x -> print_endline ("error requesting " ^ x); return w)
+  (* debug *)
+  else if code = -1 then return w
+  else
+    (* debugging *)
+    (body >>= fun x -> print_endline ("error requesting " ^ x);
+    print_int code; return w)
 
 and repl (w: world): world Lwt.t =
+  (* debugging *)
+(*   print_endline "------------------------------------------------------------";
+  print_endline ("rooms: "); print_roommap w.rooms;
+  print_endline "------------------------------------------------------------"; *)
+(*   print_endline ("items: "); print_libmap w.items;
+  print_endline "------------------------------------------------------------"; *)
   request_and_update_world w >>= fun new_world ->
   print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
@@ -686,6 +697,7 @@ let start_chain (file_name: string) (w: world) =
  * to load a game from file [f] and start playing it *)
 let rec main file_name =
   try
+    (* debugging *)
     let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
     let init_state_var = init_state file in
     print_endline ask_name_msg;
