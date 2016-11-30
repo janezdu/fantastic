@@ -86,35 +86,44 @@ let translate_to_diff snapshot j r cid =
     match wrapped_item with
     | ISpell spell ->
       begin
-        let diff_target =
-          let (new_target, target_hp) = match wrapped_target with
-            | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
-            | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
-            | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
+        let diffs =
+          let targetdiff = match wrapped_target with
+            | IPlayer x -> begin
+                let newhp = x.hp + spell.effect in
+                if newhp <= 0 then
+                  let newname = x.name ^ "'s ghost" in
+                  Change {loc=cur_loc; id=target_id;
+                          newitem=IPlayer{x with name = newname;
+                                                 hp = newhp}}
+                else
+                  Change {loc=cur_loc; id=target_id;
+                          newitem=IPlayer{x with hp = newhp}}
+              end
+            | IAnimal x -> begin
+              let newhp = x.hp + spell.effect in
+              if newhp <= 0 then
+                Remove {loc=cur_loc; id=target_id;
+                        newitem=wrapped_target}
+              else
+                Change {loc=cur_loc; id=target_id;
+                        newitem=IAnimal{x with hp = newhp}}
+              end
+            | IPolice x -> begin
+                let newhp = x.hp + spell.effect in
+                if newhp <= 0 then
+                  Remove {loc=cur_loc; id=target_id;
+                          newitem=wrapped_target}
+                else
+                  Change {loc=cur_loc; id=target_id;
+                          newitem=IPolice{x with hp = newhp}}
+              end
             | _ -> raise (IllegalStep "Bad target, not a player/ai")
           in
-          let isplayer = function
-            | IPlayer x -> true
-            | _ -> false in
-
-          let deadplayer = (isplayer wrapped_target) && (target_hp <= 0 ) in
-          let new_target_deadmaybe =
-            if deadplayer then
-              match new_target with
-              | IPlayer p -> IPlayer {p with name = p.name ^ "'s ghost"}
-              | _ -> new_target
-            else new_target in
-
-          let cleanup = if target_hp <= 0 then
-              [Remove {loc=cur_loc; id=target_id; newitem=new_target_deadmaybe}]
-            else []
-          in
-          cleanup@[Change {loc=cur_loc; id=target_id; newitem=new_target_deadmaybe}]
-        in
-        diff_target @[
+          [targetdiff;
           Change {loc=cur_loc; id=cid;
                   newitem=IPlayer {player with inventory=new_inv}}
-        ]
+          ] in
+        diffs
       end
     | IPotion potion ->
         if player.hp + potion.effect <= 0
