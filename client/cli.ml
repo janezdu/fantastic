@@ -56,7 +56,6 @@ let parse_command (lst)=
     | h::[] when (String.trim h="help") -> Help
     | h::[] when (String.trim h="check") -> Check
     | h::[] -> Move (String.trim h)(*new stuff*)
-
     | _ -> failwith "Illegal"
 
 (* [split_to_list str] is a string that results from splitting [str] into a

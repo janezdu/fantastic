@@ -371,10 +371,6 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
-  (* print_endline "Changing..."; *)
-
-  (* let new_w = apply_diff_remove d w in *)
-
   apply_diff_add d w
 
 (* [apply_diff_helper d w] is the same as apply_diff except it might raise
