@@ -485,6 +485,21 @@ let check_clientid cid = LibMap.mem cid (!state).flatworld.items
 let registerUser name =
   try
     let snapshot = !state in
+
+    (* Check if user has already been joined into game.
+     * Linear to # of players in game, unfortunately. Can comment out
+     * this block *)
+    let namelist = List.map (fun id ->
+        match (LibMap.find id snapshot.flatworld.items) with
+         | IPlayer p -> p.name
+         | _ -> failwith "looking for player name of non-player")
+        (fst (List.split snapshot.flatworld.players)) in
+    if List.mem name namelist then
+      raise (WorldFailure ("That username has already been taken!"))
+    else
+      (* END block that checks for name availablility *)
+
+
     let cid = !newid in
     newid := !newid + 1;
     print_endline ("what d'yu know, your cid is "^ (string_of_int cid));
