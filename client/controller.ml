@@ -7,6 +7,7 @@ open Lwt
 
 exception NotAnItem
 exception Illegal
+exception Dead
 
 type world = Model.world
 type command = Cli.command
@@ -68,6 +69,8 @@ let spell_msg spell target =
   "You've used " ^ spell ^ " on " ^ target
 let check_msg hp score =
   "HP: " ^ (string_of_int hp) ^ "\nscore: " ^ (string_of_int score) ^ "\n"
+let dead_warning_msg = "The dead can't use that command. Too bad!"
+let dead_noti_msg = "Oops, you're dead!"
 
 (************************** translate_to_diff *********************************)
 
@@ -492,7 +495,8 @@ let print_room w =
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
   print_string_list player_ai_list;
-  print_string_list_with_number key_pair_item
+  print_string_list_with_number key_pair_item;
+  print_endline ""
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
@@ -506,7 +510,8 @@ let print_inv w =
   let inv_list_no_dup = elim_dup inv_list_dup in
   let key_pair_item = make_key_pair_item tbl inv_list_no_dup in
   print_string_list player_ai_list;
-  print_string_list_with_number key_pair_item
+  print_string_list_with_number key_pair_item;
+  print_endline ""
 
 let print_help () =
   print_endline game_instruction_msg
@@ -552,6 +557,19 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   | JViewState -> print_room curr_world; return ((-1, return ""))
   | JHelp -> (print_help (); return ((-1, return "")))
   | JCheck -> (print_check current_player w; return (-1, return ""))
+
+let do_command_dead comm current_player w : (int * string Lwt.t) Lwt.t =
+  request_and_update_world w >>= fun curr_world ->
+  match interpret_command comm current_player curr_world with
+  | JMove x -> send_post_request !ip x cmove current_player
+  | JQuit -> send_get_request !ip cquit current_player
+  | JDrop x -> send_post_request !ip x cdrop current_player
+  | JLook -> print_room curr_world; return ((-1, return ""))
+  | JInv -> print_inv curr_world; return ((-1, return ""))
+  | JViewState -> print_room curr_world; return ((-1, return ""))
+  | JHelp -> (print_help (); return ((-1, return "")))
+  | JCheck -> (print_check current_player w; return (-1, return ""))
+  | _ -> raise Dead
 
 (********************************** repl **************************************)
 
@@ -602,8 +620,18 @@ let get_target_from c =
     String.sub obj (comma_idx + 1) (String.length obj - comma_idx -1) in
   String.trim target
 
+let check_life w =
+  if (get_hp !client_id w) <= 0 then
+    (print_endline dead_noti_msg;
+    is_dead := true)
+  else ()
+
+
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
-  do_command c !client_id w >>= fun (code, body) ->
+  let request =
+    if !is_dead then do_command_dead c !client_id w
+    else do_command c !client_id w in
+  request >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x ->
     (* for debugging *)
@@ -661,14 +689,15 @@ and repl (w: world): world Lwt.t =
   print_endline ("items: "); print_libmap w.items;
   print_endline "------------------------------------------------------------"; *)
   request_and_update_world w >>= fun new_world ->
-  print_endline next_cmd_msg; print_string "> ";
+  check_life new_world.items; print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
   Lwt.catch (fun () ->
   request_and_update_world new_world >>= repl_helper c >>= repl)
   (incorrect_command_handler w)
 
-and incorrect_command_handler (w: world) _ =
-  print_endline invalid_command_msg; repl w
+and incorrect_command_handler (w: world) = function
+  | Dead -> print_endline dead_warning_msg; repl w
+  | _ -> print_endline invalid_command_msg; repl w
 
 (******************************* main functions *******************************)
 

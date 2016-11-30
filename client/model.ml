@@ -246,7 +246,7 @@ let apply_diff_add (w: world) (d: diffparam) : world =
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (w: world) (d: diffparam) : world =
   let id_to_edit = d.id in
-  let new_items = remove_ai_from_libmap w.items id_to_edit in
+  let new_items = w.items in
   let loc = d.loc in
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
