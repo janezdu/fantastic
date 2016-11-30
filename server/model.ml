@@ -368,8 +368,6 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
-  (* print_endline "Changing..."; *)
-
   let new_w = apply_diff_remove d w in
   apply_diff_add d new_w
 
@@ -421,12 +419,12 @@ let init size =
                                         incant = "transform";
                                         descr = "a scary looking thing";
                                         effect = -10})
-              |> LibMap.add 30 (IAnimal {id = 100;
+              |> LibMap.add 100 (IAnimal {id = 100;
                                          name = "boggart";
                                          descr = "pretty scary";
                                          hp = 50;
                                          spells= [10;11]})
-              |> LibMap.add 31 (IAnimal {id = 101;
+              |> LibMap.add 101 (IAnimal {id = 101;
                                          name = "boggart";
                                          descr = "pretty scary";
                                          hp = 50;

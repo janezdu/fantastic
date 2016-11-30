@@ -21,6 +21,7 @@ let dim_x = 2
 let client_id = ref (-1)
 let username = ref ""
 let ip = ref ""
+let is_dead = ref false
 
 let cmove = "move"
 let cdrink = "drink"
@@ -540,7 +541,9 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request !ip x cmove current_player
   | JDrink x -> send_post_request !ip x cuse current_player
-  | JSpell x -> send_post_request !ip x cuse current_player
+  | JSpell x ->
+    (print_endline ("spell " ^ x);
+    send_post_request !ip x cuse current_player)
   | JQuit -> send_get_request !ip cquit current_player
   | JTake x -> send_post_request !ip x ctake current_player
   | JDrop x -> send_post_request !ip x cdrop current_player
