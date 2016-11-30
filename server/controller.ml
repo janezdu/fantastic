@@ -37,7 +37,7 @@ let state = ref {flatworld = (init 4);
                  alldiffs = []}
 
 let rec remove_from_list x = function
-  | [] -> failwith "invalid"
+  | [] -> failwith "No such element"
   | h::t -> if h = x then t else h::(remove_from_list x t)
 
 (* [translate_to_diff j] returns diffs based on a json string [j] and
@@ -149,7 +149,7 @@ let translate_to_diff snapshot j r cid =
     []
 
 let rec remove x l = match l with
-  | [] -> failwith "no such element"
+  | [] -> failwith "No such element"
   | h::t -> if h = x then t
     else h::(remove x t)
 
@@ -390,10 +390,10 @@ let react oldstate newstate (cmd:string) cmdtype cid =
             end
         else state
       end
-      | _ -> failwith "not a beast"
+      | _ -> failwith "Not a beast"
     with _ -> state
   in
-  newstate |>  spawn_item  |> scoring |> chasing |> beast_killing
+  newstate |>  (* spawn_item  |> *) scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.

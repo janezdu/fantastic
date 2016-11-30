@@ -496,7 +496,9 @@ let print_room w =
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
   print_string_list player_ai_list;
   print_string_list_with_number key_pair_item;
-  print_endline ""
+  print_endline "";
+  (* debug *)
+  print_roommap w.rooms
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
@@ -635,7 +637,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   if code = 200 then
     body >>= fun x ->
     (* for debugging *)
-    (* print_endline x; *)
+    print_endline x;
   (*   (body >>= fun x -> print_endline x;
     translate_to_diff x |> apply_diff_list w |> return) *)
     match get_verb_from_cmd c with
