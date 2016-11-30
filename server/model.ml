@@ -338,8 +338,8 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
 let apply_diff_add (d: diffparam) (w: world) : world =
   (* pr "Adding..."; *)
   let item_to_edit = complete_item w d.newitem in
-  (* pr ("Got complete item "^(string_of_item item_to_edit));
-  print_libmap w.items; *)
+  (* pr ("Got complete item "^(string_of_item item_to_edit)); *)
+  print_libmap w.items;
   let new_items = LibMap.add d.id item_to_edit w.items in
 
   (* print_libmap w.items; *)
@@ -347,7 +347,7 @@ let apply_diff_add (d: diffparam) (w: world) : world =
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  (* pr "Removing..."; *)
+  pr "Removing...";
   let new_items = match d.newitem with
     | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
     | ISpell _ | IPotion _ | IVoid -> w.items
@@ -373,8 +373,9 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
 let apply_diff_change (d: diffparam) (w: world) : world =
   (* print_endline "Changing..."; *)
 
-  let new_w = apply_diff_remove d w in
-  apply_diff_add d new_w
+  (* let new_w = apply_diff_remove d w in *)
+
+  apply_diff_add d w
 
 (* [apply_diff_helper d w] is the same as apply_diff except it might raise
  * different exception messages *)
