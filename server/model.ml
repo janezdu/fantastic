@@ -352,12 +352,15 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
     | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
     | ISpell _ | IPotion _ | IVoid -> w.items
     | IPlayer p ->
-      if p.hp = 0 then
+      if p.hp <= 0 then
         begin
           pr ("found a ghost "^ string_of_int p.hp);
           let ghost = {p with name = p.name ^ "'s ghost'"} in
-          let cleancorpse = LibMap.remove d.id w.items in
-          LibMap.add d.id (IPlayer ghost) cleancorpse
+          let newitems = LibMap.remove d.id w.items in
+          pr (string_of_item (IPlayer ghost));
+          let newlibmap = LibMap.add d.id (IPlayer ghost) newitems in
+          print_libmap newlibmap;
+          newlibmap
         end
       else
         w.items
@@ -421,12 +424,12 @@ let init size =
                                         incant = "transform";
                                         descr = "a scary looking thing";
                                         effect = -10})
-              |> LibMap.add 30 (IAnimal {id = 100;
+              |> LibMap.add 100 (IAnimal {id = 100;
                                          name = "boggart";
                                          descr = "pretty scary";
                                          hp = 50;
                                          spells= [10;11]})
-              |> LibMap.add 31 (IAnimal {id = 101;
+              |> LibMap.add 101 (IAnimal {id = 101;
                                          name = "boggart";
                                          descr = "pretty scary";
                                          hp = 50;
