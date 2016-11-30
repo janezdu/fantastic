@@ -242,6 +242,22 @@ let getClientUpdate cid =
   with
   | _ -> raise (IllegalStep "Bad clientid")
 
+
+let randomize state i =
+  if List.length state.alldiffs = 0 then i - 1
+  else
+    let d = match List.hd state.alldiffs with
+      | Add d | Remove d | Change d -> d in
+    let e = match d.newitem with
+      | IPlayer p -> (String.length p.name) * 5 + i * 15
+      | IAnimal a -> (String.length a.descr) * 3
+      | IPolice p -> (String.length p.descr) * 3 + i * 4
+      | ISpell s -> (String.length s.descr) * 5
+      | IPotion o -> (String.length o.descr) * 2
+      | IVoid -> 2 in
+    (d.id + e) mod i
+
+
 (* This method looks at the cmd and decides if there are any reactions the
  * world will make. For example, if the user attack an animal, this method
  * will create the world 1 time step later, after the beast attacks back.
@@ -251,10 +267,10 @@ let getClientUpdate cid =
 let react oldstate newstate (cmd:string) cmdtype cid =
   let spawn_item state =
     let {flatworld;client_diffs;alldiffs} = state in
-    if (Random.int 10) < 3 then begin
+    if (randomize oldstate 10) < 3 then begin
       pr "inside randoms";
-      let rand_loc = (Random.int 20, Random.int 20) in
-      let item_id = Random.int 100 in
+      let rand_loc = (randomize oldstate 20 , randomize oldstate 20) in
+      let item_id = randomize oldstate 100 in
             pr "hello what is up";
       let item = flatworld.items |> LibMap.find item_id in
       let old_room = flatworld.rooms |> RoomMap.find rand_loc in
@@ -377,7 +393,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       | _ -> failwith "not a beast"
     with _ -> state
   in
-  newstate |> (* spawn_item  |> *) scoring |> chasing |> beast_killing
+  newstate |>  spawn_item  |> scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.
