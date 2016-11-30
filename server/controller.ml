@@ -20,7 +20,6 @@ let pr msg = if debugging then print_endline msg else ignore ()
 let debugging = Model.debugging
 
 let newid = ref 1000
-let _ = Random.init 3
 
 (* todo: implement this in translate_to_diff *)
 (* type cmd = Move | Use | Take | Drop *)
@@ -94,9 +93,25 @@ let translate_to_diff snapshot j r cid =
             | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
             | _ -> raise (IllegalStep "Bad target, not a player/ai")
           in
-          Change {loc=cur_loc; id=target_id; newitem=new_target}
+          let isplayer = function
+            | IPlayer x -> true
+            | _ -> false in
+
+          let deadplayer = (isplayer wrapped_target) && (target_hp <= 0 ) in
+          let new_target_deadmaybe =
+            if deadplayer then
+              match new_target with
+              | IPlayer p -> IPlayer {p with name = p.name ^ "'s ghost"}
+              | _ -> new_target
+            else new_target in
+
+          let cleanup = if target_hp <= 0 then
+              [Remove {loc=cur_loc; id=target_id; newitem=new_target_deadmaybe}]
+            else []
+          in
+          cleanup@[Change {loc=cur_loc; id=target_id; newitem=new_target_deadmaybe}]
         in
-        [ diff_target;
+        diff_target @[
           Change {loc=cur_loc; id=cid;
                   newitem=IPlayer {player with inventory=new_inv}}
         ]
@@ -393,7 +408,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       | _ -> failwith "not a beast"
     with _ -> state
   in
-  newstate |>  spawn_item  |> scoring |> chasing |> beast_killing
+  newstate |>  (*spawn_item  |>*) scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.

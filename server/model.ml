@@ -347,6 +347,32 @@ let apply_diff_add (d: diffparam) (w: world) : world =
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
+  let new_items = match d.newitem with
+    | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
+    | ISpell _ | IPotion _ | IVoid -> w.items
+    | IPlayer p ->
+      if p.hp <= 0 then
+        begin
+          pr ("found a ghost "^ string_of_int p.hp);
+          let ghost = {p with name = p.name ^ "'s ghost'"} in
+          let newitems = LibMap.remove d.id w.items in
+          pr (string_of_item (IPlayer ghost));
+          let newlibmap = LibMap.add d.id (IPlayer ghost) newitems in
+          print_libmap newlibmap;
+          newlibmap
+        end
+      else
+        w.items in
+  let id_to_edit = d.id in
+  let loc = d.loc in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with
+     items = remove_item_from_list id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  {rooms = new_rooms; players = w.players; items = new_items}
+
+(*
   pr "Removing...";
   let new_items = match d.newitem with
     | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
@@ -366,7 +392,7 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
         w.items
   in
   apply_diff_case d new_items {w with items = new_items}
-    remove_item_from_list
+    remove_item_from_list *)
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
