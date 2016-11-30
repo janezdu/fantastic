@@ -7,6 +7,7 @@ type world = Model.world
 type command = Cli.command
 type diff = Model.diff
 type diff_json = Clienthttp.diff_json
+type json = Yojson.Basic.json
 
 type comm_json =
   | JMove of string
@@ -20,6 +21,8 @@ type comm_json =
   | JViewState
   | JHelp
   | JCheck
+
+
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
