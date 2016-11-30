@@ -51,7 +51,7 @@ let trouble_login_msg = "We are having trouble logging in." ^
 let same_username_msg = "Your username has been used by another player in " ^
   "the game. Please select a new one."
 let trouble_connection_msg = "There is a problem with the connection. "^
-  "We'll start over. Please enter the file name again\n"
+  "Please check the connection and enter the ip address of the host again\n"
 let next_cmd_msg = "what's next?\n"
 let room_desc_msg = "Room description: "
 let room_loc_msg = "Room location: "
@@ -650,7 +650,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   else if code = -1 then return w
   else
     (* debugging *)
-    (body >>= fun x -> print_endline ("error requesting " ^ x);
+    (body >>= fun x -> print_endline x;
     print_int code; return w)
 
 and repl (w: world): world Lwt.t =
