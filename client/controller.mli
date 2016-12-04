@@ -21,6 +21,11 @@ type comm_json =
   | JHelp
   | JCheck
 
+(* tryign lambda term *)
+val get_check: int -> world -> string
+val curr_w: world ref
+val client_id: int ref
+
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
 

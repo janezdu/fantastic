@@ -20,7 +20,6 @@ let pr msg = if debugging then print_endline msg else ignore ()
 let debugging = Model.debugging
 
 let newid = ref 1000
-let _ = Random.init 3
 
 (* todo: implement this in translate_to_diff *)
 (* type cmd = Move | Use | Take | Drop *)
@@ -87,19 +86,44 @@ let translate_to_diff snapshot j r cid =
     match wrapped_item with
     | ISpell spell ->
       begin
-        let diff_target =
-          let (new_target, target_hp) = match wrapped_target with
-            | IPlayer x -> (IPlayer {x with hp = x.hp + spell.effect}, x.hp)
-            | IPolice x -> (IPolice {x with hp = x.hp + spell.effect}, x.hp)
-            | IAnimal x -> (IAnimal {x with hp = x.hp + spell.effect}, x.hp)
+        let diffs =
+          let targetdiff = match wrapped_target with
+            | IPlayer x -> begin
+                let newhp = x.hp + spell.effect in
+                if newhp <= 0 then
+                  let newname = x.name ^ "'s ghost" in
+                  Change {loc=cur_loc; id=target_id;
+                          newitem=IPlayer{x with name = newname;
+                                                 hp = newhp}}
+                else
+                  Change {loc=cur_loc; id=target_id;
+                          newitem=IPlayer{x with hp = newhp}}
+              end
+            | IAnimal x -> begin
+              let newhp = x.hp + spell.effect in
+              if newhp <= 0 then
+                Remove {loc=cur_loc; id=target_id;
+                        newitem=wrapped_target}
+              else
+                Change {loc=cur_loc; id=target_id;
+                        newitem=IAnimal{x with hp = newhp}}
+              end
+            | IPolice x -> begin
+                let newhp = x.hp + spell.effect in
+                if newhp <= 0 then
+                  Remove {loc=cur_loc; id=target_id;
+                          newitem=wrapped_target}
+                else
+                  Change {loc=cur_loc; id=target_id;
+                          newitem=IPolice{x with hp = newhp}}
+              end
             | _ -> raise (IllegalStep "Bad target, not a player/ai")
           in
-          Change {loc=cur_loc; id=target_id; newitem=new_target}
-        in
-        [ diff_target;
+          [targetdiff;
           Change {loc=cur_loc; id=cid;
                   newitem=IPlayer {player with inventory=new_inv}}
-        ]
+          ] in
+        diffs
       end
     | IPotion potion ->
         if player.hp + potion.effect <= 0
@@ -393,7 +417,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       | _ -> failwith "Not a beast"
     with _ -> state
   in
-  newstate |>  (* spawn_item  |> *) scoring |> chasing |> beast_killing
+  newstate |>  (*spawn_item  |>*) scoring |> chasing |> beast_killing
 
 
 (* tries to change the model based on a client's request.
