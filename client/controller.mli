@@ -26,7 +26,6 @@ type comm_json =
   | JHelp
   | JCheck
 
-
 val init_state: json -> world
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
