@@ -16,7 +16,7 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
-let dim_y = 5
+let dim_y = 6
 let dim_x = 20
 
 let client_id = ref (-1)
@@ -215,7 +215,7 @@ let add_room room_map room_json =
   let items = room_json |> member "items" |> to_list |> List.map to_int in
   let des = room_json |> member "descr" |> to_string in
   let room = {descr = des; items = items} in
-  print_endline "blergh"; RoomMap.add (x,y) room room_map
+   RoomMap.add (x,y) room room_map
 
 let add_spell item_map item_json =
   let id = item_json |> member "id" |> to_int in
