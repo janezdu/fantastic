@@ -260,6 +260,7 @@ let interpret_command_tests =
           (interpret_command "take pepperup potion" 1000 w2));
 
   "interpret_command good 3" >:: 
+
       (fun _ -> assert_equal (JSpell "{\"id\":2, \"target\":1234}") 
           (interpret_command "spell avada kedavra, rebecca" 1000 w2));
   "interpret_command good 4" >:: 
@@ -276,6 +277,7 @@ let interpret_command_tests =
           (interpret_command "spell pepperup   potion    ,  rebecca " 1234 w2));
   "interpret_command good 4: isn't right but no errors" >:: 
       (fun _ -> assert_equal (JSpell "{\"id\":3, \"target\":1000}") 
+
           (interpret_command "spell pepperup potion, bob" 1234 w2));
 
   "interpet_command good drop 1">::
@@ -388,4 +390,6 @@ let suite =
   "Fantastic test suite">::: parse_comm_tests @ interpret_command_error_tests
   @ interpret_command_tests 
 
+
 let _ = run_test_tt_main suite
+

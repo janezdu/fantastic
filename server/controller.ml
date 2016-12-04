@@ -11,15 +11,18 @@ type serverstate = {
 }
 
 type json = string
-
 type diff = Model.diff
 
-let pr msg = if debugging then print_endline msg else ignore ()
 
 (* ========================== DEBUGGINGGGGGGGGG ================ *)
 let debugging = Model.debugging
+let pr msg = if debugging then print_endline msg else ignore ()
 
+(* Globals *)
 let newid = ref 1000
+let winscore = 500
+let gameEnded = ref false
+let gameWinner = ref ""
 
 (* todo: implement this in translate_to_diff *)
 (* type cmd = Move | Use | Take | Drop *)
@@ -30,6 +33,7 @@ exception IllegalUse of string
 exception IllegalTake
 exception IllegalDrop *)
 
+exception EndGame of string
 exception WorldFailure of string
 let state = ref {flatworld = (init 4);
                  client_diffs = [(1234, [])];
@@ -425,6 +429,12 @@ let react oldstate newstate (cmd:string) cmdtype cid =
  * schema for diffs*)
 let pushClientUpdate cid cmd cmdtype =
   try
+    if !gameEnded = true then begin
+      raise (EndGame (!gameWinner))
+    end
+    else
+    print_endline (string_of_bool !gameEnded);
+
     (* Basically we're just pulling the state out of its ref. *)
     let snapshot = !state in
     if not (List.mem_assoc cid snapshot.flatworld.players) then
@@ -462,19 +472,31 @@ let pushClientUpdate cid cmd cmdtype =
                          so far. This is only here because if a new player joins
                          the game, they need the entire history in diffs. *)
                       alldiffs = diffs@snapshot.alldiffs} cmd cmdtype cid in
+
+    (* If the player has won, don't send back the diffs yet. *)
+    let IPlayer player = (LibMap.find cid afterstate.flatworld.items) in
+    if player.score > winscore then (
+      gameEnded := true;
+      print_endline "game ended";
+      gameWinner := player.name;
+      raise (EndGame (player.name))
+    )
+    else
+
     (* [toflush] are the diffs that the client will be getting. *)
     let toflush = List.assoc cid afterstate.client_diffs in
     (* Flush [toflush] from the list of client_diffs. *)
     let flushed = (cid, [])::(List.remove_assoc cid afterstate.client_diffs) in
-
     state := {afterstate with client_diffs = flushed};
 (*
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs])); *)
     print_libmap afterstate.flatworld.items;
 
+
     toflush |> translate_to_json
   with
   | IllegalStep msg -> raise (WorldFailure msg)
+  | EndGame winner -> raise (EndGame winner)
   (* | _ -> begin
       (* endWrite (); *)
       raise (WorldFailure ("error applying to world")) end *)
