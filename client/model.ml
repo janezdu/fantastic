@@ -208,40 +208,52 @@ let complete_item_potion (w: world) (i: potion) : item =
 
 (* [complete_item w item] fills up missing fields in [item] by
  * taking values from [w] *)
-let complete_item w = function
-  | IPlayer i -> complete_item_player w i
-  | IAnimal i -> complete_item_animal w i
-  | IPolice i -> complete_item_police w i
-  | ISpell i -> complete_item_spell w i
-  | IPotion i -> complete_item_potion w i
-  | IVoid -> IVoid
+let complete_item w item =
+  try
+    match item with
+    | IPlayer i -> complete_item_player w i
+    | IAnimal i -> complete_item_animal w i
+    | IPolice i -> complete_item_police w i
+    | ISpell i -> complete_item_spell w i
+    | IPotion i -> complete_item_potion w i
+    | IVoid -> IVoid
+  with
+  | _ -> item
 
-(* [apply_diff_case d new_items w f] is helper function for apply_diff_add,
- * apply_diff_remove, and apply_diff_change *)
-let apply_diff_case (new_items: item LibMap.t) (w: world)
-  (f: int -> int list -> int list) (d: diffparam) : world =
-  let loc = d.loc in
+(* removes only ai with id = [id] from [lmap]. Returns [lmap] if [id] is not
+ * an ai, which has 99 < id < 999
+ * requires: [lmap] contains [id] *)
+let remove_ai_from_libmap lmap id =
+  if id > 99 && id < 1000 then LibMap.remove id lmap
+  else lmap
+
+(* [apply_diff_change d w] adds [d] in [w] and returns new world.
+ * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
+let apply_diff_add (w: world) (d: diffparam) : world =
   let id_to_edit = d.id in
+  let item_to_edit = complete_item w d.newitem in
+  let new_items = LibMap.add id_to_edit item_to_edit w.items in
+  let loc = d.loc in
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
-    {curr_rooms with items = f id_to_edit curr_rooms.items} in
+    {curr_rooms with items = (fun x y -> x::y) id_to_edit curr_rooms.items} in
   let new_rooms = RoomMap.add loc new_room w.rooms in
   let updated_players =
     if id_to_edit >= 1000 then update_players id_to_edit loc w.players
     else w.players in
   {rooms = new_rooms; players = updated_players; items = new_items}
 
-(* [apply_diff_change d w] adds [d] in [w] and returns new world.
- * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
-let apply_diff_add (w: world) (d: diffparam) : world =
-  let item_to_edit = complete_item w d.newitem in
-  let new_items = LibMap.add d.id item_to_edit w.items in
-  apply_diff_case new_items w (fun x y -> x::y) d
-
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (w: world) (d: diffparam) : world =
+  let id_to_edit = d.id in
   let new_items = w.items in
-  apply_diff_case new_items w remove_item_from_list d
+  let loc = d.loc in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with
+    items = remove_item_from_list id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  {rooms = new_rooms; players = w.players; items = new_items}
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
@@ -265,11 +277,13 @@ let rec apply_diff (w: world) (d: diff) : world =
   with
   | _ -> failwith "incompatible with the current world"
 
-let rec apply_diff_list (w: world) (ds: diff list) : world =
+let rec apply_diff_list_helper (w: world) (ds: diff list) : world =
   match ds with
   | [] -> w
+  | d::ds' -> apply_diff_list_helper (apply_diff w d) ds'
 
-  | d::ds' -> apply_diff_list (apply_diff w d) ds'
+let apply_diff_list (w: world) (ds: diff list) : world =
+  apply_diff_list_helper w (List.rev ds)
 
 let init size =
   let room00 = {descr="This is a room!"; items = [1;2;1234]} in
@@ -359,18 +373,15 @@ let string_of_diff d =
   let item = match d with
     | Add x | Remove x | Change x -> string_of_item x.newitem
   in
-
   let id = match d with
     | Add x -> "ADD " ^ (string_of_int x.id)
     | Remove x -> "RMV " ^ (string_of_int x.id)
     | Change x -> "CHG " ^ (string_of_int x.id)
   in
-
   let (curx, cury) = match d with
     | Add x | Remove x | Change x -> x.loc
   in
   let printloc = "("^string_of_int curx^", " ^string_of_int cury^")" in
-
   ("Diff: " ^ id ^ " at "^printloc^" to "^item)
 
 let string_of_diff_simple d = match d with
@@ -385,9 +396,6 @@ let string_of_difflist client_diffs =
   in
   List.fold_left difflist "client_diffs:\t" client_diffs
 
-    (* str ^"["^(string_of_int id)^"]"^
-    (string_of_diff_simple diff)^",\n" *)
-
 let print_libmap lmap =
   print_endline "---------------------------";
   LibMap.iter (fun index item->
@@ -395,37 +403,26 @@ let print_libmap lmap =
                        (string_of_int index)
                        (string_of_item item);)) lmap;
   print_endline "---------------------------"
-(*
-let get_item_name_by_id lib id =
-  match LibMap.find id lib with
-  | IPlayer x -> x.name
-  | IAnimal x -> x.name
-  | IPolice x -> x.name
-  | ISpell x -> x.incant
-  | IPotion x -> x.name
-  | IVoid -> ""
+
+let rec string_of_int_list_helper = function
+  | [] -> ""
+  | h::t -> (string_of_int h) ^ ", " ^ (string_of_int_list_helper t)
+
+let string_of_int_list lst =
+  "[" ^ string_of_int_list_helper lst ^ "]"
 
 (* print a room of [loc] in world [w] *)
-let print_a_room loc w =
-  let room = RoomMap.find (loc) w.rooms in
-  let item_list_dup =
-    List.map (get_item_name_by_id w.items) w.items in
-  let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
-  let item_list_no_dup = elim_dup item_list_dup in
-  let key_pair_item = make_key_pair_item tbl item_list_no_dup in
-  print_string_list_with_number key_pair_item;
-  print_endline ""
+let string_of_room room =
+  "room description: "^ room.descr ^ "\n" ^
+  (string_of_int_list room.items)
+
+let string_of_int_tuple (x,y) =
+  "(" ^ (string_of_int x) ^ ", " ^ (string_of_int y) ^ ")"
 
 let print_roommap rmap =
   print_endline "---------------------------";
-  LibMap.iter (fun index item->
-      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
-                       (string_of_int index)
-                       (string_of_item item);)) lmap;
-  print_endline "---------------------------" *)
-
-
-
-
-
-
+  RoomMap.iter (fun loc room ->
+      print_endline (Printf.sprintf "* loc: %s\n  room: %s"
+                       (string_of_int_tuple loc)
+                       (string_of_room room))) rmap;
+  print_endline "---------------------------"

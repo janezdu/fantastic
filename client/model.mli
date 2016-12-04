@@ -159,6 +159,7 @@ val init: int -> world
 val print_libmap : item LibMap.t -> unit
 
 (* val print_roommap : room RoomMap.t -> unit *)
+val print_roommap : room RoomMap.t -> unit
 
 val string_of_diff : diff -> string
 
@@ -167,3 +168,18 @@ val string_of_item : item -> string
 val string_of_inventory : int list -> string
 
 val string_of_difflist : (int * diff list) list -> string
+
+val string_of_int_tuple : (int * int) -> string
+
+val string_of_room : room -> string
+
+val string_of_int_list : int list -> string
+
+(* debugging *)
+val apply_diff : world -> diff -> world
+val apply_diff_helper : world -> diff -> world
+val apply_diff_add : world -> diffparam -> world
+val apply_diff_remove: world -> diffparam -> world
+val apply_diff_change: world -> diffparam -> world
+val complete_item: world -> item -> item
+val complete_item_player : world -> player -> item

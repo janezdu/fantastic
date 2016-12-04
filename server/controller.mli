@@ -1,5 +1,8 @@
 (* identification of each client *)
 type diff = Model.diff
+
+val debugging: bool
+
 type json = string
 (* Explanation:
  * [flatworld] is the current, up-to-date world. Its representation does not

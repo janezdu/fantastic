@@ -1,3 +1,5 @@
+let debugging = true
+let pr msg = if debugging then print_endline msg else ignore ()
 
 
 (* locations of rooms are in cartesian coordinate with the bottom-left cell
@@ -188,12 +190,12 @@ let string_of_difflist client_diffs =
     (string_of_diff_simple diff)^",\n" *)
 
 let print_libmap lmap =
-  print_endline "---------------------------";
+  pr "---------------------------";
   LibMap.iter (fun index item->
-      print_endline (Printf.sprintf "* Index: %s\n  Item: %s"
+      pr (Printf.sprintf "* Index: %s\n  Item: %s"
                        (string_of_int index)
                        (string_of_item item);)) lmap;
-  print_endline "---------------------------"
+  pr "---------------------------"
 
 
 
@@ -208,9 +210,8 @@ let rec remove_item_from_list x = function
 let rec update_players (id: int) (new_loc: room_loc)
     (players: (int * room_loc) list) : (int * room_loc) list =
   match players with
-  | (id', old_loc) as h::t ->
-    if id = id' then (id, new_loc)::t
-    else h::(update_players id new_loc t)
+  | (id', old_loc) as h::t ->(if id = id' then (id, new_loc)::t
+    else h::(update_players id new_loc t))
   | [] -> (id, new_loc)::[]
 
 let fnull_int () = -1
@@ -325,47 +326,78 @@ let apply_diff_case (d: diffparam) (new_items: item LibMap.t) (w: world)
   let curr_rooms = RoomMap.find loc w.rooms in
   let new_room =
     {curr_rooms with items = f id_to_edit curr_rooms.items} in
+
   let new_rooms = RoomMap.add loc new_room w.rooms in
   let updated_players =
-    if id_to_edit >= 1000 then update_players id_to_edit loc w.players
+    if id_to_edit >= 1000 then (update_players id_to_edit loc w.players)
     else w.players in
   {rooms = new_rooms; players = updated_players; items = new_items}
 
 (* [apply_diff_change d w] adds [d] in [w] and returns new world.
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_add (d: diffparam) (w: world) : world =
-  (* print_endline "Adding..."; *)
+  (* pr "Adding..."; *)
   let item_to_edit = complete_item w d.newitem in
+  (* pr ("Got complete item "^(string_of_item item_to_edit)); *)
+  print_libmap w.items;
   let new_items = LibMap.add d.id item_to_edit w.items in
+
+  (* print_libmap w.items; *)
   apply_diff_case d new_items w (fun x y -> x::y)
 
 (* [apply_diff_change d w] removes [d] in [w] and returns new world *)
 let apply_diff_remove (d: diffparam) (w: world) : world =
-  (* print_endline "Removing..."; *)
   let new_items = match d.newitem with
     | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
     | ISpell _ | IPotion _ | IVoid -> w.items
     | IPlayer p ->
-      if p.hp = 0 then
+      if p.hp <= 0 then
         begin
-          print_endline ("found a ghost "^ string_of_int p.hp);
+          pr ("found a ghost "^ string_of_int p.hp);
           let ghost = {p with name = p.name ^ "'s ghost'"} in
-          let cleancorpse = LibMap.remove d.id w.items in
-          LibMap.add d.id (IPlayer ghost) cleancorpse
+          let newitems = LibMap.remove d.id w.items in
+          pr (string_of_item (IPlayer ghost));
+          let newlibmap = LibMap.add d.id (IPlayer ghost) newitems in
+          print_libmap newlibmap;
+          newlibmap
+        end
+      else
+        w.items in
+  let id_to_edit = d.id in
+  let loc = d.loc in
+  let curr_rooms = RoomMap.find loc w.rooms in
+  let new_room =
+    {curr_rooms with
+     items = remove_item_from_list id_to_edit curr_rooms.items} in
+  let new_rooms = RoomMap.add loc new_room w.rooms in
+  {rooms = new_rooms; players = w.players; items = new_items}
+
+(*
+  pr "Removing...";
+  let new_items = match d.newitem with
+    | IAnimal _ | IPolice _ -> LibMap.remove d.id w.items
+    | ISpell _ | IPotion _ | IVoid -> w.items
+    | IPlayer p ->
+      if p.hp <= 0 then
+        begin
+          pr ("found a ghost "^ string_of_int p.hp);
+          let ghost = {p with name = p.name ^ "'s ghost'"} in
+          let newitems = LibMap.remove d.id w.items in
+          pr (string_of_item (IPlayer ghost));
+          let newlibmap = LibMap.add d.id (IPlayer ghost) newitems in
+          print_libmap newlibmap;
+          newlibmap
         end
       else
         w.items
   in
   apply_diff_case d new_items {w with items = new_items}
-    remove_item_from_list
+    remove_item_from_list *)
 
 (* [apply_diff_change d w] changes [d] in [w] and returns new world
  * If [w] does not contain [d], it adds [d] to [w] and returns new world *)
 let apply_diff_change (d: diffparam) (w: world) : world =
-  (* print_endline "Changing..."; *)
-
-  let new_w = apply_diff_remove d w in
-  apply_diff_add d new_w
+  apply_diff_add d w
 
 (* [apply_diff_helper d w] is the same as apply_diff except it might raise
  * different exception messages *)
@@ -386,13 +418,13 @@ let rec apply_diff (d: diff) (w: world) : world =
 
 let init size =
   let room00 = {descr="This is a room!"; items = [1;2;1234]} in
-  let room10 = {descr="This is a room!"; items = [2;3]} in
+  let room10 = {descr="This is a room!"; items = [2;3;100;101]} in
   let room01 = {descr="This is a room!"; items = [1;3]} in
   let room11 = {descr="This is a room!"; items = [1;1]} in
   let map = RoomMap.empty |> RoomMap.add (0,0) room00
             |> RoomMap.add (1,0) room10
-            |> RoomMap.add (1,1) room01
-            |> RoomMap.add (0,1) room11 in
+            |> RoomMap.add (0,1) room01
+            |> RoomMap.add (1,1) room11 in
   let players = [(1234, (0,0))] in
   let items = LibMap.empty
               |> LibMap.add 1 (ISpell {id = 1;
@@ -406,7 +438,25 @@ let init size =
               |> LibMap.add 3 (IPotion {id = 3;
                                        name = "pepperup potion";
                                         descr = "warms and energizes";
-                                       effect = 30})
+                                        effect = 30})
+              |> LibMap.add 10 (ISpell {id = 10;
+                                       incant = "bite";
+                                       descr = "ouch";
+                                        effect = -20})
+              |> LibMap.add 11 (ISpell {id = 11;
+                                        incant = "transform";
+                                        descr = "a scary looking thing";
+                                        effect = -10})
+              |> LibMap.add 100 (IAnimal {id = 100;
+                                         name = "boggart";
+                                         descr = "pretty scary";
+                                         hp = 50;
+                                         spells= [10;11]})
+              |> LibMap.add 101 (IAnimal {id = 101;
+                                         name = "boggart";
+                                         descr = "pretty scary";
+                                         hp = 50;
+                                         spells= [10;11]})
               |> LibMap.add 1234 (IPlayer {id = 1234;
                                            name = "rebecca";
                                            hp = 1000;

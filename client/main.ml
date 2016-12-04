@@ -11,7 +11,8 @@
 let () =
   ANSITerminal.(print_string [red]
     "\n\nWelcome to the 3110 Text Adventure Game engine.\n");
-  print_endline "Please enter the name of the game file you want to load.\n";
+  print_endline "Please enter the ip address of the server.\n";
   print_string  "> ";
-  let file_name = read_line () in
-  ignore (Controller.main file_name)
+  (* debugging *)
+  let ip_address = read_line () in
+  ignore (Controller.main ip_address)

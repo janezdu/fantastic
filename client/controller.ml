@@ -7,6 +7,7 @@ open Lwt
 
 exception NotAnItem
 exception Illegal
+exception Dead
 
 type world = Model.world
 type command = Cli.command
@@ -15,14 +16,26 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
+let dim_y = 2
+let dim_x = 2
+
 let client_id = ref (-1)
 let username = ref ""
+let ip = ref ""
+let is_dead = ref false
 
-let cquit = "quit"
-let clook = "look"
 let cmove = "move"
+let cdrink = "drink"
+let cspell = "spell"
+let cquit = "quit"
 let ctake = "take"
 let cdrop = "drop"
+let clook = "look"
+let cinv = "inv"
+let cinventory = "inventory"
+let cview = "view"
+let chelp = "help"
+let ccheck = "check"
 let cupdate = "update"
 let cuse = "use"
 
@@ -36,13 +49,28 @@ let incorrect_client_id_msg = "Incorrect client_id.\n"
 let invalid_command_msg = "Invalid command. Please try again.\n"
 let trouble_login_msg = "We are having trouble logging in." ^
   "Please check if you have the right version of world\n"
+let same_username_msg = "Your username has been used by another player in " ^
+  "the game. Please select a new one."
 let trouble_connection_msg = "There is a problem with the connection. "^
-  "Please enter the file name again\n"
+  "Please check the connection and enter the ip address of the host again\n"
 let next_cmd_msg = "what's next?\n"
 let room_desc_msg = "Room description: "
+let room_loc_msg = "Room location: "
 let room_item_msg = "\nIn the room, there are: "
 let inv_item_msg = "Your inventory contains: "
 let quit_msg = "bye!\n"
+let take_msg item = "Congratulations! You've taken " ^ item
+let drop_msg item = "You've drop " ^ item ^ "\n"
+let move_msg new_loc =
+  "You are now in room "^ (string_of_int_tuple new_loc) ^ "\n"
+let drink_msg drink hp =
+  "You've had " ^ drink ^ ".\n Now your hp is " ^ (string_of_int hp)
+let spell_msg spell target =
+  "You've used " ^ spell ^ " on " ^ target
+let check_msg hp score =
+  "HP: " ^ (string_of_int hp) ^ "\nscore: " ^ (string_of_int score) ^ "\n"
+let dead_warning_msg = "The dead can't use that command. Too bad!"
+let dead_noti_msg = "Oops, you're dead!"
 
 (************************** translate_to_diff *********************************)
 
@@ -86,7 +114,7 @@ let create_item item = function
       name = item |> member "name" |> null_to_string;
       hp = item |> member "hp" |> null_to_int;
       score = item |> member "score" |> null_to_int;
-      inventory = item |> member "inv" |> null_to_list;
+      inventory = item |> member "inventory" |> null_to_list;
     })
   | "spell" ->
     ISpell ({
@@ -175,6 +203,7 @@ type comm_json =
   | JInv
   | JViewState
   | JHelp
+  | JCheck
 
 (* [init_state json] creates the inital world for the game *)
 let add_room room_map room_json =
@@ -287,6 +316,11 @@ let find_item i (w:world)=
   LibMap.fold (fun k v acc ->
     if (check_match i k v) then Some k else acc) items None
 
+let new_mod n x=
+  if n < 0 then ((n mod x)+x) mod x
+  else if n >= x then (n mod x)
+  else n
+
 (* [interp_move m w] returns a command_json based on a
  * move command m and world w*)
 let interp_move (m:string) current_player (w:world): comm_json =
@@ -294,24 +328,28 @@ let interp_move (m:string) current_player (w:world): comm_json =
   | "north" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
-    let new_loc_y = snd curr_loc + 1 in
+    let y = snd curr_loc + 1 in
+    let new_loc_y = new_mod y dim_y in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "south" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
-    let new_loc_y = snd curr_loc - 1 in
+    let y = snd curr_loc - 1 in
+    let new_loc_y = new_mod y dim_y in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "east" ->
     let curr_loc = List.assoc current_player w.players in
-    let new_loc_x = fst curr_loc + 1 in
+    let x = fst curr_loc + 1 in
+    let new_loc_x = new_mod x dim_x in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "west" ->
     let curr_loc = List.assoc current_player w.players in
-    let new_loc_x = fst curr_loc - 1 in
+    let x = fst curr_loc - 1 in
+    let new_loc_x = new_mod x dim_x in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
@@ -326,7 +364,7 @@ let interp_spell s  t (w:world): comm_json =
    match (find_item s w) with
    | Some s ->
      (match (find_item t w) with
-     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"Target\" "^(string_of_int t)^"}")
+     | Some t -> JSpell ("{\"id\":" ^ (string_of_int s) ^", \"target\":"^(string_of_int t)^"}")
      | None -> raise NotAnItem)
    | None -> raise NotAnItem
 
@@ -343,15 +381,15 @@ let interp_take t (w:world): comm_json =
 (* find room player is in, find item they want to drop in inventory*)
 let interp_drop d (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JTake ("{\"id\":" ^ (string_of_int d) ^ "}")
+   | Some d -> JDrop ("{\"id\":" ^ (string_of_int d) ^ "}")
    | None -> raise NotAnItem
 
 (* [interp_move m w] returns a command_json list based on a move
  * command m and world w *)
 (* find room player is in, find item they want to drop in inventory*)
-let interp_drink d (w:world): comm_json =
+let interp_drink d current_player (w:world): comm_json =
    match (find_item d w) with
-   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ "}")
+   | Some d -> JDrink ("{\"id\":" ^ (string_of_int d) ^ ", \"target\":"^(string_of_int current_player )^"}")
    | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
@@ -364,9 +402,10 @@ let interpret_command (c: string) current_player (w: world) : comm_json=
   | Drop s -> interp_drop s w
   | Look -> JLook
   | Inventory -> JInv
-  | Drink s -> interp_drink s w
+  | Drink s -> interp_drink s current_player w
   | ViewState -> JViewState
   | Help -> JHelp
+  | Check -> JCheck
 
 let rec print_string_list = function
   | [] -> ()
@@ -375,8 +414,12 @@ let rec print_string_list = function
 let rec print_string_list_with_number = function
   | [] -> ()
   | (s,n)::t ->
-    (print_endline (s ^ " (" ^ (string_of_int n) ^ ") ");
-    print_string_list_with_number t)
+    if n = 1 then
+      (print_endline s;
+      print_string_list_with_number t)
+    else
+      (print_endline (s ^ " x " ^ (string_of_int n));
+      print_string_list_with_number t)
 
 let get_item_name_by_id lib id =
   match LibMap.find id lib with
@@ -387,9 +430,25 @@ let get_item_name_by_id lib id =
   | IPotion x -> x.name
   | IVoid -> ""
 
+let get_item_name_and_hp_by_id lib id =
+  match LibMap.find id lib with
+  | IPlayer x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IAnimal x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IPolice x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | _ -> ""
+
+let unwrap_player = function
+  | IPlayer x -> x
+  | _ -> failwith "invalid command"
+
 let rec get_curr_loc = function
   | [] -> (-1,-1)
   | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
+
+let rec get_hp id lmap =
+  let curr_player_item = LibMap.find id lmap in
+  let curr_player = unwrap_player curr_player_item in
+  curr_player.hp
 
 let rec elim_dup_helper acc = function
   | [] -> acc
@@ -422,41 +481,58 @@ let make_key_pair_item tbl lst = make_key_pair_item_helper tbl [] lst
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
+  print_endline (room_loc_msg ^ (string_of_int_tuple loc));
   print_endline (room_desc_msg ^ room.descr);
   print_endline room_item_msg;
-  let id_list_no_self = List.filter (fun x -> x <> !client_id) room.items in
+  let id_list_hp =
+    List.filter (fun x -> x > 99 && x <> !client_id) room.items in
+  let player_ai_list =
+    List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
+  let id_list_no_hp = List.filter (fun x -> x < 100) room.items in
   let item_list_dup =
-    List.map (get_item_name_by_id w.items) id_list_no_self in
+    List.map (get_item_name_by_id w.items) id_list_no_hp in
   let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
+  print_string_list player_ai_list;
   print_string_list_with_number key_pair_item;
   print_endline ""
-
-let unwrap_player = function
-  | IPlayer x -> x
-  | _ -> failwith "invalid command"
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
   print_endline inv_item_msg;
+  let id_list_hp =
+    List.filter (fun x -> x > 99 && x < 1000) p.inventory in
+  let player_ai_list =
+    List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
   let inv_list_dup = List.map (get_item_name_by_id w.items) p.inventory in
   let tbl = fold_dup (Hashtbl.create 10) inv_list_dup in
   let inv_list_no_dup = elim_dup inv_list_dup in
   let key_pair_item = make_key_pair_item tbl inv_list_no_dup in
+  print_string_list player_ai_list;
   print_string_list_with_number key_pair_item;
   print_endline ""
 
 let print_help () =
   print_endline game_instruction_msg
 
+let print_check current_player w =
+  let player = LibMap.find current_player w.items in
+  match player with
+  | IPlayer p ->
+    print_endline (check_msg p.hp p.score)
+  | _ -> failwith "not a player"
+
 (************************** update world **************************************)
 
 (* keep requesting until it's approved then apply diffs to the world *)
 let rec request_and_update_world (w: world) : world Lwt.t =
-  send_get_request cupdate !client_id >>= fun (code, body) ->
+  send_get_request !ip cupdate !client_id >>= fun (code, body) ->
   if code = 200 then
-    body >>= fun x -> translate_to_diff x |> apply_diff_list w |> return
+    body >>= fun x ->
+    (* debugging *)
+    (* print_endline ("diff: "^x); *)
+    translate_to_diff x |> apply_diff_list w |> return
   else request_and_update_world w
 
 (************************** eval command **************************************)
@@ -468,61 +544,160 @@ let rec request_and_update_world (w: world) : world Lwt.t =
 let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   request_and_update_world w >>= fun curr_world ->
   match interpret_command comm current_player curr_world with
-  | JMove x -> send_post_request x cmove current_player
-  | JDrink x ->
-    (* debugging *)
-    (print_endline x;
-    send_post_request x cuse current_player)
-  | JSpell x -> send_post_request x cuse current_player
-  | JQuit -> send_get_request cquit current_player
-  | JTake x ->
-    (print_endline x;
-    send_post_request x ctake current_player)
-
-  | JDrop x -> send_post_request x cdrop current_player
+  | JMove x -> send_post_request !ip x cmove current_player
+  | JDrink x -> send_post_request !ip x cuse current_player
+  | JSpell x ->
+    (print_endline ("spell " ^ x);
+    send_post_request !ip x cuse current_player)
+  | JQuit -> send_get_request !ip cquit current_player
+  | JTake x -> send_post_request !ip x ctake current_player
+  | JDrop x -> send_post_request !ip x cdrop current_player
   | JLook -> print_room curr_world; return ((-1, return ""))
   | JInv -> print_inv curr_world; return ((-1, return ""))
   | JViewState -> print_room curr_world; return ((-1, return ""))
-  | JHelp -> print_help (); return ((-1, return ""))
+  | JHelp -> (print_help (); return ((-1, return "")))
+  | JCheck -> (print_check current_player w; return (-1, return ""))
+
+let do_command_dead comm current_player w : (int * string Lwt.t) Lwt.t =
+  request_and_update_world w >>= fun curr_world ->
+  match interpret_command comm current_player curr_world with
+  | JMove x -> send_post_request !ip x cmove current_player
+  | JQuit -> send_get_request !ip cquit current_player
+  | JDrop x -> send_post_request !ip x cdrop current_player
+  | JLook -> print_room curr_world; return ((-1, return ""))
+  | JInv -> print_inv curr_world; return ((-1, return ""))
+  | JViewState -> print_room curr_world; return ((-1, return ""))
+  | JHelp -> (print_help (); return ((-1, return "")))
+  | JCheck -> (print_check current_player w; return (-1, return ""))
+  | _ -> raise Dead
 
 (********************************** repl **************************************)
 
 (*  localhost:8000/login?username=chau *)
 (* request client_id from server. ?? maybe i need to check other resp code *)
-let rec update_client_id_helper name =
-  send_login_request name >>= fun (code, body) ->
-  if code = 200 then
-    body >>= fun x -> translate_to_client_id x; return ()
-  else
-    (print_endline (trouble_login_msg);
-    update_client_id_helper name)
+let update_client_id_helper callback name =
+  send_login_request !ip name >>= fun (code, body) ->
+  match code with
+  | 200 -> body >>= fun x -> translate_to_client_id x; return ()
+  | 418 -> (print_endline same_username_msg; callback (); return ())
+  | _ -> (print_endline (trouble_login_msg); callback (); return ())
 
-let update_client_id name =
-  ignore (update_client_id_helper name)
+let update_client_id callback name =
+  ignore (update_client_id_helper callback name)
+
+let get_verb_from_cmd c =
+  try
+    let c_trim = String.trim c in
+    let space_idx = String.index c_trim ' ' in
+    let verb =
+      String.sub c_trim (0) (space_idx) in
+    String.trim verb
+  with
+  | _ -> String.trim c
+
+let get_obj_from_cmd c =
+  try
+    let c_trim = String.trim c in
+    let space_idx = String.index c_trim ' ' in
+    let verb =
+      String.sub c_trim (space_idx + 1) (String.length c - space_idx -1) in
+    String.trim verb
+  with
+  | _ -> String.trim c
+
+(* requires: there's a [,] in [c] *)
+let get_spell_from c =
+  let obj = get_obj_from_cmd c in
+  let comma_idx = String.index obj ',' in
+  let spell =
+    String.sub obj 0 (comma_idx -1) in
+  String.trim spell
+
+let get_target_from c =
+  let obj = get_obj_from_cmd c in
+  let comma_idx = String.index obj ',' in
+  let target =
+    String.sub obj (comma_idx + 1) (String.length obj - comma_idx -1) in
+  String.trim target
+
+let check_life w =
+  if (get_hp !client_id w) <= 0 then
+    (print_endline dead_noti_msg;
+    is_dead := true)
+  else ()
+
 
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
-  do_command c !client_id w >>= fun (code, body) ->
-  (* for debugging *)
-(*   (print_int code;
-  body >>= fun x -> print_endline x; return w) *)
+  let request =
+    if !is_dead then do_command_dead c !client_id w
+    else do_command c !client_id w in
+  request >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x ->
-    if c = cquit then
-      (print_endline quit_msg; ignore (exit 0); return w)
-    else
-      (body >>= fun x -> print_endline x;
-      translate_to_diff x |> apply_diff_list w |> return)
-  else (body >>= fun x -> print_endline x; return w)
+    (* for debugging *)
+    (* print_endline x; *)
+  (*   (body >>= fun x -> print_endline x;
+    translate_to_diff x |> apply_diff_list w |> return) *)
+    match get_verb_from_cmd c with
+    | "move" ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline (move_msg (get_curr_loc new_w.players));
+      repl_helper clook new_w)
+    | "drink" ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      let drink = get_obj_from_cmd c in
+      let new_hp = get_hp !client_id new_w.items in
+      print_endline (drink_msg drink new_hp);
+      repl_helper ccheck new_w)
+    | "spell" ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      let spell = get_spell_from c in
+      let target = get_target_from c in
+      print_endline (spell_msg spell target);
+      return new_w)
+    | "quit" ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline quit_msg; ignore (exit 0);
+      return new_w)
+    | "take" ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline (take_msg (get_obj_from_cmd c));
+      repl_helper cinv new_w)
+    | "drop" ->
+      (body >>= fun x ->
+      let new_w = translate_to_diff x |> apply_diff_list w in
+      print_endline (drop_msg (get_obj_from_cmd c));
+      repl_helper cinv new_w)
+    | _ -> failwith "not recorded command"
+  (* debug *)
+  else if code = -1 then return w
+  else
+    (* debugging *)
+    (body >>= fun x -> print_endline x;
+    print_int code; return w)
 
 and repl (w: world): world Lwt.t =
+  (* debugging *)
+(*   print_endline "------------------------------------------------------------";
+  print_endline ("rooms: "); print_roommap w.rooms;
+  print_endline "------------------------------------------------------------";
+  print_endline ("items: "); print_libmap w.items;
+  print_endline "------------------------------------------------------------"; *)
   request_and_update_world w >>= fun new_world ->
-  print_endline next_cmd_msg; print_string "> ";
+  check_life new_world.items; print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
-  try
-    print_endline "to repl";
-    request_and_update_world new_world >>= repl_helper c >>= repl
-  with
-  | _ -> (print_endline invalid_command_msg; repl w)
+  Lwt.catch (fun () ->
+  request_and_update_world new_world >>= repl_helper c >>= repl)
+  (incorrect_command_handler w)
+
+and incorrect_command_handler (w: world) = function
+  | Dead -> print_endline dead_warning_msg; repl w
+  | _ -> print_endline invalid_command_msg; repl w
 
 (******************************* main functions *******************************)
 
@@ -530,8 +705,11 @@ and repl (w: world): world Lwt.t =
  * [cut_file_type file_name] cuts the .filetype out of a file name
  * var cut_file_type : string -> string *)
 let cut_file_type file_name =
-  let dot_idx = String.rindex file_name '.' in
-  String.sub file_name 0 dot_idx
+  try
+    let dot_idx = String.rindex file_name '.' in
+    String.sub file_name 0 dot_idx
+  with
+  | _ -> ""
 
 (* Helper for main:
  * [show_welcome_msg file_name st] prints messages before starting the game
@@ -542,27 +720,42 @@ let show_welcome_msg file_name st =
   print_endline "";
   do_command clook !client_id st
 
+let rec register_client () =
+  username := (read_line ());
+  update_client_id register_client !username
+
 let start_chain (file_name: string) (w: world) =
+  print_endline "start chain";
   request_and_update_world w >>= fun new_world ->
   show_welcome_msg file_name new_world |> ignore; repl new_world
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
-let rec main file_name =
+let rec main ip_address =
   try
+    ip := ip_address;
+    (* debugging *)
+    print_endline "\n\nWelcome to the 3110 Text Adventure Game engine.\n";
+    (* print_endline "Please enter the file of the game you want to load.\n";
+    print_string  "> ";
+    (* debugging *)
+    let file_name = read_line () in *)
+    let file_name = "fourrooms.json" in
     let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
     let init_state_var = init_state file in
     print_endline ask_name_msg;
     print_string "> ";
-    username := (read_line ());
-    update_client_id !username;
+    register_client ();
     Lwt_main.run (start_chain file_name init_state_var)
   with
   | Sys_error explanation ->
     (print_endline explanation;
     print_string "\n> ";
     main (read_line ()))
-  | _ ->
+  | Unix.Unix_error _ ->
     (print_endline (trouble_connection_msg);
+    print_string "> ";
+    main (read_line ()))
+  | _ -> (print_endline (trouble_connection_msg);
     print_string "> ";
     main (read_line ()))

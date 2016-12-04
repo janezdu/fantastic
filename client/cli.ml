@@ -1,5 +1,4 @@
 open Str
-(* directive is what the player types into the command line*)
 
 (* command is a variant type of the possible commands a player
  * could make *)
@@ -14,8 +13,15 @@ type command =
   | Inventory
   | ViewState
   | Help
+  | Check
 
-
+let sep_target t =
+  let comm_str = (String.trim t) in
+  let comm_lst = Str.split (Str.regexp ",") comm_str in
+  let comm_name = String.trim (List.nth comm_lst 0) in
+  let comm_target = String.trim (List.nth comm_lst 1) in
+  let comm_tup =  (comm_name, comm_target) in
+  comm_tup
 
 (* [parse_command lst] is the command that is associated with [lst]
  * Raises Illegal if [lst] does represent to in a valid command form
@@ -27,21 +33,28 @@ type command =
 let parse_command (lst)=
     match lst with
     | h::t::[] when (h="move") -> Move (String.trim t)
-    | h::t::[] when (h="drink") -> Drink (String.trim t)
+    | h::t::[] when (h="drink") ->
+      (*let tup = sep_target t in
+      Drink (fst tup, snd tup)*)
+      Drink (String.trim t)
     | h::t::[] when (h="spell") ->
-      let spell_str = (String.trim t) in
+      (*let spell_str = (String.trim t) in
       let spell_lst = Str.split (Str.regexp ",") spell_str in
       let spell_name = String.trim (List.nth spell_lst 0) in
       let spell_target = String.trim (List.nth spell_lst 1) in
-      Spell (spell_name,spell_target)
+      let spell_tup =  (spell_name, spell_target ) in*)
+      let tup = sep_target t in
+      (*Spell (spell_name,spell_target)*)
+      Spell (fst tup, snd tup)
     | h::t::[] when (h="drop") -> Drop (String.trim t)
     | h::t::[] when (h="take") -> Take (String.trim t)
     | h::[] when (String.trim h="look") -> Look
     | h::[] when (String.trim h="quit")-> Quit
     | h::[] when (String.trim h="inv" || String.trim h = "inventory") ->
-      Inventory
+        Inventory
     | h::[] when (String.trim h="view")-> ViewState
     | h::[] when (String.trim h="help") -> Help
+    | h::[] when (String.trim h="check") -> Check
     | h::[] -> Move (String.trim h)(*new stuff*)
     | _ -> failwith "Illegal"
 
@@ -55,14 +68,14 @@ let rec split_to_list str =
     match l with
     | 0 -> []
     | _ when String.contains str ' '->
-      begin
-      let first_space = String.index str ' ' in
-      let word = String.sub str 0 first_space in
-      let length = l-first_space in
-      let substring = String.sub str first_space length in
-      let new_str = String.trim substring in
-      [word] @ (split_to_list new_str)
-      end
+        begin
+        let first_space = String.index str ' ' in
+        let word = String.sub str 0 first_space in
+        let length = l-first_space in
+        let substring = String.sub str first_space length in
+        let new_str = String.trim substring in
+        [word] @ (split_to_list new_str)
+        end
     | _ -> [str]
 
 (* [list_concat lst] is the string that results from concatenating
@@ -70,9 +83,9 @@ let rec split_to_list str =
  * lst
  * requires: [lst] is a string list*)
 let rec list_concat lst =
-  match lst with
-  | [] -> ""
-  | h::t -> h^" "^(list_concat t)
+    match lst with
+    | [] -> ""
+    | h::t -> h^" "^(list_concat t)
 
 (* [sep_dir lst] is the string list with length of at most 2 that results
  * from making list [lst] into the form ["command variant"; "object of command"]
@@ -81,21 +94,21 @@ let rec list_concat lst =
  * requires: [lst] is a string list
  *)
 let sep_dir lst =
-  match lst with
-  | h::[] -> h::[]
-  | h::t when (h = "move" || h = "take" || h = "drink" || h = "spell" || h = "drop")->
-    h::(String.trim (list_concat t))::[]
-  | h::t -> (String.trim (list_concat lst))::[]
-  | _ -> failwith "Illegal"
+    match lst with
+    | h::[] -> h::[]
+    | h::t when (h = "move" || h = "take" || h = "drink" || h = "spell" || h = "drop")->
+      h::(String.trim (list_concat t))::[]
+    | h::t -> (String.trim (list_concat lst))::[]
+    | _ -> failwith "Illegal"
 
 (* [parse_c command] parses the command [command] into a command variant
  * raises Illegal if [command] not in the form of a valid command
  * requires: [command] is  a string*)
 let parse_c command =
-  let c = String.trim (String.lowercase_ascii command) in
-  let spl = split_to_list c in
-  let sep_com = sep_dir spl in
-  parse_command sep_com
+    let c = String.trim (String.lowercase_ascii command) in
+    let spl = split_to_list c in
+    let sep_com = sep_dir spl in
+    parse_command sep_com
 
 (* [parse_comm d] is the command type that results from the player's
  * typed directrive. *)
