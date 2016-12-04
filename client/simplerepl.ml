@@ -16,8 +16,6 @@ open CamomileLibraryDyn.Camomile
 open LTerm_style
 open LTerm_geom
 
-
-let hp = ref "300"
 (* +-----------------------------------------------------------------+
    | Interpreter                                                     |
    +-----------------------------------------------------------------+ *)
@@ -25,11 +23,12 @@ let hp = ref "300"
 (* A simple model of an interpreter. It maintains some state, and exposes a function
  *   eval : state -> input -> (new_state, output) *)
 module Interpreter = struct
-  type state = { n : int }
+  type state = { n : int ; hp : int}
+
 
   let eval state s =
     let out = "evaluated " ^ s in
-    let new_state = { n = state.n + 1 } in
+    let new_state = { state with n = state.n + 1 } in
     (new_state, out)
 end
 
@@ -38,16 +37,15 @@ end
    +-----------------------------------------------------------------+ *)
 
 (* Create a prompt based on the current interpreter state *)
-let make_prompt state =
-
-  let size  = {rows=  50; cols = 80} in
+let make_prompt size state =
+  (* let size  = {rows=  50; cols = 80} in *)
   let prompt = Printf.sprintf "In  [%d]: " state.Interpreter.n in
   eval [
   B_bold true;
 
   B_fg lcyan;
   S"─( ";
-  B_fg lmagenta; S(Printf.sprintf "HP: %s" !hp); E_fg;
+  B_fg lmagenta; S(Printf.sprintf "HP: %d" state.hp); E_fg;
   S" )─< ";
   B_fg lyellow; S "hllo"; E_fg;
   S" >─";
@@ -70,14 +68,22 @@ let make_output state out =
    | Customization of the read-line engine                           |
    +-----------------------------------------------------------------+ *)
 
+let time =
+  let time, set_time = S.create (Unix.time ()) in
+  (* Update the time every second. *)
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ -> set_time (Unix.time ())));
+  time
+
 class read_line ~term ~history ~state = object(self)
   inherit LTerm_read_line.read_line ~history ()
   inherit [Zed_utf8.t] LTerm_read_line.term term
 
   method show_box = false
 
+  (* initializer
+    self#set_prompt (S.const (make_prompt state)) *)
   initializer
-    self#set_prompt (S.const (make_prompt state))
+    self#set_prompt (S.l2 (fun size time -> make_prompt size state) self#size time)
 end
 
 (* +-----------------------------------------------------------------+
@@ -109,7 +115,7 @@ let main () =
   LTerm_inputrc.load ()
   >>= fun () ->
   Lwt.catch (fun () ->
-      let state = { Interpreter.n = 1 } in
+      let state = { Interpreter.n = 1;Interpreter.hp = 300 } in
       Lazy.force LTerm.stdout
       >>= fun term ->
       loop term (LTerm_history.create []) state)
