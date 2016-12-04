@@ -16,8 +16,8 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
-let dim_y = 2
-let dim_x = 2
+let dim_y = 5
+let dim_x = 20
 
 let client_id = ref (-1)
 let username = ref ""
