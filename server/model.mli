@@ -168,3 +168,5 @@ val string_of_item : item -> string
 val string_of_inventory : int list -> string
 
 val string_of_difflist : (int * diff list) list -> string
+
+val init_state : Yojson.Basic.json -> world
