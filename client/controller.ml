@@ -723,7 +723,7 @@ let cut_file_type file_name =
   | _ -> ""
 
 (* Helper for main:
- * [show_welcome_msg file_name st] prints messages before starting the game
+ * [show_welcome_msg file_name st] prints messages before ing the game
  * var show_welcome_msg : string -> state -> unit *)
 let show_welcome_msg file_name st =
   print_string (welcome_msg);
@@ -746,36 +746,43 @@ let start_chain (file_name: string) (w: world) =
   print_endline ("iddddd2 = " ^ string_of_int (!client_id));
   (* debug ends *) *)
   curr_w := new_world;
-  show_welcome_msg file_name new_world |> ignore; repl new_world
+  (* TODO changed sthg *)
+  show_welcome_msg file_name new_world |> ignore; return(new_world)
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
-let rec main ip_address =
+let rec loadin () =
   try
+    print_endline "\n\nip pls: ";
+
+    let ip_address = read_line () in
     ip := ip_address;
     (* debugging *)
-    print_endline "\n\nWelcome to the 3110 Text Adventure Game engine.\n";
+    print_endline "\n\nWelcome to the 3110 Text Adventure Game engine.\n ";
     (* print_endline "Please enter the file of the game you want to load.\n";
     print_string  "> ";
     (* debugging *)
     let file_name = read_line () in *)
-    let file_name = "fourrooms.json" in
-    let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
-    let init_state_var = init_state file in
+    (* let file_name = "fourrooms.json" in
+    let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in *)
+    (* let init_state_var = init_state file in *)
+    let init_state_var = init 4 in
+
     print_endline ask_name_msg;
     print_string "> ";
     (* register_client (); *)
     curr_w := init_state_var;
-    Lwt_main.run (start_chain file_name init_state_var)
+    start_chain "filename.json" init_state_var
+    (* Lwt_main.run (start_chain file_name init_state_var) *)
   with
   | Sys_error explanation ->
     (print_endline explanation;
     print_string "\n> ";
-    main (read_line ()))
+     loadin ())
   | Unix.Unix_error _ ->
     (print_endline (trouble_connection_msg);
     print_string "> ";
-    main (read_line ()))
+     loadin ())
   | _ -> (print_endline (trouble_connection_msg);
     print_string "> ";
-    main (read_line ()))
+    loadin ())

@@ -16,6 +16,8 @@ open CamomileLibraryDyn.Camomile
 open LTerm_style
 open LTerm_geom
 
+open Controller
+
 (* +-----------------------------------------------------------------+
    | Interpreter                                                     |
    +-----------------------------------------------------------------+ *)
@@ -23,7 +25,9 @@ open LTerm_geom
 (* A simple model of an interpreter. It maintains some state, and exposes a function
  *   eval : state -> input -> (new_state, output) *)
 module Interpreter = struct
-  type state = { n : int ; hp : int}
+  type state = { n : int ;
+                 hp : int ;
+                 world : world}
 
 
   let eval state s =
@@ -45,7 +49,7 @@ let make_prompt size state =
 
   B_fg lcyan;
   S"─( ";
-  B_fg lmagenta; S(Printf.sprintf "HP: %d" state.hp); E_fg;
+  B_fg lmagenta; S(Printf.sprintf "HP: %d" state.Interpreter.hp); E_fg;
   S" )─< ";
   B_fg lyellow; S "hllo"; E_fg;
   S" >─";
@@ -115,7 +119,8 @@ let main () =
   LTerm_inputrc.load ()
   >>= fun () ->
   Lwt.catch (fun () ->
-      let state = { Interpreter.n = 1;Interpreter.hp = 300 } in
+      loadin () >>= fun world ->
+      let state = { Interpreter.n = 1;Interpreter.hp = 300; Interpreter.world = world } in
       Lazy.force LTerm.stdout
       >>= fun term ->
       loop term (LTerm_history.create []) state)

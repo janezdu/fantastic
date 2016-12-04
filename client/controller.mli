@@ -44,4 +44,4 @@ val do_command: string -> int -> world -> (int * string Lwt.t) Lwt.t
 val repl: world -> world Lwt.t
 
 (* [main file_name] starts the game. It is the entry point of this module *)
-val main: string -> world
+val loadin: unit -> world Lwt.t
