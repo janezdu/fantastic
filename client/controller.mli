@@ -45,3 +45,5 @@ val repl: world -> world Lwt.t
 
 (* [main file_name] starts the game. It is the entry point of this module *)
 val loadin: unit -> world Lwt.t
+
+val repl_helper : string -> world -> (world ) Lwt.t
