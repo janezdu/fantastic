@@ -16,8 +16,8 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
-let dim_y = 2
-let dim_x = 2
+let dim_y = 5
+let dim_x = 20
 
 let client_id = ref (-1)
 let username = ref ""
@@ -215,7 +215,7 @@ let add_room room_map room_json =
   let items = room_json |> member "items" |> to_list |> List.map to_int in
   let des = room_json |> member "descr" |> to_string in
   let room = {descr = des; items = items} in
-  RoomMap.add (x,y) room room_map
+  print_endline "blergh"; RoomMap.add (x,y) room room_map
 
 let add_spell item_map item_json =
   let id = item_json |> member "id" |> to_int in
@@ -759,7 +759,7 @@ let rec main ip_address =
     print_string  "> ";
     (* debugging *)
     let file_name = read_line () in *)
-    let file_name = "fourrooms.json" in
+    let file_name = "testworld.json" in
     let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
     let init_state_var = init_state file in
     print_endline ask_name_msg;

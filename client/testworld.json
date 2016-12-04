@@ -12,7 +12,7 @@
 			{"loc": {"x": 2, "y": 0}, "items": [], "descr": "room3"},
 			{"loc": {"x": 3, "y": 0}, "items": [], "descr": "room4"},
 			{"loc": {"x": 4, "y": 0}, "items": [], "descr": "room5"},
-			{"loc": {"x": 5, "y": 0}, "items": [0], "descr": "room6"},
+			{"loc": {"x": 5, "y": 0}, "items": [0, 1003], "descr": "room6"},
 			{"loc": {"x": 6, "y": 0}, "items": [], "descr": "room7"},
 			{"loc": {"x": 7, "y": 0}, "items": [], "descr": "room8"},
 			{"loc": {"x": 8, "y": 0}, "items": [], "descr": "room9"},
@@ -141,7 +141,7 @@
 	"players": 
 		[
 			// {"id": 1000, "x": 0, "y": 0}, {"id": 1001, "x": 19, "y": 1},
-			// {"id": 1002, "x": 0, "y": 19}, {"id": 1003, "x": 1, "y": 0}
+			// {"id": 1002, "x": 0, "y": 19},{"id": 1003, "x": 15, "y": 0}
 		],
 	"items": 
 		[
