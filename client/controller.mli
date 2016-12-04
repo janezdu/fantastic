@@ -3,10 +3,15 @@ open Cli
 open Clienthttp
 open Lwt
 
+exception NotAnItem
+exception Illegal
+exception Dead
+
 type world = Model.world
 type command = Cli.command
 type diff = Model.diff
 type diff_json = Clienthttp.diff_json
+type json = Yojson.Basic.json
 
 type comm_json =
   | JMove of string
@@ -21,10 +26,7 @@ type comm_json =
   | JHelp
   | JCheck
 
-(* tryign lambda term *)
-val get_check: int -> world -> string
-val curr_w: world ref
-val client_id: int ref
+val init_state: json -> world
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
