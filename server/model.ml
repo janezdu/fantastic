@@ -358,7 +358,7 @@ let apply_diff_remove (d: diffparam) (w: world) : world =
           let newitems = LibMap.remove d.id w.items in
           pr (string_of_item (IPlayer ghost));
           let newlibmap = LibMap.add d.id (IPlayer ghost) newitems in
-          print_libmap newlibmap;
+          (* print_libmap newlibmap; *)
           newlibmap
         end
       else

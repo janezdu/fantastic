@@ -20,7 +20,7 @@ let pr msg = if debugging then print_endline msg else ignore ()
 
 (* Globals *)
 let newid = ref 1000
-let winscore = 50
+let winscore = 500
 let gameEnded = ref false
 let gameWinner = ref ""
 
