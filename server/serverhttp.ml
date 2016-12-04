@@ -95,7 +95,7 @@ let server =
           print_endline "EndGame errorhandler";
           let msg = ("The game has ended! Congratulations, "^winner^"!") in
           print_endline msg;
-          Server.respond_string ~status:`Created ~body:msg ()
+          Server.respond_string ~status:`Created ~body:winner ()
       end
       | WorldFailure msg -> begin
           print_endline msg;
