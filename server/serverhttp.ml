@@ -9,6 +9,7 @@ type status = OK | Invalid
 type json = Yojson.Basic.json
 
 exception WorldFailure = Controller.WorldFailure
+exception EndGame = Controller.EndGame
 exception BadRequest of string
 
 let debugging = Controller.debugging
@@ -56,7 +57,7 @@ let handleQuery req body cid : string Lwt.t =
         (
           (* print_endline ("[UPDATE]: "^(string_of_int cid)); *)
           getClientUpdate cid))
-    | _ -> begin return ("u dun guffed off")
+    | _ -> begin return ("Bad URI; not in API")
       (* Server.respond_string ~status:`Bad_request ~body: "u dun guffed off" () *)
       end
   with
@@ -90,6 +91,12 @@ let server =
     in
 
     let errorhandler = function
+      | EndGame winner -> begin
+          print_endline "EndGame errorhandler";
+          let msg = ("The game has ended! Congratulations, "^winner^"!") in
+          print_endline msg;
+          Server.respond_string ~status:`Created ~body:msg ()
+      end
       | WorldFailure msg -> begin
           print_endline msg;
           Server.respond_string ~status:`Bad_request ~body:msg ()
