@@ -270,7 +270,6 @@ let getClientUpdate cid =
   with
   | _ -> raise (IllegalStep "Bad clientid")
 
-let seed = ref 1
 (* This method looks at the cmd and decides if there are any reactions the
  * world will make. For example, if the user attack an animal, this method
  * will create the world 1 time step later, after the beast attacks back.
@@ -278,6 +277,9 @@ let seed = ref 1
  * This is only called inside pushClientUpdate, so the world
  * really does only *react* to things that users do. *)
 let react oldstate newstate (cmd:string) cmdtype cid =
+  let rec contains x l = match l with [] -> false
+          | h::t -> if h = x then true else contains x t
+  in
   let randomize state i = 
     if List.length state.alldiffs = 0 then i - 1
     else
@@ -286,28 +288,17 @@ let react oldstate newstate (cmd:string) cmdtype cid =
         | Remove d -> 2
         | Change d -> 3
       in
-(*       let e = begin match (snd d).newitem with 
-        | IPlayer p -> 1(* (String.length p.name) * 5 + i * 15 *)
-        | IAnimal a -> 2(* (String.length a.descr) * 3 *)
-        | IPolice p -> 3(* (String.length p.descr) * 3 + i * 4 *)
-        | ISpell s -> 4(* (String.length s.descr) * 5 *)
-        | IPotion o -> 5(* (String.length o.descr) * 2 *)
-        | IVoid -> 6 end in *)
-      let id = (cid * d * !seed) mod i in
-      seed := (!seed + 1);
-      pr ("d="^(string_of_int id));
+      let id = (cid * (Random.int i) + d) mod i in
+      pr (string_of_int id);
       id
   in
   let spawn_item state =
     let {flatworld;client_diffs;alldiffs} = state in
     let r = randomize oldstate 3 in
-    pr (string_of_int r);
     if r < 3 then begin
-      pr "inside randoms";
       let rand_loc = (randomize oldstate 20 , randomize oldstate 20) in
-      let item_id = (randomize oldstate 20) + 1 in
-            pr "hello what is up";
-            pr (string_of_int item_id);
+      let item_id = (randomize oldstate 3) + 1 in
+        pr ("spawning "^(string_of_int item_id)^" at ("^(string_of_int (fst rand_loc))^","^(string_of_int (snd rand_loc))^")");
       let item = flatworld.items |> LibMap.find item_id in
       let old_room = flatworld.rooms |> RoomMap.find rand_loc in
       let new_room = {old_room with items = item_id::old_room.items} in
@@ -327,13 +318,19 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     pr "inside scoring";
     let {flatworld;client_diffs;alldiffs} = state in
     let cur_loc = List.assoc cid flatworld.players in
+    let cur_room = flatworld.rooms |> RoomMap.find cur_loc in
     pr ((string_of_int (fst cur_loc))^(string_of_int (snd cur_loc)));
     if cmdtype = "use" then
       let player = match flatworld.items |> LibMap.find cid with
         | IPlayer p -> (pr "got player";p)
         | _ -> raise (IllegalStep ("Not a player, bad cid, tbh "^
                       "how did you even get here")) in
-      let new_player = IPlayer {player with score = player.score + 50} in
+      let command = Yojson.Basic.from_string cmd in
+      let target_id = command |> member "target" |> to_int in
+      let is_target_alive = contains target_id cur_room.items in
+      let new_player = 
+        IPlayer {player with 
+                score = player.score + 50 + (if is_target_alive then 0 else 100)} in
       let new_item_map = flatworld.items |> LibMap.add cid new_player in
       let diff = Change {loc=cur_loc;id=cid;newitem=new_player} in
       let new_client_diffs =
@@ -346,6 +343,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     else state end
   in
   let chasing state =
+    pr "inside chasing";
     let {flatworld;client_diffs;alldiffs} = state in
     let old_loc = List.assoc cid oldstate.flatworld.players in
     let new_loc = List.assoc cid flatworld.players in
@@ -378,6 +376,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     with _ -> state
   in
   let automatic_attack state = 
+    pr "inside automatic_attack";
     let {flatworld;client_diffs;alldiffs} = state in
     let rec room_locs (i,j) n= 
       if j=n then [] 
@@ -388,18 +387,23 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     in 
     let attack st loc =  
       let room = flatworld.rooms |> RoomMap.find loc in
+      pr "room loc";
       let is_player item = match item with |IPlayer _ -> true |_ -> false in
+      pr "is_player";
       let player_id_list = List.filter 
-        (fun x -> is_player (flatworld.items |> LibMap.find x)) room.items in
-      if List.length player_id_list = 0 then st
+        (fun x -> pr ("id"^(string_of_int x)); is_player (flatworld.items |> LibMap.find x)) room.items in st
+      (* if List.length player_id_list = 0 then let () = pr "empty list" in st
       else 
         let rand = randomize oldstate (List.length player_id_list) in
+        pr "rand";
         let player_id = List.nth player_id_list rand in
         let IPlayer player = flatworld.items |> LibMap.find player_id in
         let beast_attack b = 
           let ISpell first_spell = flatworld.items |> LibMap.find (List.hd b.spells) in
           first_spell.effect
         in
+        pr "beast_attack";
+
         let f x = match (flatworld.items |> LibMap.find x) with
                   | IAnimal a -> beast_attack a | _ -> 0
         in 
@@ -437,10 +441,13 @@ let react oldstate newstate (cmd:string) cmdtype cid =
            client_diffs=new_client_diffs;
            alldiffs=diff::alldiffs
           }
-      end
-    in List.fold_left attack state (room_locs (0, 0) 20)
+      end *)
+    in 
+    pr "----";
+    List.fold_left attack state (room_locs (0, 0) 20)
   in
   let beast_killing state =
+    pr "inside beast_killing";
     try
       let {flatworld;client_diffs;alldiffs} = state in
       let IPlayer player = flatworld.items |> LibMap.find cid in
@@ -451,9 +458,6 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       let cur_room = flatworld.rooms |> RoomMap.find cur_loc in
       match target with
       | IAnimal _ | IPolice _ | IPlayer _ -> begin
-        let rec contains x l = match l with [] -> false
-          | h::t -> if h = x then true else contains x t
-        in
         let is_target_alive = contains target_id cur_room.items in
         if is_target_alive then
             if player.hp <= 20
@@ -492,7 +496,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       | _ -> failwith "not a beast"
     with _ -> state
   in
-  newstate |>  spawn_item  |> scoring |> chasing |> beast_killing
+  newstate |> spawn_item |> scoring |> chasing |> automatic_attack |> beast_killing
 
 
 (* tries to change the model based on a client's request.
@@ -601,7 +605,7 @@ let registerUser name =
                              name = name;
                              hp = 1000;
                              score = 0;
-                             inventory = [1;1;1]} in
+                             inventory = [1;1;1;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2]} in
     (* Create diffs so that other players can add this player *)
     let diffs = [Add {loc = (0,0); id = cid; newitem = newPlayer}] in
 
