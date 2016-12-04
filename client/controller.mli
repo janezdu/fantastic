@@ -3,6 +3,10 @@ open Cli
 open Clienthttp
 open Lwt
 
+exception NotAnItem
+exception Illegal
+exception Dead
+
 type world = Model.world
 type command = Cli.command
 type diff = Model.diff
@@ -23,6 +27,7 @@ type comm_json =
   | JCheck
 
 
+val init_state: json -> world
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
