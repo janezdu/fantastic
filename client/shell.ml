@@ -871,7 +871,7 @@ let make_prompt size exit_code time =
 (* +-----------------------------------------------------------------+
    | Listing binaries of the path for completion                     |
    +-----------------------------------------------------------------+ *)
-
+(*
 module String_set = Set.Make(String)
 
 let colon_re = Str.regexp ":"
@@ -899,7 +899,7 @@ let get_binaries () =
            | exn -> Lwt.fail exn))
     String_set.empty
     (get_paths ())
-  >|= String_set.elements
+  >|= String_set.elements *)
 
 (* +-----------------------------------------------------------------+
    | Customization of the read-line engine                           |
@@ -934,29 +934,31 @@ end
    | Main loop                                                       |
    +-----------------------------------------------------------------+ *)
 
-let rec loop term history exit_code world =
-  request_and_update_world w >>= fun new_world ->
-  curr_w := new_world;
+let rec loop term history exit_code w =
+  request_and_update_world w
+  >>= fun new_world ->
+  (* curr_w := new_world; *)
   check_life new_world.items;
-  get_binaries ()
-  >>= fun binaries ->
+  (* get_binaries () *)
+  (* return ([])
+  >>= fun binaries -> *)
   Lwt.catch (fun () ->
     (new read_line ~term ~history:(LTerm_history.contents history)
       ~exit_code ~binaries)#run
-    >|= fun command -> Some command)
+    >|= fun command -> (new_world, Some command))
     (function
-      | Sys.Break -> return None
+      | Sys.Break -> return (new_world, None)
       | exn -> Lwt.fail exn)
   >>= function
-  | Some command ->
-    Lwt.catch (fun () -> Lwt_process.exec (Lwt_process.shell command))
+  | new_world, Some command ->
+    Lwt.catch (fun () -> repl_helper command new_world)
       (function
         | Unix.Unix_error (Unix.ENOENT, _, _) ->
           LTerm.fprintls term (eval [B_fg lred; S "command not found"])
           >>= fun () ->
           Lwt.return (Unix.WEXITED 127)
         | exn -> Lwt.fail exn)
-    >>= fun status ->
+    (* >>= fun status ->
     LTerm_history.add history command;
     loop
       term
@@ -964,7 +966,7 @@ let rec loop term history exit_code world =
       (match status with
        | Unix.WEXITED code -> code
        | Unix.WSIGNALED code -> code
-       | Unix.WSTOPPED code -> code)
+       | Unix.WSTOPPED code -> code) *)
   | None ->
     loop term history 130
 
@@ -1003,4 +1005,3 @@ let main () =
       | exn -> Lwt.fail exn)
 
 let () = Lwt_main.run (main ())
-
