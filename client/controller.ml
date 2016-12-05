@@ -16,8 +16,8 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
-let dim_y = 20
-let dim_x = 20
+let dim_y = ref 0
+let dim_x = ref 0
 
 let client_id = ref (-1)
 let username = ref ""
@@ -281,6 +281,9 @@ let make_player player_json =
 
 (* [init_state json] creates the inital world for the game *)
 let init_state j =
+  let size = j |> member "size" |> to_int in 
+  dim_x := size; 
+  dim_y := size;
   let orig_room = RoomMap.empty in
   let orig_item = LibMap.empty in
   let actual_rooms = j |> member "rooms" |> to_list |>
@@ -330,27 +333,27 @@ let interp_move (m:string) current_player (w:world): comm_json =
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
     let y = snd curr_loc + 1 in
-    let new_loc_y = new_mod y dim_y in
+    let new_loc_y = new_mod y !dim_y in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "south" ->
     let curr_loc = List.assoc current_player w.players in
     let new_loc_x = fst curr_loc in
     let y = snd curr_loc - 1 in
-    let new_loc_y = new_mod y dim_y in
+    let new_loc_y = new_mod y !dim_y in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "east" ->
     let curr_loc = List.assoc current_player w.players in
     let x = fst curr_loc + 1 in
-    let new_loc_x = new_mod x dim_x in
+    let new_loc_x = new_mod x !dim_x in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
   | "west" ->
     let curr_loc = List.assoc current_player w.players in
     let x = fst curr_loc - 1 in
-    let new_loc_x = new_mod x dim_x in
+    let new_loc_x = new_mod x !dim_x in
     let new_loc_y = snd curr_loc in
     JMove ("{\"new_x\":" ^ (string_of_int new_loc_x) ^  ", \"new_y\": " ^
     (string_of_int new_loc_y) ^ "}")
