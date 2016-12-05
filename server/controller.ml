@@ -23,6 +23,7 @@ let newid = ref 1000
 let winscore = 500
 let gameEnded = ref false
 let gameWinner = ref ""
+let size = 20
 
 (* todo: implement this in translate_to_diff *)
 (* type cmd = Move | Use | Take | Drop *)
@@ -456,7 +457,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       end 
     in
     pr "----";
-    List.fold_left attack state (room_locs (0, 0) 2)
+    List.fold_left attack state (room_locs (0, 0) size)
   in
   let beast_killing state =
     pr "inside beast_killing";
