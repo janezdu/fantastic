@@ -302,8 +302,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     let {flatworld;client_diffs;alldiffs} = state in
     let r = randomize oldstate 3 in
     if r < 3 then begin
-      let rand_loc = (randomize oldstate 2 , randomize oldstate 2) in
-      let item_id = (randomize oldstate 3) + 1 in
+      let rand_loc = (randomize oldstate size , randomize oldstate 2) in
+      let item_id = (randomize oldstate 24) + 1 in
         pr ("spawning "^(string_of_int item_id)^" at ("^(string_of_int (fst rand_loc))^","^(string_of_int (snd rand_loc))^")");
       let item = flatworld.items |> LibMap.find item_id in
       let old_room = flatworld.rooms |> RoomMap.find rand_loc in
