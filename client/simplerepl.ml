@@ -7,16 +7,17 @@
  * This file is a part of Lambda-Term.
  *)
 
-(* Add a REPL to an existing interpreter *)
-
 open React
 open Lwt
 open LTerm_text
 open CamomileLibraryDyn.Camomile
 open LTerm_style
 open LTerm_geom
-
 open Controller
+open Model
+
+let dead_warning_msg = "The dead can't use that command. Too bad!"
+let invalid_command_msg = "Invalid command. Please try again.\n"
 
 (* +-----------------------------------------------------------------+
    | Interpreter                                                     |
@@ -25,38 +26,39 @@ open Controller
 (* A simple model of an interpreter. It maintains some state, and exposes a function
  *   eval : state -> input -> (new_state, output) *)
 module Interpreter = struct
-  type state = { n : int ;
-                 hp : int ;
-                 world : world}
-
+  type state = { n : int;
+                 world : world;
+                 clientid : int ref}
 
   let eval state s =
-    print_endline " called eval";
-    let out = "evaluated " ^ s in
-    repl_helper s state.world >>= fun (newworld) ->
-    let new_state = { state with n = state.n + 1; world = newworld } in
-    return ((new_state, out))
+    repl_helper s state.world >>= fun newworld ->
+    return { state with n = state.n + 1; world = newworld}
 end
 
 (* +-----------------------------------------------------------------+
    | Prompt and output wrapping                                      |
    +-----------------------------------------------------------------+ *)
 
+let get_hp_prompt state =
+  get_hp !(state.Interpreter.clientid) (state.Interpreter.world.items)
+
+let get_score_prompt state =
+  get_score !(state.Interpreter.clientid) (state.Interpreter.world.items)
+
 (* Create a prompt based on the current interpreter state *)
 let make_prompt size state =
-  (* print_endline "make_prompt"; *)
-  let prompt = Printf.sprintf "In  [%d]: " state.Interpreter.n in
+  let prompt = Printf.sprintf "Next? [%d]: " state.Interpreter.n in
+  let scorestring = Printf.sprintf "score: %d" (get_score_prompt state) in
   eval [
   B_bold true;
-
   B_fg lcyan;
   S"─( ";
-  B_fg lmagenta; S(Printf.sprintf "HP: %d" state.Interpreter.hp); E_fg;
+  B_fg lmagenta; S(Printf.sprintf "hp: %d" (get_hp_prompt state)); E_fg;
   S" )─< ";
-  B_fg lyellow; S "hllo"; E_fg;
+  B_fg green; S(scorestring); E_fg;
   S" >─";
   S(Zed_utf8.make
-      (size.cols - 24 - Zed_utf8.length "code" - 4)
+      (size.cols - 24 - Zed_utf8.length "code" - Zed_utf8.length scorestring)
       (UChar.of_int 0x2500));
   S"[ ";
   B_fg(lred); S "code"; E_fg;
@@ -66,9 +68,8 @@ let make_prompt size state =
     S prompt ]
 
 (* Format the interpreter output for REPL display *)
-let make_output state out =
-  let output = Printf.sprintf "Out [%d]: %s" state.Interpreter.n out in
-  eval [ S output ]
+let make_output () =
+  eval [ S "" ]
 
 (* +-----------------------------------------------------------------+
    | Customization of the read-line engine                           |
@@ -96,24 +97,27 @@ end
 
 let rec loop term history state =
   Lwt.catch (fun () ->
-      let rl = new read_line ~term ~history:(LTerm_history.contents history) ~state in
-      rl#run >|= fun command -> Some command)
-    (function
-      | Sys.Break -> return None
-      | exn -> Lwt.fail exn)
+    let rl = new read_line ~term ~history:(LTerm_history.contents history)
+      ~state in
+    rl#run >|= fun command -> Some command)
+  (function
+    | Sys.Break -> return None
+    | exn -> Lwt.fail exn)
   >>= function
   | Some command ->
-    (* let state, out = Interpreter.eval state command in
-       LTerm.fprintls term (make_output state out) *)
-    Interpreter.eval state command >>= fun (state, out) ->
-    (* LTerm.fprintls term (make_output state out) *)
-    return ()
-
-    >>= fun () ->
-    LTerm_history.add history command;
-    loop term history state
+    Lwt.catch (fun () ->
+      Interpreter.eval state command >>= fun new_state ->
+      LTerm.fprintls term (make_output ())
+      >>= fun () ->
+      LTerm_history.add history command;
+      loop term history new_state)
+    (incorrect_command_handler term history state)
   | None ->
     loop term history state
+
+and incorrect_command_handler term history state = function
+  | Dead -> (print_endline dead_warning_msg; loop term history state)
+  | _ -> (print_endline invalid_command_msg; loop term history state)
 
 (* +-----------------------------------------------------------------+
    | Entry point                                                     |
@@ -123,13 +127,14 @@ let main () =
   LTerm_inputrc.load ()
   >>= fun () ->
   Lwt.catch (fun () ->
-      loadin () >>= fun world ->
-      let state = { Interpreter.n = 1;Interpreter.hp = 300; Interpreter.world = world } in
-      Lazy.force LTerm.stdout
-      >>= fun term ->
-      loop term (LTerm_history.create []) state)
-    (function
-      | LTerm_read_line.Interrupt -> Lwt.return ()
-      | exn -> Lwt.fail exn)
+    loadin () >>= fun world ->
+    let state =
+      {Interpreter.n = 1; Interpreter.world = world; clientid = client_id} in
+    Lazy.force LTerm.stdout
+    >>= fun term ->
+    loop term (LTerm_history.create []) state)
+  (function
+    | LTerm_read_line.Interrupt -> Lwt.return ()
+    | exn -> Lwt.fail exn)
 
 let () = Lwt_main.run (main ())

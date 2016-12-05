@@ -9,11 +9,7 @@ exception NotAnItem
 exception Illegal
 exception Dead
 
-type world = Model.world
-type command = Cli.command
-type diff = Model.diff
 type json = Yojson.Basic.json
-type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
 let dim_y = 2
@@ -40,14 +36,13 @@ let ccheck = "check"
 let cupdate = "update"
 let cuse = "use"
 
-let welcome_msg = "Welcome back to the magical world of J.K. Rowling" ^
+let welcome_msg = "Welcome to the magical world of J.K. Rowling" ^
   "\nFantastic Beasts And Where To Find Them: "
 let ask_name_msg = "What should I call you?\n"
 let game_instruction_msg = "Game instruction goes here\n"
 let invalid_move_msg = "Invalid move. Please try again.\n"
 let bad_req_msg = "Bad request\n"
 let incorrect_client_id_msg = "Incorrect client_id.\n"
-let invalid_command_msg = "Invalid command. Please try again.\n"
 let trouble_login_msg = "We are having trouble logging in." ^
   "Please check if you have the right version of world\n"
 let same_username_msg = "Your username has been used by another player in " ^
@@ -69,8 +64,7 @@ let drink_msg drink hp =
 let spell_msg spell target =
   "You've used " ^ spell ^ " on " ^ target
 let check_msg hp score =
-  "HP: " ^ (string_of_int hp) ^ "\nscore: " ^ (string_of_int score) ^ "\n"
-let dead_warning_msg = "The dead can't use that command. Too bad!"
+  "HP: " ^ (string_of_int hp) ^ "\nscore: " ^ (string_of_int score)
 let dead_noti_msg = "Oops, you're dead!"
 
 (************************** translate_to_diff *********************************)
@@ -189,7 +183,6 @@ let translate_to_diff (j:diff_json) : diff list =
 (********************** translate_to_client_id ********************************)
 
 let translate_to_client_id j =
-  print_endline "hello";
   j |> int_of_string |> (:=) client_id
 
 (************************** interpret_command *********************************)
@@ -447,10 +440,15 @@ let rec get_curr_loc = function
   | [] -> (-1,-1)
   | (id, loc)::t -> if id = !client_id then loc else get_curr_loc t
 
-let rec get_hp id lmap =
+let get_hp id lmap =
   let curr_player_item = LibMap.find id lmap in
   let curr_player = unwrap_player curr_player_item in
   curr_player.hp
+
+let get_score id lmap =
+  let curr_player_item = LibMap.find id lmap in
+  let curr_player = unwrap_player curr_player_item in
+  curr_player.score
 
 let rec elim_dup_helper acc = function
   | [] -> acc
@@ -497,8 +495,7 @@ let print_room w =
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
   print_string_list player_ai_list;
-  print_string_list_with_number key_pair_item;
-  print_endline ""
+  print_string_list_with_number key_pair_item
 
 let print_inv w =
   let p = unwrap_player (LibMap.find !client_id w.items) in
@@ -512,8 +509,7 @@ let print_inv w =
   let inv_list_no_dup = elim_dup inv_list_dup in
   let key_pair_item = make_key_pair_item tbl inv_list_no_dup in
   print_string_list player_ai_list;
-  print_string_list_with_number key_pair_item;
-  print_endline ""
+  print_string_list_with_number key_pair_item
 
 let print_help () =
   print_endline game_instruction_msg
@@ -525,14 +521,6 @@ let print_check current_player w =
     print_endline (check_msg p.hp p.score)
   | _ -> failwith "not a player"
 
-(* debugging *)
-let get_check current_player w =
-  let player = LibMap.find current_player w.items in
-  match player with
-  | IPlayer p ->
-    "hp: " ^ (string_of_int p.hp) ^ " score: " ^ (string_of_int p.score)
-  | _ -> failwith "not a player"
-
 (************************** update world **************************************)
 
 (* keep requesting until it's approved then apply diffs to the world *)
@@ -540,8 +528,6 @@ let rec request_and_update_world (w: world) : world Lwt.t =
   send_get_request !ip cupdate !client_id >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x ->
-    (* debugging *)
-    (* print_endline ("diff: "^x); *)
     translate_to_diff x |> apply_diff_list w |> return
   else request_and_update_world w
 
@@ -556,9 +542,7 @@ let do_command comm current_player w : (int * string Lwt.t) Lwt.t =
   match interpret_command comm current_player curr_world with
   | JMove x -> send_post_request !ip x cmove current_player
   | JDrink x -> send_post_request !ip x cuse current_player
-  | JSpell x ->
-    (print_endline ("spell " ^ x);
-    send_post_request !ip x cuse current_player)
+  | JSpell x -> send_post_request !ip x cuse current_player
   | JQuit -> send_get_request !ip cquit current_player
   | JTake x -> send_post_request !ip x ctake current_player
   | JDrop x -> send_post_request !ip x cdrop current_player
@@ -583,7 +567,7 @@ let do_command_dead comm current_player w : (int * string Lwt.t) Lwt.t =
 
 (********************************** repl **************************************)
 
-(*  localhost:8000/login?username=chau *)
+(* localhost:8000/login?username=chau *)
 (* request client_id from server. ?? maybe i need to check other resp code *)
 let update_client_id_helper callback name =
   send_login_request !ip name >>= fun (code, body) ->
@@ -630,13 +614,6 @@ let get_target_from c =
     String.sub obj (comma_idx + 1) (String.length obj - comma_idx -1) in
   String.trim target
 
-let check_life w =
-  if (get_hp !client_id w) <= 0 then
-    (print_endline dead_noti_msg;
-    is_dead := true)
-  else ()
-
-
 let rec repl_helper (c: string) (w: world) : world Lwt.t =
   let request =
     if !is_dead then do_command_dead c !client_id w
@@ -644,10 +621,6 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   request >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x ->
-    (* for debugging *)
-    (* print_endline x; *)
-  (*   (body >>= fun x -> print_endline x;
-    translate_to_diff x |> apply_diff_list w |> return) *)
     match get_verb_from_cmd c with
     | "move" ->
       (body >>= fun x ->
@@ -684,31 +657,10 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
       print_endline (drop_msg (get_obj_from_cmd c));
       repl_helper cinv new_w)
     | _ -> failwith "not recorded command"
-  (* debug *)
   else if code = -1 then return w
   else
-    (* debugging *)
     (body >>= fun x -> print_endline x;
     print_int code; return w)
-
-and repl (w: world): world Lwt.t =
-  (* debugging *)
-(*   print_endline "------------------------------------------------------------";
-  print_endline ("rooms: "); print_roommap w.rooms;
-  print_endline "------------------------------------------------------------";
-  print_endline ("items: "); print_libmap w.items;
-  print_endline "------------------------------------------------------------"; *)
-  request_and_update_world w >>= fun new_world ->
-  curr_w := new_world;
-  check_life new_world.items; print_endline next_cmd_msg; print_string "> ";
-  let c = String.lowercase_ascii (read_line ()) in
-  Lwt.catch (fun () ->
-  request_and_update_world new_world >>= repl_helper c >>= repl)
-  (incorrect_command_handler w)
-
-and incorrect_command_handler (w: world) = function
-  | Dead -> print_endline dead_warning_msg; repl w
-  | _ -> print_endline invalid_command_msg; repl w
 
 (******************************* main functions *******************************)
 
@@ -729,51 +681,33 @@ let show_welcome_msg file_name st =
   print_string (welcome_msg);
   print_endline (cut_file_type file_name);
   print_endline "";
-  do_command clook !client_id st
+  print_room st;
+  print_endline ""
 
 let rec register_client () =
   username := (read_line ());
   update_client_id register_client !username
 
 let start_chain (file_name: string) (w: world) =
-  print_endline "start chain";
   return (register_client ()) >>= fun () ->
-  (* (* debug starts *)
-  print_endline ("iddddd = " ^ string_of_int (!client_id));
-  (* debug ends *) *)
   request_and_update_world w >>= fun new_world ->
-(*   (* debug starts *)
-  print_endline ("iddddd2 = " ^ string_of_int (!client_id));
-  (* debug ends *) *)
   curr_w := new_world;
-  (* TODO changed sthg *)
-  show_welcome_msg file_name new_world |> ignore; return(new_world)
+  show_welcome_msg file_name new_world |> ignore; return new_world
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
 let rec loadin () =
   try
-    print_endline "\n\nip pls: ";
-
+    print_endline "\n\nip pls: \n";
+    print_string "> ";
     let ip_address = read_line () in
     ip := ip_address;
-    (* debugging *)
     print_endline "\n\nWelcome to the 3110 Text Adventure Game engine.\n ";
-    (* print_endline "Please enter the file of the game you want to load.\n";
-    print_string  "> ";
-    (* debugging *)
-    let file_name = read_line () in *)
-    (* let file_name = "fourrooms.json" in
-    let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in *)
-    (* let init_state_var = init_state file in *)
     let init_state_var = init 4 in
-
     print_endline ask_name_msg;
     print_string "> ";
-    (* register_client (); *)
     curr_w := init_state_var;
     start_chain "filename.json" init_state_var
-    (* Lwt_main.run (start_chain file_name init_state_var) *)
   with
   | Sys_error explanation ->
     (print_endline explanation;

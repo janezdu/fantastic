@@ -3,10 +3,7 @@ open Cli
 open Clienthttp
 open Lwt
 
-type world = Model.world
-type command = Cli.command
-type diff = Model.diff
-type diff_json = Clienthttp.diff_json
+exception Dead
 
 type comm_json =
   | JMove of string
@@ -21,10 +18,11 @@ type comm_json =
   | JHelp
   | JCheck
 
-(* tryign lambda term *)
-val get_check: int -> world -> string
-val curr_w: world ref
 val client_id: int ref
+
+val get_hp: int -> item LibMap.t -> int
+
+val get_score: int -> item LibMap.t -> int
 
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
@@ -39,11 +37,7 @@ val interpret_command: string -> int -> world -> comm_json
  * for commands that doesn't need server connection. *)
 val do_command: string -> int -> world -> (int * string Lwt.t) Lwt.t
 
-(* [repl w] keeps running the game by reading the cli, evaluate the command,
- * process, and loop *)
-val repl: world -> world Lwt.t
-
-(* [main file_name] starts the game. It is the entry point of this module *)
-val loadin: unit -> world Lwt.t
-
 val repl_helper : string -> world -> (world ) Lwt.t
+
+(* [loadin ()] starts the game. It is the entry point of this module *)
+val loadin: unit -> world Lwt.t

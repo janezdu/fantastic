@@ -11,7 +11,7 @@ host:
 	$(MAKE) -C server && ./server/serverhttp.byte
 
 play:
-	$(MAKE) -C client && ./client/main.byte
+	$(MAKE) -C client && ./client/simplerepl.byte
 
 tester:
 	ocamlbuild -pkgs yojson,cohttp.lwt,str -tag bin-annot -tag thread concurrent.byte
