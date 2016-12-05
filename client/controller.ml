@@ -199,7 +199,7 @@ type comm_json =
   | JViewState
   | JHelp
   | JCheck
-  | JCheckout of string 
+  | JCheckout of string
 
 (* [init_state json] creates the inital world for the game *)
 let add_room room_map room_json =
@@ -395,8 +395,8 @@ let interp_checkout d (w:world): comm_json =
   match (find_item d w) with
   | Some d -> JCheckout (string_of_int d)
     (*begin
-    let item = LibMap.find d w.items in 
-    (match item with 
+    let item = LibMap.find d w.items in
+    (match item with
     | IPlayer p ->  JCheckout ("{\"descr\": Score is: " ^ (string_of_int p.hp) ^ "}")
     | IAnimal p -> JCheckout ("{\"descr\":" ^ p.descr ^ "}")
     | IPolice p -> JCheckout ("{\"descr\":" ^ p.descr ^ "}")
@@ -404,7 +404,7 @@ let interp_checkout d (w:world): comm_json =
     | IPotion p -> JCheckout ("{\"descr\":" ^ p.descr ^ "}")
     | IVoid -> raise Illegal)
     end*)
-    
+
   | None -> raise NotAnItem
 
 (* [interpret_command c] returns a command_json list based on a command*)
@@ -502,7 +502,7 @@ let make_key_pair_item tbl lst = make_key_pair_item_helper tbl [] lst
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
-  print_endline (room_loc_msg ^ (string_of_int_tuple loc));
+  (* print_endline (room_loc_msg ^ (string_of_int_tuple loc)); *)
   print_endline (room_desc_msg ^ room.descr);
   print_endline room_item_msg;
   let id_list_hp =
@@ -541,12 +541,12 @@ let print_check current_player w =
   | IPlayer p ->
     print_endline (check_msg p.hp p.score)
   | _ -> failwith "not a player"
-  
-let print_checkout item_num w=
+
+let print_checkout item_num w =
   (*let descr_json = Yojson.Basic.from_string descr_str in
-  let descr = descr_json |> member "descr" |> to_string in 
+  let descr = descr_json |> member "descr" |> to_string in
   print_endline ("Description: " ^ descr)*)
-  match LibMap.find (int_of_string item_num) w.items with 
+  match LibMap.find (int_of_string item_num) w.items with
   | IPlayer p -> print_endline ("pls, this is not the time and place to fraternize with the enemy")
   | IAnimal p -> print_endline ("Description: "^p.descr)
   | IPolice p -> print_endline ("Description: "^p.descr)
@@ -599,7 +599,7 @@ let do_command_dead comm current_player w : (int * string Lwt.t) Lwt.t =
   | JViewState -> print_room curr_world; return ((-1, return ""))
   | JHelp -> (print_help (); return ((-1, return "")))
   | JCheck -> (print_check current_player w; return (-1, return ""))
-  | JCheckout x -> (print_checkout x; return(-1, return ""))
+  | JCheckout x -> (print_checkout x w; return(-1, return ""))
   | _ -> raise Dead
 
 (********************************** repl **************************************)
@@ -650,7 +650,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
     | "move" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
-      print_endline (move_msg (get_curr_loc new_w.players));
+      (* print_endline (move_msg (get_curr_loc new_w.players)); *)
       repl_helper clook new_w)
     | "drink" ->
       (body >>= fun x ->
