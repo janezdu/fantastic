@@ -4,10 +4,10 @@ open Clienthttp
 open Controller
 open Cli
 
-let j1 = Yojson.Basic.from_file "fourrooms.json" 
+let j1 = Yojson.Basic.from_file "../worlds/fourrooms.json" 
 let w1 = Controller.init_state j1
 
-let j2 = Yojson.Basic.from_file "test4rooms.json"
+let j2 = Yojson.Basic.from_file "../worlds/test4rooms.json"
 let w2 = Controller.init_state j2
 
 let diff_conversion_tests =
