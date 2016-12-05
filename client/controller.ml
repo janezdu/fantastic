@@ -35,15 +35,18 @@ let ccheck = "check"
 let cupdate = "update"
 let cuse = "use"
 
-let welcome_msg = "Welcome to the magical world of J.K. Rowling" ^
+let welcome_msg =
+  "\n\n-------------------------------------------------------\n" ^
+  "Welcome to the magical world of J.K. Rowling" ^
   "\nFantastic Beasts And Where To Find Them: "
 let ask_name_msg = "What should I call you?\n"
 let game_instruction_msg = "Game instruction goes here\n"
 let invalid_move_msg = "Invalid move. Please try again.\n"
 let bad_req_msg = "Bad request\n"
 let incorrect_client_id_msg = "Incorrect client_id.\n"
-let trouble_login_msg = "We are having trouble logging in." ^
+let trouble_login_msg = "We are having trouble logging in.\n" ^
   "Please check if you have the right version of world\n"
+let dup_name_msg = "The username is used. Please choose a new one.\n"
 let same_username_msg = "Your username has been used by another player in " ^
   "the game. Please select a new one."
 let next_cmd_msg = "what's next?\n"
@@ -424,9 +427,9 @@ let get_item_name_by_id lib id =
 
 let get_item_name_and_hp_by_id lib id =
   match LibMap.find id lib with
-  | IPlayer x -> print_endline "in player"; x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
-  | IAnimal x -> print_endline "in animal"; x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
-  | IPolice x -> print_endline "in animal"; x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IPlayer x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IAnimal x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IPolice x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
   | _ -> ""
 
 let unwrap_player = function
@@ -485,14 +488,10 @@ let print_room w =
     List.filter (fun x -> x > 99 && x <> !client_id) room.items in
   let player_ai_list =
     List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
-  print_endline "after player_ai_list";
   let id_list_no_hp = List.filter (fun x -> x < 100) room.items in
-  print_endline "after id_list_no_hp";
   let item_list_dup =
     List.map (get_item_name_by_id w.items) id_list_no_hp in
-  print_endline "after item_list_dup";
   let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
-  print_endline "after tbl";
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
   print_string_list player_ai_list;
@@ -567,18 +566,6 @@ let do_command_dead comm current_player w : (int * string Lwt.t) Lwt.t =
   | _ -> raise Dead
 
 (********************************** repl **************************************)
-
-(* localhost:8000/login?username=chau *)
-(* request client_id from server. ?? maybe i need to check other resp code *)
-let update_client_id_helper callback name =
-  send_login_request !ip name >>= fun (code, body) ->
-  match code with
-  | 200 -> body >>= fun x -> translate_to_client_id x; return ()
-  | 418 -> (print_endline same_username_msg; callback (); return ())
-  | _ -> (print_endline (trouble_login_msg); callback (); return ())
-
-let update_client_id callback name =
-  ignore (update_client_id_helper callback name)
 
 let get_verb_from_cmd c =
   try
@@ -681,14 +668,28 @@ let cut_file_type file_name =
 let show_welcome_msg file_name st =
   print_string (welcome_msg);
   print_endline (cut_file_type file_name);
-  print_endline "";
-  print_endline "HEllloooooooo";
+  print_endline "-------------------------------------------------------\n";
   print_room st;
   print_endline ""
 
-let rec register_client () =
+(* localhost:8000/login?username=chau *)
+(* request client_id from server. ?? maybe i need to check other resp code *)
+let rec update_client_id_helper name =
+  send_login_request !ip name >>= fun (code, body) ->
+  match code with
+  | 200 -> body >>= fun x -> translate_to_client_id x; return ()
+  | 418 -> (print_endline same_username_msg; register_client (); return ())
+  | 400 -> (print_endline dup_name_msg; register_client (); return ())
+  | _ -> (print_endline trouble_login_msg; register_client (); return ())
+
+and update_client_id name =
+  ignore (update_client_id_helper name)
+
+and register_client () =
+  print_endline ask_name_msg;
+  print_string "> ";
   username := (read_line ());
-  update_client_id register_client !username
+  update_client_id !username
 
 let start_chain (file_name: string) (w: world) =
   return (register_client ()) >>= fun () ->
@@ -702,14 +703,7 @@ let loadin () =
   print_string "> ";
   let ip_address = read_line () in
   ip := ip_address;
-  print_endline
-    "\n------------------------------------------------";
-  print_endline "Welcome to the 3110 Text Adventure Game engine.";
-  print_endline
-    "------------------------------------------------\n";
   let file_name = "testworld.json" in
   let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
   let init_state_var = init_state file in
-  print_endline ask_name_msg;
-  print_string "> ";
   start_chain file_name init_state_var
