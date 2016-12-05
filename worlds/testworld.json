@@ -7,7 +7,7 @@
 {
 	"rooms":
 		[
-			{"loc": {"x": 0, "y": 0}, "items": [1, 1234], "descr": "room1"},
+			{"loc": {"x": 0, "y": 0}, "items": [], "descr": "room1"},
 			{"loc": {"x": 1, "y": 0}, "items": [], "descr": "room2"},
 			{"loc": {"x": 2, "y": 0}, "items": [], "descr": "room3"},
 			{"loc": {"x": 3, "y": 0}, "items": [], "descr": "room4"},

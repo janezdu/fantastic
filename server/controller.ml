@@ -37,8 +37,8 @@ exception IllegalDrop *)
 exception EndGame of string
 exception WorldFailure of string
 
-let file = (Yojson.Basic.from_file ("worlds/fourrooms.json"))
-let init_state_var = init_state file
+let file = (Yojson.Basic.from_file ("worlds/ttworld.json"))
+let init_state_var =  init_state file
 
 
 
@@ -393,7 +393,6 @@ let react oldstate newstate (cmd:string) cmdtype cid =
         (i,j)::next
     in
     let attack st loc =
-      print_endline "attacking ... ";
       let room = flatworld.rooms |> RoomMap.find loc in
       let player_id_list = List.filter
           (fun x -> pr ("id: "^(string_of_int x));
@@ -401,14 +400,14 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       let rec print_list = function
       [] -> ()
         | e::l -> print_int e ; print_string " " ; print_list l in
-      print_endline "before id list:";
+      (* print_endline "List of players:";
       print_list player_id_list;
-      print_endline "end of player_id_list";
-      
+      print_endline ""; *)
+      (* print_endline "end of player_id_list"; *)
+
       if List.length player_id_list = 0 then st
       else
         let rand = randomize oldstate (List.length player_id_list) in
-        pr "rand";
         let player_id = List.nth player_id_list rand in
         let IPlayer player = flatworld.items |> LibMap.find player_id in
         let beast_attack b =
@@ -454,7 +453,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
            client_diffs=new_client_diffs;
            alldiffs=diff::alldiffs
           }
-      end 
+      end
     in
     pr "----";
     List.fold_left attack state (room_locs (0, 0) size)
@@ -510,7 +509,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     with _ -> state
   in
   newstate |> spawn_item |> scoring |> chasing
-   |> automatic_attack 
+   |> automatic_attack
   |> beast_killing
 
 

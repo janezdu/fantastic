@@ -648,7 +648,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   else if code = -1 then return w
   else
     (body >>= fun x -> print_endline x;
-    print_int code; return w)
+    print_int code; print_string ": "; return w)
 
 (******************************* main functions *******************************)
 
