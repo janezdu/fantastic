@@ -21,6 +21,8 @@ let invalid_command_msg = "Invalid command. Please try again.\n"
 let trouble_connection_msg = "There is a problem with the connection. "^
   "Please check the connection and enter the ip address of the host again\n"
 
+let hp = ref 1000
+
 (* +-----------------------------------------------------------------+
    | Interpreter                                                     |
    +-----------------------------------------------------------------+ *)
@@ -52,6 +54,8 @@ let get_curr_loc_prompt state =
 
 (* Create a prompt based on the current interpreter state *)
 let make_prompt size state =
+  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
+    hp := get_hp_prompt state));
   let prompt = Printf.sprintf "Next? [%d]: " state.Interpreter.n in
   let score_string = Printf.sprintf "score: %d" (get_score_prompt state) in
   let room_string = Printf.sprintf "loc: %s" (get_curr_loc_prompt state) in
@@ -59,7 +63,7 @@ let make_prompt size state =
   B_bold true;
   B_fg lgreen;
   S"─( ";
-  B_fg lred; S(Printf.sprintf "hp: %d" (get_hp_prompt state)); E_fg;
+  B_fg lred; S(Printf.sprintf "hp: %d" (!hp)); E_fg;
   S" )─< ";
   B_fg lcyan; S(score_string); E_fg;
   S" >─";
