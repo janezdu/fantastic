@@ -19,7 +19,6 @@ let client_id = ref (-1)
 let username = ref ""
 let ip = ref ""
 let is_dead = ref false
-let curr_w = ref (init 4)
 
 let cmove = "move"
 let cdrink = "drink"
@@ -206,7 +205,7 @@ let add_room room_map room_json =
   let items = room_json |> member "items" |> to_list |> List.map to_int in
   let des = room_json |> member "descr" |> to_string in
   let room = {descr = des; items = items} in
-  RoomMap.add (x,y) room room_map
+   RoomMap.add (x,y) room room_map
 
 let add_spell item_map item_json =
   let id = item_json |> member "id" |> to_int in
@@ -425,9 +424,9 @@ let get_item_name_by_id lib id =
 
 let get_item_name_and_hp_by_id lib id =
   match LibMap.find id lib with
-  | IPlayer x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
-  | IAnimal x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
-  | IPolice x -> x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IPlayer x -> print_endline "in player"; x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IAnimal x -> print_endline "in animal"; x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
+  | IPolice x -> print_endline "in animal"; x.name ^ " (hp = " ^ (string_of_int x.hp) ^ ")"
   | _ -> ""
 
 let unwrap_player = function
@@ -486,10 +485,14 @@ let print_room w =
     List.filter (fun x -> x > 99 && x <> !client_id) room.items in
   let player_ai_list =
     List.map (get_item_name_and_hp_by_id w.items) id_list_hp in
+  print_endline "after player_ai_list";
   let id_list_no_hp = List.filter (fun x -> x < 100) room.items in
+  print_endline "after id_list_no_hp";
   let item_list_dup =
     List.map (get_item_name_by_id w.items) id_list_no_hp in
+  print_endline "after item_list_dup";
   let tbl = fold_dup (Hashtbl.create 10) item_list_dup in
+  print_endline "after tbl";
   let item_list_no_dup = elim_dup item_list_dup in
   let key_pair_item = make_key_pair_item tbl item_list_no_dup in
   print_string_list player_ai_list;
@@ -679,6 +682,7 @@ let show_welcome_msg file_name st =
   print_string (welcome_msg);
   print_endline (cut_file_type file_name);
   print_endline "";
+  print_endline "HEllloooooooo";
   print_room st;
   print_endline ""
 
@@ -689,7 +693,6 @@ let rec register_client () =
 let start_chain (file_name: string) (w: world) =
   return (register_client ()) >>= fun () ->
   request_and_update_world w >>= fun new_world ->
-  curr_w := new_world;
   show_welcome_msg file_name new_world |> ignore; return new_world
 
 (* [main f] is the main entry point from outside this module
@@ -709,5 +712,4 @@ let loadin () =
   let init_state_var = init_state file in
   print_endline ask_name_msg;
   print_string "> ";
-  curr_w := init_state_var;
-  start_chain "filename.json" init_state_var
+  start_chain file_name init_state_var
