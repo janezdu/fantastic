@@ -14,6 +14,7 @@ type command =
   | ViewState
   | Help
   | Check
+  | Checkout of string
 
 let sep_target t =
   let comm_str = (String.trim t) in
@@ -32,12 +33,12 @@ let sep_target t =
  *)
 let parse_command (lst)=
     match lst with
-    | h::t::[] when (h="move") -> Move (String.trim t)
-    | h::t::[] when (h="drink") ->
+    | h::t::[] when (String.trim h="move") -> Move (String.trim t)
+    | h::t::[] when (String.trim h="drink") ->
       (*let tup = sep_target t in
       Drink (fst tup, snd tup)*)
       Drink (String.trim t)
-    | h::t::[] when (h="spell") ->
+    | h::t::[] when (String.trim h="spell") ->
       (*let spell_str = (String.trim t) in
       let spell_lst = Str.split (Str.regexp ",") spell_str in
       let spell_name = String.trim (List.nth spell_lst 0) in
@@ -46,8 +47,9 @@ let parse_command (lst)=
       let tup = sep_target t in
       (*Spell (spell_name,spell_target)*)
       Spell (fst tup, snd tup)
-    | h::t::[] when (h="drop") -> Drop (String.trim t)
-    | h::t::[] when (h="take") -> Take (String.trim t)
+    | h::t::[] when (String.trim h="drop") -> Drop (String.trim t)
+    | h::t::[] when (String.trim h="take") -> Take (String.trim t)
+    | h::t::[] when (String.trim h="checkout") -> Checkout (String.trim t) 
     | h::[] when (String.trim h="look") -> Look
     | h::[] when (String.trim h="quit")-> Quit
     | h::[] when (String.trim h="inv" || String.trim h = "inventory") ->
@@ -96,7 +98,7 @@ let rec list_concat lst =
 let sep_dir lst =
     match lst with
     | h::[] -> h::[]
-    | h::t when (h = "move" || h = "take" || h = "drink" || h = "spell" || h = "drop")->
+    | h::t when (h = "move" || h = "take" || h = "drink" || h = "spell" || h = "drop" || h = "checkout")->
       h::(String.trim (list_concat t))::[]
     | h::t -> (String.trim (list_concat lst))::[]
     | _ -> failwith "Illegal"
