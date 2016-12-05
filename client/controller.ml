@@ -275,8 +275,8 @@ let make_player player_json =
 
 (* [init_state json] creates the inital world for the game *)
 let init_state j =
-  let size = j |> member "size" |> to_int in 
-  dim_x := size; 
+  let size = j |> member "size" |> to_int in
+  dim_x := size;
   dim_y := size;
   let orig_room = RoomMap.empty in
   let orig_item = LibMap.empty in
@@ -650,8 +650,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
     | _ -> failwith "not recorded command"
   else if code = -1 then return w
   else
-    (body >>= fun x -> print_endline x;
-    print_int code; print_string ": "; return w)
+    (body >>= fun x -> print_endline x; return w)
 
 (******************************* main functions *******************************)
 
@@ -706,7 +705,7 @@ let loadin () =
   print_string "> ";
   let ip_address = read_line () in
   ip := ip_address;
-  let file_name = "testworld.json" in
+  let file_name = "ttworld.json" in
   let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
   let init_state_var = init_state file in
   start_chain file_name init_state_var
