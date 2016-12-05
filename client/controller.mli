@@ -3,7 +3,11 @@ open Cli
 open Clienthttp
 open Lwt
 
+exception NotAnItem
+exception Illegal
 exception Dead
+
+type json = Yojson.Basic.json
 
 type comm_json =
   | JMove of string
@@ -19,6 +23,8 @@ type comm_json =
   | JCheck
 
 val client_id: int ref
+
+val init_state: json -> world
 
 val get_hp: int -> item LibMap.t -> int
 

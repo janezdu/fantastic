@@ -17,6 +17,7 @@ type json = string
 type serverstate
 
 exception WorldFailure of string
+exception EndGame of string
 
 (* returns the diff for a client when it asks for an update *)
 val getClientUpdate : int -> string
