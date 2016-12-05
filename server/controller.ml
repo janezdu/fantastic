@@ -509,11 +509,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     with _ -> state
   in
   newstate |> spawn_item |> scoring |> chasing
-<<<<<<< HEAD
    |> automatic_attack 
-=======
-  |> automatic_attack 
->>>>>>> 200d33e2bbcaa86d0ec227a3c9465aee26712417
   |> beast_killing
 
 
