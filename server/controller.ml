@@ -15,7 +15,7 @@ type diff = Model.diff
 
 
 (* ========================== DEBUGGINGGGGGGGGG ================ *)
-let debugging = Model.debugging
+let debugging = true
 let pr msg = if debugging then print_endline msg else ignore ()
 
 (* Globals *)
@@ -284,6 +284,7 @@ let getClientUpdate cid =
  * This is only called inside pushClientUpdate, so the world
  * really does only *react* to things that users do. *)
 let react oldstate newstate (cmd:string) cmdtype cid =
+  print_endline "reacttt";
   let rec contains x l = match l with [] -> false
           | h::t -> if h = x then true else contains x t
   in
@@ -435,6 +436,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
             players=List.remove_assoc cid flatworld.players;
             items=flatworld.items}
           in
+          print_endline (string_of_diff diff);
           {flatworld=new_flat_world;
            client_diffs=new_client_diffs;
            alldiffs=diff::alldiffs

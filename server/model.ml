@@ -1,7 +1,7 @@
 open Yojson.Basic.Util
 
 
-let debugging = false
+let debugging = true
 let pr msg = if debugging then print_endline msg else ignore ()
 
 

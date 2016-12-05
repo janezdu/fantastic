@@ -12,7 +12,7 @@ exception WorldFailure = Controller.WorldFailure
 exception EndGame = Controller.EndGame
 exception BadRequest of string
 
-let debugging = Controller.debugging
+let debugging = true
 let p msg = if debugging then print_endline msg else ignore ()
 
 
@@ -28,6 +28,7 @@ let strip path = String.sub path 1 (String.length path - 1)
 (* A method that handles legal queries once gameplay starts. Does not handle
  * login *)
 let handleQuery req body cid : string Lwt.t =
+  print_endline "handling query";
   try
     let path = Uri.path (Request.uri req) in
     match path with
@@ -69,8 +70,8 @@ let handleLogin req body name =
 (* a server is a function that gets data, compute and respond *)
 let server =
   let callback _conn req body =
-    p ("\n\n====================================================");
-    p (req |> Request.uri |> Uri.to_string);
+    print_endline ("\n\n====================================================");
+    print_endline (req |> Request.uri |> Uri.to_string);
     let queryparams = req |> Request.uri |> Uri.query in
 
     let reqmode =
