@@ -21,6 +21,7 @@ type comm_json =
   | JViewState
   | JHelp
   | JCheck
+  | JCheckout of string 
 
 val client_id: int ref
 
