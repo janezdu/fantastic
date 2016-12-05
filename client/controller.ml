@@ -484,7 +484,7 @@ let make_key_pair_item tbl lst = make_key_pair_item_helper tbl [] lst
 let print_room w =
   let loc = get_curr_loc w.players in
   let room = RoomMap.find (loc) w.rooms in
-  print_endline (room_loc_msg ^ (string_of_int_tuple loc));
+  (* print_endline (room_loc_msg ^ (string_of_int_tuple loc)); *)
   print_endline (room_desc_msg ^ room.descr);
   print_endline room_item_msg;
   let id_list_hp =
@@ -616,7 +616,7 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
     | "move" ->
       (body >>= fun x ->
       let new_w = translate_to_diff x |> apply_diff_list w in
-      print_endline (move_msg (get_curr_loc new_w.players));
+      (* print_endline (move_msg (get_curr_loc new_w.players)); *)
       repl_helper clook new_w)
     | "drink" ->
       (body >>= fun x ->

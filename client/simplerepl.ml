@@ -54,7 +54,7 @@ let get_curr_loc_prompt state =
 
 (* Create a prompt based on the current interpreter state *)
 let make_prompt size state =
-  ignore (Lwt_engine.on_timer 1.0 true (fun _ ->
+  ignore (Lwt_engine.on_timer 0.2 true (fun _ ->
     hp := get_hp_prompt state));
   let prompt = Printf.sprintf "Next? [%d]: " state.Interpreter.n in
   let score_string = Printf.sprintf "score: %d" (get_score_prompt state) in
