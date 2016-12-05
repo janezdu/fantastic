@@ -36,7 +36,7 @@ exception IllegalDrop *)
 exception EndGame of string
 exception WorldFailure of string
 
-let file = (Yojson.Basic.from_file ("worlds/testworld.json"))
+let file = (Yojson.Basic.from_file ("worlds/fourrooms.json"))
 let init_state_var = init_state file
 
 
@@ -401,6 +401,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       [] -> ()
       | e::l -> print_int e ; print_string " " ; print_list l in
       print_list room.items; *)
+      print_roommap flatworld.rooms;
+      print_libmap flatworld.items;
       let player_id_list = List.filter
           (fun x -> pr ("id: "^(string_of_int x));
             x >= 1000) room.items in
@@ -516,7 +518,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     with _ -> state
   in
   newstate |> spawn_item |> scoring |> chasing
-  (* |> automatic_attack  *)
+  |> automatic_attack 
   |> beast_killing
 
 
