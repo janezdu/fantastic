@@ -1,7 +1,7 @@
 open Yojson.Basic.Util
 
 
-let debugging = true
+let debugging = false
 let pr msg = if debugging then print_endline msg else ignore ()
 
 
@@ -414,7 +414,7 @@ let rec apply_diff_helper (d: diff) (w: world) : world =
  * minimodel based on the diff *)
 let rec apply_diff (d: diff) (w: world) : world =
   try
-    print_endline ("Applying diff " ^(string_of_diff_simple d));
+    pr ("Applying diff " ^(string_of_diff_simple d));
     apply_diff_helper d w
   with
   | _ -> raise (ApplyDiffError "incompatible with the current world")

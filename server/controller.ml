@@ -302,8 +302,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     let {flatworld;client_diffs;alldiffs} = state in
     let r = randomize oldstate 3 in
     if r < 3 then begin
-      let rand_loc = (randomize oldstate 2 , randomize oldstate 2) in
-      let item_id = (randomize oldstate 3) + 1 in
+      let rand_loc = (randomize oldstate size , randomize oldstate 2) in
+      let item_id = (randomize oldstate 24) + 1 in
         pr ("spawning "^(string_of_int item_id)^" at ("^(string_of_int (fst rand_loc))^","^(string_of_int (snd rand_loc))^")");
       let item = flatworld.items |> LibMap.find item_id in
       let old_room = flatworld.rooms |> RoomMap.find rand_loc in
@@ -397,10 +397,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       let player_id_list = List.filter
           (fun x -> pr ("id: "^(string_of_int x));
             x >= 1000) room.items in
-      let rec print_list = function
-      [] -> ()
-        | e::l -> print_int e ; print_string " " ; print_list l in
-      (* print_endline "List of players:";
+          (* print_endline "List of players:";
       print_list player_id_list;
       print_endline ""; *)
       (* print_endline "end of player_id_list"; *)
@@ -522,15 +519,15 @@ let pushClientUpdate cid cmd cmdtype =
       raise (EndGame (!gameWinner))
     end
     else
-    print_endline (string_of_bool !gameEnded);
+    pr (string_of_bool !gameEnded);
 
     (* Basically we're just pulling the state out of its ref. *)
     let snapshot = !state in
     if not (List.mem_assoc cid snapshot.flatworld.players) then
       raise (WorldFailure "Illegal client id. Aborting post.")
     else
-    print_endline ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
-    print_endline cmdtype;
+    pr ("["^ (string_of_int cid) ^ "] got inside pushClientUpdate");
+    pr cmdtype;
 
 
     (* [diffs] is a list of type diff (add remove change). This is the result
@@ -539,7 +536,7 @@ let pushClientUpdate cid cmd cmdtype =
      * attacking back. *)
     let diffs = (translate_to_diff snapshot cmd cmdtype cid) in
 
-    print_endline (string_of_difflist snapshot.client_diffs);
+    pr (string_of_difflist snapshot.client_diffs);
 
     (* This creates a new flatworld that with [diffs] applied to it. Again, this
        does not include the consequences like a beast attacking back.    *)
@@ -579,7 +576,7 @@ let pushClientUpdate cid cmd cmdtype =
     state := {afterstate with client_diffs = flushed};
 (*
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs])); *)
-    print_libmap afterstate.flatworld.items;
+    (* print_libmap afterstate.flatworld.items; *)
 
 
     toflush |> translate_to_json
@@ -639,7 +636,7 @@ let registerUser name =
              client_diffs = newdiffs;
              alldiffs = diffs@snapshot.alldiffs} diffs in *)
     state := afterstate;
-    print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
+    pr ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
     print_libmap afterstate.flatworld.items;
     cid
   with
