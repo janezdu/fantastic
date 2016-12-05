@@ -37,7 +37,7 @@ exception IllegalDrop *)
 exception EndGame of string
 exception WorldFailure of string
 
-let file = (Yojson.Basic.from_file ("worlds/ttworld.json"))
+let file = (Yojson.Basic.from_file ("worlds/fourrooms.json"))
 let init_state_var =  init_state file
 
 

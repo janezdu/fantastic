@@ -106,6 +106,10 @@ end
    | Main loop                                                       |
    +-----------------------------------------------------------------+ *)
 
+(* debug *)
+let print_rooms state =
+  print_roommap (state.Interpreter.world.rooms)
+
 let rec loop term history state =
   Lwt.catch (fun () ->
     let rl = new read_line ~term ~history:(LTerm_history.contents history)
@@ -118,6 +122,8 @@ let rec loop term history state =
   | Some command ->
     Lwt.catch (fun () ->
       Interpreter.eval state command >>= fun new_state ->
+      (* debug *)
+      (* print_rooms new_state; *)
       LTerm.fprintls term (make_output ())
       >>= fun () ->
       LTerm_history.add history command;

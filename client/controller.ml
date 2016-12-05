@@ -646,6 +646,8 @@ let rec repl_helper (c: string) (w: world) : world Lwt.t =
   request >>= fun (code, body) ->
   if code = 200 then
     body >>= fun x ->
+    (* debug *)
+    print_endline x;
     match get_verb_from_cmd c with
     | "move" ->
       (body >>= fun x ->
@@ -739,7 +741,7 @@ let loadin () =
   print_string "> ";
   let ip_address = read_line () in
   ip := ip_address;
-  let file_name = "ttworld.json" in
+  let file_name = "fourrooms.json" in
   let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
   let init_state_var = init_state file in
   start_chain file_name init_state_var
