@@ -15,7 +15,7 @@ type diff = Model.diff
 
 
 (* ========================== DEBUGGINGGGGGGGGG ================ *)
-let debugging = Model.debugging
+let debugging = true
 let pr msg = if debugging then print_endline msg else ignore ()
 
 (* Globals *)
@@ -284,6 +284,7 @@ let getClientUpdate cid =
  * This is only called inside pushClientUpdate, so the world
  * really does only *react* to things that users do. *)
 let react oldstate newstate (cmd:string) cmdtype cid =
+  print_endline "reacttt";
   let rec contains x l = match l with [] -> false
           | h::t -> if h = x then true else contains x t
   in
@@ -395,7 +396,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     let attack st loc =
       let room = flatworld.rooms |> RoomMap.find loc in
       let player_id_list = List.filter
-          (fun x -> pr ("id: "^(string_of_int x));
+          (fun x ->
+             (* pr ("id: "^(string_of_int x)); *)
             x >= 1000) room.items in
           (* print_endline "List of players:";
       print_list player_id_list;
@@ -434,6 +436,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
             players=List.remove_assoc cid flatworld.players;
             items=flatworld.items}
           in
+          print_endline (string_of_diff diff);
           {flatworld=new_flat_world;
            client_diffs=new_client_diffs;
            alldiffs=diff::alldiffs
@@ -442,7 +445,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
         else begin
           let new_player = IPlayer {player with hp = player.hp - sum_spell_beast} in
           let new_item_map = flatworld.items |> LibMap.add cid new_player in
-          let diff = Change {loc=loc;id=cid;newitem=new_player} in
+          let diff = Change {loc=loc;id=player.id;newitem=new_player} in
           let new_client_diffs =
             List.map (fun (id,diffs) -> (id, diff::diffs)) client_diffs
           in
@@ -577,8 +580,6 @@ let pushClientUpdate cid cmd cmdtype =
 (*
     print_endline ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs])); *)
     (* print_libmap afterstate.flatworld.items; *)
-
-
     toflush |> translate_to_json
   with
   | IllegalStep msg -> raise (WorldFailure msg)
@@ -616,7 +617,7 @@ let registerUser name =
                              name = name;
                              hp = 1000;
                              score = 0;
-                             inventory = [1;1;1;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2]} in
+                             inventory = [1;1;1;24;24;24]} in
     (* Create diffs so that other players can add this player *)
     let diffs = [Add {loc = (0,0); id = cid; newitem = newPlayer}] in
 
@@ -637,7 +638,8 @@ let registerUser name =
              alldiffs = diffs@snapshot.alldiffs} diffs in *)
     state := afterstate;
     pr ("alldiffs: "^(string_of_difflist [0,afterstate.alldiffs]));
-    print_libmap afterstate.flatworld.items;
+    (* print_libmap afterstate.flatworld.items; *)
+
     cid
   with
   | ApplyDiffError msg -> begin
