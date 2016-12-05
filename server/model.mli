@@ -155,9 +155,6 @@ type diff =
 
 val apply_diff: diff -> world -> world
 
-(* init [i] creates a i x i size world*)
-val init: int -> world
-
 (* prints out a libmap *)
 val print_libmap : item LibMap.t -> unit
 
@@ -168,3 +165,7 @@ val string_of_item : item -> string
 val string_of_inventory : int list -> string
 
 val string_of_difflist : (int * diff list) list -> string
+
+val init_state : Yojson.Basic.json -> world
+
+val print_roommap : room RoomMap.t -> unit

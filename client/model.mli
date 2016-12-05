@@ -152,9 +152,6 @@ val apply_diff: world -> diff -> world
 
 val apply_diff_list: world -> diff list -> world
 
-(* init [i] creates a i x i size world*)
-val init: int -> world
-
 (* prints out a libmap *)
 val print_libmap : item LibMap.t -> unit
 
