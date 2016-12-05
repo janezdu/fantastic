@@ -36,7 +36,7 @@ exception IllegalDrop *)
 exception EndGame of string
 exception WorldFailure of string
 
-let file = (Yojson.Basic.from_file ("worlds/testworld.json"))
+let file = (Yojson.Basic.from_file ("worlds/fourrooms.json"))
 let init_state_var = init_state file
 
 
@@ -301,7 +301,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     let {flatworld;client_diffs;alldiffs} = state in
     let r = randomize oldstate 3 in
     if r < 3 then begin
-      let rand_loc = (randomize oldstate 20 , randomize oldstate 20) in
+      let rand_loc = (randomize oldstate 2 , randomize oldstate 2) in
       let item_id = (randomize oldstate 3) + 1 in
         pr ("spawning "^(string_of_int item_id)^" at ("^(string_of_int (fst rand_loc))^","^(string_of_int (snd rand_loc))^")");
       let item = flatworld.items |> LibMap.find item_id in
@@ -394,13 +394,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     let attack st loc =
       print_endline "attacking ... ";
       let room = flatworld.rooms |> RoomMap.find loc in
-      (* let is_player item = match item with |IPlayer _ -> true |_ -> false in *)
-(*
-      print_endline "printing list";
-      let rec print_list = function
-      [] -> ()
-      | e::l -> print_int e ; print_string " " ; print_list l in
-      print_list room.items; *)
+      pr "room";
       let player_id_list = List.filter
           (fun x -> pr ("id: "^(string_of_int x));
             x >= 1000) room.items in
@@ -410,8 +404,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       print_endline "before id list:";
       print_list player_id_list;
       print_endline "end of player_id_list";
-      st
-      (*if List.length player_id_list = 0 then st
+      
+      if List.length player_id_list = 0 then st
       else
         let rand = randomize oldstate (List.length player_id_list) in
         pr "rand";
@@ -460,10 +454,10 @@ let react oldstate newstate (cmd:string) cmdtype cid =
            client_diffs=new_client_diffs;
            alldiffs=diff::alldiffs
           }
-      end *)
+      end 
     in
     pr "----";
-    List.fold_left attack state (room_locs (0, 0) 20)
+    List.fold_left attack state (room_locs (0, 0) 2)
   in
   let beast_killing state =
     pr "inside beast_killing";
@@ -516,7 +510,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
     with _ -> state
   in
   newstate |> spawn_item |> scoring |> chasing
-  (* |> automatic_attack  *)
+   |> automatic_attack 
   |> beast_killing
 
 
