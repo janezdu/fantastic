@@ -18,6 +18,8 @@ open Model
 
 let dead_warning_msg = "The dead can't use that command. Too bad!"
 let invalid_command_msg = "Invalid command. Please try again.\n"
+let trouble_connection_msg = "There is a problem with the connection. "^
+  "Please check the connection and enter the ip address of the host again\n"
 
 (* +-----------------------------------------------------------------+
    | Interpreter                                                     |
@@ -45,23 +47,28 @@ let get_hp_prompt state =
 let get_score_prompt state =
   get_score !(state.Interpreter.clientid) (state.Interpreter.world.items)
 
+let get_curr_loc_prompt state =
+  get_curr_loc (state.Interpreter.world.players) |> string_of_int_tuple
+
 (* Create a prompt based on the current interpreter state *)
 let make_prompt size state =
   let prompt = Printf.sprintf "Next? [%d]: " state.Interpreter.n in
-  let scorestring = Printf.sprintf "score: %d" (get_score_prompt state) in
+  let score_string = Printf.sprintf "score: %d" (get_score_prompt state) in
+  let room_string = Printf.sprintf "loc: %s" (get_curr_loc_prompt state) in
   eval [
   B_bold true;
-  B_fg lcyan;
+  B_fg lgreen;
   S"─( ";
-  B_fg lmagenta; S(Printf.sprintf "hp: %d" (get_hp_prompt state)); E_fg;
+  B_fg lred; S(Printf.sprintf "hp: %d" (get_hp_prompt state)); E_fg;
   S" )─< ";
-  B_fg green; S(scorestring); E_fg;
+  B_fg lcyan; S(score_string); E_fg;
   S" >─";
   S(Zed_utf8.make
-      (size.cols - 24 - Zed_utf8.length "code" - Zed_utf8.length scorestring)
+      (size.cols - 24 - Zed_utf8.length room_string
+      - Zed_utf8.length score_string)
       (UChar.of_int 0x2500));
   S"[ ";
-  B_fg(lred); S "code"; E_fg;
+  B_fg(lmagenta); S room_string; E_fg;
   S" ]─";
   E_fg;
   S"\n";
@@ -123,18 +130,44 @@ and incorrect_command_handler term history state = function
    | Entry point                                                     |
    +-----------------------------------------------------------------+ *)
 
-let main () =
+let rec main () =
   LTerm_inputrc.load ()
   >>= fun () ->
   Lwt.catch (fun () ->
-    loadin () >>= fun world ->
+    Lwt.catch (fun () -> loadin ()) (loadin_exn_handler)
+    >>= fun world ->
     let state =
       {Interpreter.n = 1; Interpreter.world = world; clientid = client_id} in
     Lazy.force LTerm.stdout
     >>= fun term ->
     loop term (LTerm_history.create []) state)
-  (function
-    | LTerm_read_line.Interrupt -> Lwt.return ()
-    | exn -> Lwt.fail exn)
+  (main_exn_handler)
+
+and main_exn_handler = function
+  | LTerm_read_line.Interrupt -> Lwt.return ()
+  | Sys_error explanation ->
+    (print_endline explanation;
+    print_string "\n> ";
+     main ())
+  | Unix.Unix_error _ ->
+    (print_endline (trouble_connection_msg);
+    print_string "> ";
+     main ())
+  | _ -> (print_endline (trouble_connection_msg);
+    print_string "> ";
+     main ())
+
+and loadin_exn_handler = function
+  | Sys_error explanation ->
+    (print_endline explanation;
+    print_string "\n> ";
+     loadin ())
+  | Unix.Unix_error _ ->
+    (print_endline (trouble_connection_msg);
+    print_string "> ";
+     loadin ())
+  | _ -> (print_endline (trouble_connection_msg);
+    print_string "> ";
+     loadin ())
 
 let () = Lwt_main.run (main ())

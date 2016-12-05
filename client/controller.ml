@@ -47,8 +47,6 @@ let trouble_login_msg = "We are having trouble logging in." ^
   "Please check if you have the right version of world\n"
 let same_username_msg = "Your username has been used by another player in " ^
   "the game. Please select a new one."
-let trouble_connection_msg = "There is a problem with the connection. "^
-  "Please check the connection and enter the ip address of the host again\n"
 let next_cmd_msg = "what's next?\n"
 let room_desc_msg = "Room description: "
 let room_loc_msg = "Room location: "
@@ -604,7 +602,7 @@ let get_spell_from c =
   let obj = get_obj_from_cmd c in
   let comma_idx = String.index obj ',' in
   let spell =
-    String.sub obj 0 (comma_idx -1) in
+    String.sub obj 0 (comma_idx) in
   String.trim spell
 
 let get_target_from c =
@@ -696,27 +694,18 @@ let start_chain (file_name: string) (w: world) =
 
 (* [main f] is the main entry point from outside this module
  * to load a game from file [f] and start playing it *)
-let rec loadin () =
-  try
-    print_endline "\n\nip pls: \n";
-    print_string "> ";
-    let ip_address = read_line () in
-    ip := ip_address;
-    print_endline "\n\nWelcome to the 3110 Text Adventure Game engine.\n ";
-    let init_state_var = init 4 in
-    print_endline ask_name_msg;
-    print_string "> ";
-    curr_w := init_state_var;
-    start_chain "filename.json" init_state_var
-  with
-  | Sys_error explanation ->
-    (print_endline explanation;
-    print_string "\n> ";
-     loadin ())
-  | Unix.Unix_error _ ->
-    (print_endline (trouble_connection_msg);
-    print_string "> ";
-     loadin ())
-  | _ -> (print_endline (trouble_connection_msg);
-    print_string "> ";
-    loadin ())
+let loadin () =
+  print_endline "\n\nip pls: \n";
+  print_string "> ";
+  let ip_address = read_line () in
+  ip := ip_address;
+  print_endline
+    "\n------------------------------------------------";
+  print_endline "Welcome to the 3110 Text Adventure Game engine.";
+  print_endline
+    "------------------------------------------------\n";
+  let init_state_var = init 4 in
+  print_endline ask_name_msg;
+  print_string "> ";
+  curr_w := init_state_var;
+  start_chain "filename.json" init_state_var

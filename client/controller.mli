@@ -24,6 +24,8 @@ val get_hp: int -> item LibMap.t -> int
 
 val get_score: int -> item LibMap.t -> int
 
+val get_curr_loc: (int * room_loc) list -> (int * int)
+
 (* [translate_to_diff j] returns diffs based on a diff json string *)
 val translate_to_diff: diff_json -> diff list
 
@@ -37,7 +39,7 @@ val interpret_command: string -> int -> world -> comm_json
  * for commands that doesn't need server connection. *)
 val do_command: string -> int -> world -> (int * string Lwt.t) Lwt.t
 
-val repl_helper : string -> world -> (world ) Lwt.t
+val repl_helper : string -> world -> world Lwt.t
 
 (* [loadin ()] starts the game. It is the entry point of this module *)
 val loadin: unit -> world Lwt.t
