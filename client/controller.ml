@@ -16,14 +16,13 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
-let dim_y = 6
+let dim_y = 5
 let dim_x = 20
 
 let client_id = ref (-1)
 let username = ref ""
 let ip = ref ""
 let is_dead = ref false
-let curr_w = ref (init 4)
 
 let cmove = "move"
 let cdrink = "drink"
@@ -699,7 +698,7 @@ and repl (w: world): world Lwt.t =
   print_endline ("items: "); print_libmap w.items;
   print_endline "------------------------------------------------------------"; *)
   request_and_update_world w >>= fun new_world ->
-  curr_w := new_world;
+  (* curr_w := new_world; *)
   check_life new_world.items; print_endline next_cmd_msg; print_string "> ";
   let c = String.lowercase_ascii (read_line ()) in
   Lwt.catch (fun () ->
@@ -745,7 +744,7 @@ let start_chain (file_name: string) (w: world) =
 (*   (* debug starts *)
   print_endline ("iddddd2 = " ^ string_of_int (!client_id));
   (* debug ends *) *)
-  curr_w := new_world;
+  (* curr_w := new_world; *)
   show_welcome_msg file_name new_world |> ignore; repl new_world
 
 (* [main f] is the main entry point from outside this module
@@ -765,7 +764,7 @@ let rec main ip_address =
     print_endline ask_name_msg;
     print_string "> ";
     (* register_client (); *)
-    curr_w := init_state_var;
+    (* curr_w := init_state_var; *)
     Lwt_main.run (start_chain file_name init_state_var)
   with
   | Sys_error explanation ->

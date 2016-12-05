@@ -285,40 +285,6 @@ let rec apply_diff_list_helper (w: world) (ds: diff list) : world =
 let apply_diff_list (w: world) (ds: diff list) : world =
   apply_diff_list_helper w (List.rev ds)
 
-let init size =
-  let room00 = {descr="This is a room!"; items = [1;2;1234]} in
-  let room10 = {descr="This is a room!"; items = [2;3]} in
-  let room01 = {descr="This is a room!"; items = [1;3]} in
-  let room11 = {descr="This is a room!"; items = [1;1]} in
-  let map = RoomMap.empty |> RoomMap.add (0,0) room00
-            |> RoomMap.add (1,0) room10
-            |> RoomMap.add (1,1) room01
-            |> RoomMap.add (0,1) room11 in
-  let players = [(1234, (0,0))] in
-  let items = LibMap.empty
-              |> LibMap.add 1 (ISpell {id = 1;
-                                       incant = "lumos";
-                                       descr = "a light spell";
-                                       effect = 10})
-              |> LibMap.add 2 (ISpell {id = 2;
-                                       incant = "avada kedavra";
-                                       descr = "a death spell";
-                                       effect = -1000})
-              |> LibMap.add 3 (IPotion {id = 3;
-                                       name = "pepperup potion";
-                                        descr = "warms and energizes";
-                                       effect = 30})
-              |> LibMap.add 1234 (IPlayer {id = 1234;
-                                           name = "rebecca";
-                                           hp = 1000;
-                                           score = 100;
-                                           inventory = [1;2;2;2;2;2;3;3]})
-  in
-  {
-    rooms = map;
-    players = players;
-    items = items;
-  }
 
 let string_of_inventory inv =
   let rec string_list str = function

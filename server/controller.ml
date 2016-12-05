@@ -266,8 +266,8 @@ let translate_to_json difflist =
 let getClientUpdate cid =
   try
     let snapshot = !state in
-    print_endline ("Client diffs returned: "^
-                   (string_of_difflist snapshot.client_diffs));
+    (* print_endline ("Client diffs returned: "^
+                   (string_of_difflist snapshot.client_diffs)); *)
     let diffs_to_apply = List.assoc cid snapshot.client_diffs in
     let newdiffs = (cid, [])::(List.remove_assoc cid snapshot.client_diffs) in
     let newstate = {snapshot with client_diffs = newdiffs} in
@@ -333,8 +333,8 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       let command = Yojson.Basic.from_string cmd in
       let target_id = command |> member "target" |> to_int in
       let is_target_alive = contains target_id cur_room.items in
-      let new_player = 
-        IPlayer {player with 
+      let new_player =
+        IPlayer {player with
                 score = player.score + 50 + (if is_target_alive then 0 else 100)} in
       let new_item_map = flatworld.items |> LibMap.add cid new_player in
       let diff = Change {loc=cur_loc;id=cid;newitem=new_player} in
@@ -380,7 +380,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       }
     with _ -> state
   in
-  let automatic_attack state = 
+  let automatic_attack state =
     pr "inside automatic_attack";
 
     let {flatworld;client_diffs;alldiffs} = state in
@@ -392,12 +392,25 @@ let react oldstate newstate (cmd:string) cmdtype cid =
         (i,j)::next
     in
     let attack st loc =
+      print_endline "attacking ... ";
       let room = flatworld.rooms |> RoomMap.find loc in
-      pr "room loc";
-      let is_player item = match item with |IPlayer _ -> true |_ -> false in
-      pr "is_player";
-      let player_id_list = List.filter 
-        (fun x -> pr ("id"^(string_of_int x)); is_player (flatworld.items |> LibMap.find x)) room.items in st
+      (* let is_player item = match item with |IPlayer _ -> true |_ -> false in *)
+(*
+      print_endline "printing list";
+      let rec print_list = function
+      [] -> ()
+      | e::l -> print_int e ; print_string " " ; print_list l in
+      print_list room.items; *)
+      let player_id_list = List.filter
+          (fun x -> pr ("id: "^(string_of_int x));
+            x >= 1000) room.items in
+      let rec print_list = function
+      [] -> ()
+        | e::l -> print_int e ; print_string " " ; print_list l in
+      print_endline "before id list:";
+      print_list player_id_list;
+      print_endline "end of player_id_list";
+      st
       (*if List.length player_id_list = 0 then st
       else
         let rand = randomize oldstate (List.length player_id_list) in
@@ -448,7 +461,7 @@ let react oldstate newstate (cmd:string) cmdtype cid =
            alldiffs=diff::alldiffs
           }
       end *)
-    in 
+    in
     pr "----";
     List.fold_left attack state (room_locs (0, 0) 20)
   in
@@ -502,7 +515,9 @@ let react oldstate newstate (cmd:string) cmdtype cid =
       | _ -> failwith "Not a beast"
     with _ -> state
   in
-  newstate |> spawn_item |> scoring |> chasing |> automatic_attack |> beast_killing
+  newstate |> spawn_item |> scoring |> chasing
+  (* |> automatic_attack  *)
+  |> beast_killing
 
 
 (* tries to change the model based on a client's request.

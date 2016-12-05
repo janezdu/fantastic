@@ -33,10 +33,7 @@ let handleQuery req body cid : string Lwt.t =
     match path with
     | "/move" | "/use" | "/take" | "/drop"  -> begin
         body |> Cohttp_lwt_body.to_string >>= (fun cmdbody ->
-            ( (*print_endline ("\n\n===================================================="^
-                             "\nstarted callback for POST request");
-              print_endline ("Body: "^ cmdbody); *)
-              try
+            ( try
                 return (pushClientUpdate cid cmdbody (strip path))
               with
               | WorldFailure msg -> begin
@@ -72,8 +69,7 @@ let handleLogin req body name =
 (* a server is a function that gets data, compute and respond *)
 let server =
   let callback _conn req body =
-    p ("\n\n===================================================="^
-                   "\nstarted callback");
+    p ("\n\n====================================================");
     p (req |> Request.uri |> Uri.to_string);
     let queryparams = req |> Request.uri |> Uri.query in
 

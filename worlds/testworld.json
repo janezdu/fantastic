@@ -7,7 +7,7 @@
 {
 	"rooms":
 		[
-			{"loc": {"x": 0, "y": 0}, "items": [0, 1234], "descr": "room1"},
+			{"loc": {"x": 0, "y": 0}, "items": [1, 1234], "descr": "room1"},
 			{"loc": {"x": 1, "y": 0}, "items": [], "descr": "room2"},
 			{"loc": {"x": 2, "y": 0}, "items": [], "descr": "room3"},
 			{"loc": {"x": 3, "y": 0}, "items": [], "descr": "room4"},
@@ -145,8 +145,8 @@
 		],
 	"items":
 		[
-			//{"item type": "spell", "id": 0, "incant": "alohamora",
-				//"descr": "unlocks things", "effect": 0},
+			{"item type": "spell", "id": 0, "incant": "alohamora",
+				"descr": "unlocks things", "effect": 0},
 			{"item type": "spell", "id": 1, "incant": "revelio",
 				"descr": "reveals things", "effect": -10},
 			{"item type": "spell", "id": 2, "incant": "lumos",

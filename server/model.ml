@@ -419,59 +419,6 @@ let rec apply_diff (d: diff) (w: world) : world =
   with
   | _ -> raise (ApplyDiffError "incompatible with the current world")
 
-let init size =
-  let room00 = {descr="This is a room!"; items = [1;2;1234]} in
-  let room10 = {descr="This is a room!"; items = [2;3;100;101]} in
-  let room01 = {descr="This is a room!"; items = [1;3]} in
-  let room11 = {descr="This is a room!"; items = [1;1]} in
-  let map = RoomMap.empty |> RoomMap.add (0,0) room00
-            |> RoomMap.add (1,0) room10
-            |> RoomMap.add (0,1) room01
-            |> RoomMap.add (1,1) room11 in
-  let players = [(1234, (0,0))] in
-  let items = LibMap.empty
-              |> LibMap.add 1 (ISpell {id = 1;
-                                       incant = "lumos";
-                                       descr = "a light spell";
-                                       effect = 10})
-              |> LibMap.add 2 (ISpell {id = 2;
-                                       incant = "avada kedavra";
-                                       descr = "a death spell";
-                                       effect = -1000})
-              |> LibMap.add 3 (IPotion {id = 3;
-                                       name = "pepperup potion";
-                                        descr = "warms and energizes";
-                                        effect = 30})
-              |> LibMap.add 10 (ISpell {id = 10;
-                                       incant = "bite";
-                                       descr = "ouch";
-                                        effect = -20})
-              |> LibMap.add 11 (ISpell {id = 11;
-                                        incant = "transform";
-                                        descr = "a scary looking thing";
-                                        effect = -10})
-              |> LibMap.add 100 (IAnimal {id = 100;
-                                         name = "boggart";
-                                         descr = "pretty scary";
-                                         hp = 50;
-                                         spells= [10;11]})
-              |> LibMap.add 101 (IAnimal {id = 101;
-                                         name = "boggart";
-                                         descr = "pretty scary";
-                                         hp = 50;
-                                         spells= [10;11]})
-              |> LibMap.add 1234 (IPlayer {id = 1234;
-                                           name = "rebecca";
-                                           hp = 1000;
-                                           score = 100;
-                                           inventory = [1;2;2;2;2;2;3;3]})
-  in
-  {
-    rooms = map;
-    players = players;
-    items = items;
-  }
-
 let add_room room_map room_json =
   let loc = room_json |> member "loc" in
   let x = loc |> member "x" |> to_int in
@@ -555,3 +502,28 @@ let init_state j =
   let player_lst = j |> member "players" |> to_list |>
                    List.map make_player in
   {rooms = actual_rooms; players = player_lst; items = items}
+
+
+
+  let rec string_of_int_list_helper = function
+    | [] -> ""
+    | h::t -> (string_of_int h) ^ ", " ^ (string_of_int_list_helper t)
+
+  let string_of_int_list lst =
+    "[" ^ string_of_int_list_helper lst ^ "]"
+
+  (* print a room of [loc] in world [w] *)
+  let string_of_room room =
+    "room description: "^ room.descr ^ "\n" ^
+    (string_of_int_list room.items)
+
+  let string_of_int_tuple (x,y) =
+    "(" ^ (string_of_int x) ^ ", " ^ (string_of_int y) ^ ")"
+
+  let print_roommap rmap =
+    print_endline "---------------------------";
+    RoomMap.iter (fun loc room ->
+        print_endline (Printf.sprintf "* loc: %s\n  room: %s"
+                         (string_of_int_tuple loc)
+                         (string_of_room room))) rmap;
+    print_endline "---------------------------"
