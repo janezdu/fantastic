@@ -492,16 +492,6 @@ let make_player player_json =
   let y =  player_json |> member "y" |> to_int in
   (id, (x,y))
 
-let init_state j =
-  let orig_room = RoomMap.empty in
-  let orig_item = LibMap.empty in
-  let actual_rooms = j |> member "rooms" |> to_list |>
-                     List.fold_left add_room orig_room in
-  let items = j |> member "items" |> to_list |>
-              List.fold_left add_item orig_item in
-  let player_lst = j |> member "players" |> to_list |>
-                   List.map make_player in
-  {rooms = actual_rooms; players = player_lst; items = items}
 
 
 
@@ -527,3 +517,14 @@ let init_state j =
                          (string_of_int_tuple loc)
                          (string_of_room room))) rmap;
     print_endline "---------------------------"
+
+let init_state j =
+  let orig_room = RoomMap.empty in
+  let orig_item = LibMap.empty in
+  let actual_rooms = j |> member "rooms" |> to_list |>
+                     List.fold_left add_room orig_room in
+  let items = j |> member "items" |> to_list |>
+              List.fold_left add_item orig_item in
+  let player_lst = j |> member "players" |> to_list |>
+                   List.map make_player in
+  {rooms = actual_rooms; players = player_lst; items = items}

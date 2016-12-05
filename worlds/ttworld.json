@@ -2,8 +2,8 @@
 
 {
 	"rooms":
-		[ 
-			{"loc": {"x": 0, "y": 0}, "items": [0, 1234], "descr": "room1"},
+		[
+			{"loc": {"x": 0, "y": 0}, "items": [0], "descr": "room1"},
 			{"loc": {"x": 1, "y": 0}, "items": [151,6,7,8,4,5], "descr": "room2"},
 			{"loc": {"x": 2, "y": 0}, "items": [24,23,4,3,2], "descr": "room3"},
 			{"loc": {"x": 3, "y": 0}, "items": [], "descr": "room4"},
@@ -23,7 +23,7 @@
 			{"loc": {"x": 17, "y": 0}, "items": [], "descr": "room18"},
 			{"loc": {"x": 18, "y": 0}, "items": [], "descr": "room19"},
 			{"loc": {"x": 19, "y": 0}, "items": [], "descr": "room20"},
-			
+
 			{"loc": {"x": 0, "y": 1}, "items": [152,1,7,8,4,5], "descr": "room21"},
 			{"loc": {"x": 1, "y": 1}, "items": [6,7,8,3,5,4,5], "descr": "room22"},
 			{"loc": {"x": 2, "y": 1}, "items": [153,6,7,2,1,4,5], "descr": "room23"},
@@ -153,7 +153,7 @@
 			{"loc": {"x": 16, "y": 6}, "items": [], "descr": "room57"},
 			{"loc": {"x": 17, "y": 6}, "items": [], "descr": "room58"},
 			{"loc": {"x": 18, "y": 6}, "items": [0], "descr": "room59"},
-			{"loc": {"x": 19, "y": 6}, "items": [0], "descr": "room60"},	
+			{"loc": {"x": 19, "y": 6}, "items": [0], "descr": "room60"},
 
 
 {"loc": {"x": 0, "y": 7}, "items": [], "descr": "room41"},
@@ -224,9 +224,9 @@
 
 
 
-{"loc": {"x": 0, "y": 10}, "items": [], "descr": "You’re in the building of the New Salem 
+{"loc": {"x": 0, "y": 10}, "items": [], "descr": "You’re in the building of the New Salem
 Philanthropic Society"},
-			{"loc": {"x": 1, "y": 10}, "items": [], "descr": "You’re in the building of the New Salem 
+			{"loc": {"x": 1, "y": 10}, "items": [], "descr": "You’re in the building of the New Salem
 Philanthropic Society"},
 			{"loc": {"x": 2, "y": 10}, "items": [], "descr": "You are on a street"},
 			{"loc": {"x": 3, "y": 10}, "items": [], "descr": "You are in an apartment complex"},
@@ -248,9 +248,9 @@ Philanthropic Society"},
 {"loc": {"x": 19, "y": 10}, "items": [0], "descr": "You are on a street"},
 
 
-{"loc": {"x": 0, "y": 11}, "items": [], "descr": "You’re in the building of the New Salem 
+{"loc": {"x": 0, "y": 11}, "items": [], "descr": "You’re in the building of the New Salem
 Philanthropic Society"},
-		{"loc": {"x": 1, "y": 11}, "items": [], "descr": "You’re in the building of the New 
+		{"loc": {"x": 1, "y": 11}, "items": [], "descr": "You’re in the building of the New
 Salem Philanthropic Society"},
 			{"loc": {"x": 2, "y": 11}, "items": [], "descr": "You are on a street"},
 			{"loc": {"x": 3, "y": 11}, "items": [], "descr": "You are on a street"},
@@ -270,12 +270,12 @@ Salem Philanthropic Society"},
 			{"loc": {"x": 17, "y": 11}, "items": [], "descr": "You’re in central park"},
 			{"loc": {"x": 18, "y": 11}, "items": [0], "descr": "You’re in central park"},
 {"loc": {"x": 19, "y": 11}, "items": [0], "descr": "You’re on a street"},
-	
 
 
-{"loc": {"x": 0, "y": 12}, "items": [], "descr": "You’re in the building of the New Salem 
+
+{"loc": {"x": 0, "y": 12}, "items": [], "descr": "You’re in the building of the New Salem
 Philanthropic Society"},
-		{"loc": {"x": 1, "y": 12}, "items": [], "descr": "You’re in the building of the New 
+		{"loc": {"x": 1, "y": 12}, "items": [], "descr": "You’re in the building of the New
 Salem Philanthropic Society"},
 			{"loc": {"x": 2, "y": 12}, "items": [], "descr": "You are on a street"},
 			{"loc": {"x": 3, "y": 12}, "items": [], "descr": "You are in the apartment complex"},
@@ -404,7 +404,7 @@ Salem Philanthropic Society"},
 			{"loc": {"x": 16, "y": 17}, "items": [], "descr": "You are in central park"},
 			{"loc": {"x": 17, "y": 17}, "items": [], "descr": "You are in Newt’s suitcase"},
 			{"loc": {"x": 18, "y": 17}, "items": [0], "descr": "You are in central park"},
-{"loc": {"x": 19, "y": 17}, "items": [0], "descr": "You’re on a street"},	
+{"loc": {"x": 19, "y": 17}, "items": [0], "descr": "You’re on a street"},
 
 
 {"loc": {"x": 0, "y": 18}, "items": [], "descr": "You are in MACUSA"},
@@ -426,7 +426,7 @@ Salem Philanthropic Society"},
 			{"loc": {"x": 16, "y": 18}, "items": [], "descr": "You’re in the ZOO"},
 			{"loc": {"x": 17, "y": 18}, "items": [], "descr": "You’re in the ZOO"},
 			{"loc": {"x": 18, "y": 18}, "items": [0], "descr": "You’re in the ZOO"},
-{"loc": {"x": 19, "y": 18}, "items": [0], "descr": "You’re on a street"},	
+{"loc": {"x": 19, "y": 18}, "items": [0], "descr": "You’re on a street"},
 
 
 {"loc": {"x": 0, "y": 19}, "items": [], "descr": "you’re on a street"},
@@ -448,20 +448,20 @@ Salem Philanthropic Society"},
 			{"loc": {"x": 16, "y": 19}, "items": [], "descr": "you’re on a street"},
 			{"loc": {"x": 17, "y": 19}, "items": [], "descr": "you’re on a street"},
 			{"loc": {"x": 18, "y": 19}, "items": [0], "descr": "you’re on a street"},
-{"loc": {"x": 19, "y": 19}, "items": [0], "descr": "you’re on a street"}								
+{"loc": {"x": 19, "y": 19}, "items": [0], "descr": "you’re on a street"}
 		],
-			
-		
-	"players": 
+
+
+	"players":
 		[
 			// {"id": 1000, "x": 0, "y": 0}, {"id": 1001, "x": 19, "y": 1},
 			// {"id": 1002, "x": 0, "y": 19}, {"id": 1003, "x": 1, "y": 0}
 		],
-	"items": 
+	"items":
 		[
-			{"item type": "spell", "id": 0, "incant": "fulgari", 
+			{"item type": "spell", "id": 0, "incant": "fulgari",
 				"descr": "unlocks things", "effect": -70},
-			{"item type": "spell", "id": 1, "incant": "revelio", 
+			{"item type": "spell", "id": 1, "incant": "revelio",
 				"descr": "reveals things", "effect": -10},
 			{"item type": "spell", "id": 2, "incant": "lumos",
 				"descr": "a light spell", "effect": 10},
@@ -511,7 +511,7 @@ Salem Philanthropic Society"},
 				"descr": "reverts spell effects", "effect": 30},
 
 
-		
+
 
 
 
@@ -705,7 +705,7 @@ Salem Philanthropic Society"},
 
 
 
-			
+
 			{"item type": "animal", "id": 151, "name": "Murlap",
 				"descr": "octopus with legs!", "hp": 40, "spells": [51]},
 {"item type": "animal", "id": 152, "name": "Troll",
@@ -796,5 +796,3 @@ Salem Philanthropic Society"},
 "descr": "pretty scary", "hp": 300, "spells": [53]}
 		]
 }
-
-

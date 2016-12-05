@@ -16,7 +16,7 @@ type json = Yojson.Basic.json
 type diff_json = Clienthttp.diff_json
 type current_player_id = int
 
-let dim_y = 5
+let dim_y = 20
 let dim_x = 20
 
 let client_id = ref (-1)
@@ -758,7 +758,7 @@ let rec main ip_address =
     print_string  "> ";
     (* debugging *)
     let file_name = read_line () in *)
-    let file_name = "fourrooms.json" in
+    let file_name = "ttworld.json" in
     let file = (Yojson.Basic.from_file ("worlds/"^file_name)) in
     let init_state_var = init_state file in
     print_endline ask_name_msg;
