@@ -1,0 +1,3447 @@
+commit 9e6fb244a8cadd78325e1153709d5f532f90a127
+Merge: ac85bcd 6733b23
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Dec 5 01:56:35 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit ac85bcdd45df9bd86ce83710fffef495a43537cd
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Dec 5 01:56:30 2016 -0500
+
+    locase
+
+ worlds/ttworld.json | 678 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 339 insertions(+), 339 deletions(-)
+
+commit 6733b23ea9cb8b6c450cc083f0bac723b709f904
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Mon Dec 5 01:51:08 2016 -0500
+
+    fix checkout
+
+ client/controller.ml | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+commit ae57af85c2745e0d3e25eeb5b2f29e8459b8f5cd
+Merge: b4ae616 910eacc
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Mon Dec 5 01:48:50 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit b4ae616c840a43dd3659ec1c5911a1cedc837b41
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Mon Dec 5 01:48:48 2016 -0500
+
+    update hp to 0.2s
+
+ client/controller.ml | 4 ++--
+ client/simplerepl.ml | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 910eacc76d93d58c5a62d4512b1b1cb6c834add5
+Merge: 1f16b92 2b633fd
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Dec 5 01:46:38 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit 1f16b92d14b9a7735c7b489a1dccaf0924f83c90
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Dec 5 01:46:34 2016 -0500
+
+    Fix printing
+
+ server/Makefile      | 6 +++---
+ server/controller.ml | 4 +++-
+ server/model.ml      | 2 +-
+ server/serverhttp.ml | 7 ++++---
+ 4 files changed, 11 insertions(+), 8 deletions(-)
+
+commit 2b633fd898f0067bafa83edf3bc12bbdfef85116
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Dec 5 01:45:32 2016 -0500
+
+    checkout
+
+ client/controller.ml | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
+
+commit a1cc8f5759cecafe375be5057059fb4cb5ad5c80
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Dec 5 01:18:50 2016 -0500
+
+    a;lsdf
+
+ client/cli.ml         | 16 +++++++++-------
+ client/cli.mli        |  5 +----
+ client/controller.ml  | 25 +++++++++++++++++++++++++
+ client/controller.mli |  1 +
+ 4 files changed, 36 insertions(+), 11 deletions(-)
+
+commit 2fce64352d04dee2a7a122fd867eabc4e37ecf26
+Merge: e9945e4 2cff257
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Dec 5 00:58:56 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit e9945e4ce1d1f7bcd97de3ea0211079faecd409a
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Dec 5 00:58:50 2016 -0500
+
+    Detach movement
+
+ server/controller.ml | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 2cff25734c7d687b3ffccf7350d4ec74f59dbbe0
+Merge: fe150cc 51e8ee0
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:55:10 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 51e8ee00b2ca8620de0a0c04427a27bebe79c9f3
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 23:54:59 2016 -0500
+
+    Make server .native
+
+ server/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit fe150cc74258b24bd5568618cd1e81b726749e29
+Merge: 90b94dc 4240ea4
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:52:54 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 90b94dcfc8aa18878cae0ef59caea874efcdce01
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:52:48 2016 -0500
+
+    update hp every 1 sec works
+
+ client/simplerepl.ml | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+commit 4240ea4a45fc4de5697d5c4ba97e12378e48ba79
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 23:47:23 2016 -0500
+
+    More silence
+
+ server/controller.ml | 17 +++++++----------
+ server/model.ml      |  4 ++--
+ 2 files changed, 9 insertions(+), 12 deletions(-)
+
+commit 9d523ab01df850858f9710b893e7d355f135b749
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 23:47:10 2016 -0500
+
+    Make server silent
+
+ server/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 21b4ed1f6d68ab1ddda907d5d74eeb8ddc75ceac
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:27:37 2016 -0500
+
+    added lamb term
+
+ client/controller.ml | 9 ++++-----
+ worlds/ttworld.json  | 2 --
+ 2 files changed, 4 insertions(+), 7 deletions(-)
+
+commit fa537508a5de428404ac2616ff9736a25d6af6fe
+Merge: 599539f 44fc8c9
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:21:30 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 44fc8c9881bcae36ba91b0fb08df9af9b009234a
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 23:21:15 2016 -0500
+
+    Update ttworld to new format
+
+ worlds/ttworld.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 599539fb83736ad9457dcfb2629aa32291fc4d5d
+Merge: 2661b5a 6c7a795
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:19:31 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 2661b5a38be90edf1b22e2809cbc6f1e830a2362
+Merge: 9b78115 2bf8b4b
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:19:25 2016 -0500
+
+    debugging room 04
+
+commit 6c7a79590cc32bedbe5652d023dbecd841512fbc
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 23:19:00 2016 -0500
+
+    changing json stuff
+
+ client/client_test.ml  |  4 ++--
+ worlds/fourrooms.json  |  2 +-
+ worlds/test4rooms.json | 27 +++++++++++++++++++++++++++
+ 3 files changed, 30 insertions(+), 3 deletions(-)
+
+commit 9819c104f60abbb51992b1f17af39266e00513b2
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Sun Dec 4 23:14:17 2016 -0500
+
+    changed json format
+
+ client/controller.ml | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+commit 9b78115fc82b67e28dd97510b7b5df99f9a421b4
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 23:05:56 2016 -0500
+
+    merge shell to master successfully
+
+ client/controller.ml | 58 +++++++++++++++++++++++-----------------------------
+ 1 file changed, 26 insertions(+), 32 deletions(-)
+
+commit 2bf8b4b85f9b4a8364484e25757e5f32eaf43b8a
+Merge: 784ded1 757db95
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 22:59:23 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit 784ded10bbfbc944a830dff7c1fbb2f4a29d9e9d
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 22:59:14 2016 -0500
+
+    chau and rebecca i am so sorry but it is now DONE no more segFAULTssSS
+
+ client/controller.ml   |    4 +-
+ client/fourrooms.json  |   24 --
+ client/shell.ml        | 1006 ------------------------------------------------
+ client/test4rooms.json |   26 --
+ client/testworld.json  |  299 --------------
+ client/world01.json    |   20 -
+ client/world02.json    |   95 -----
+ server/controller.ml   |   17 +-
+ server/model.ml        |   21 +-
+ worlds/testworld.json  |    2 +-
+ worlds/ttworld.json    |   46 ++-
+ 11 files changed, 44 insertions(+), 1516 deletions(-)
+
+commit 757db95d40864a1ba6a2d7b1c7238b049196aa39
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 22:52:21 2016 -0500
+
+    adjusted ttworld
+
+ worlds/ttworld.json | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 0b9773857b1ec84672ef4946a7cd5b3d2b7ad283
+Merge: 5363c93 ed8c0e8
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 22:48:28 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 5363c9394ef5b658ebe3531d79af2951e902318e
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 22:48:19 2016 -0500
+
+    working 20 by 20 world
+
+ worlds/ttworld.json | 800 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 800 insertions(+)
+
+commit 41a8d4e5dfe9cb2d8a5cedda59b75fbb6ca37523
+Merge: db5a42c ed8c0e8
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 22:32:13 2016 -0500
+
+    add rebecca 1234 to testworld
+
+commit db5a42cadce4c5f174947e8ae6c62f1281bbd6f8
+Merge: b1b0b11 3bb5332
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 22:08:07 2016 -0500
+
+    merging master to shell
+
+commit b1b0b1126e87c4d805b790c31a857f9c3ad39a69
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 21:56:18 2016 -0500
+
+    cleaned up lamb term working now
+
+ client/controller.ml  | 43 +++++++++++++++-------------------------
+ client/controller.mli |  4 +++-
+ client/model.mli      | 11 +----------
+ client/simplerepl.ml  | 55 ++++++++++++++++++++++++++++++++++++++++-----------
+ 4 files changed, 64 insertions(+), 49 deletions(-)
+
+commit ed8c0e8ef6f1eb30b7fff99d8d2ef83396e63bb3
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 21:12:41 2016 -0500
+
+    make size a local var
+
+ server/controller.ml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 89b4f88f7900bb047764ae0deae7cb8fdd6a64dc
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9668.eduroam.cornell.edu>
+Date:   Sun Dec 4 20:53:29 2016 -0500
+
+    lambda term works
+
+ Makefile                    |    2 +-
+ client/Makefile             |    3 +-
+ client/clock.ml             |   45 --
+ client/controller.ml        |  102 +----
+ client/controller.mli       |   22 +-
+ client/main.ml              |   18 -
+ client/model_complicated.ml |  195 ---------
+ client/shell.ml             | 1007 -------------------------------------------
+ client/simplerepl.ml        |   95 ++--
+ 9 files changed, 78 insertions(+), 1411 deletions(-)
+
+commit 5e8d92e1e3599a867c28627064d9e76e0bbe51d6
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 20:50:10 2016 -0500
+
+    fixed merge conf
+
+ server/controller.ml | 4 ----
+ 1 file changed, 4 deletions(-)
+
+commit 1aaffd0719e3139b8e956cf9dc1b4623889c3e86
+Merge: 0acc629 200d33e
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 20:49:23 2016 -0500
+
+    fix conflict
+
+commit 0acc6293cd5e6a54747c78d1997cb4f62d7be2a0
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 20:47:21 2016 -0500
+
+    fix segfault
+
+ client/controller.ml |  2 +-
+ server/controller.ml | 22 ++++++++--------------
+ 2 files changed, 9 insertions(+), 15 deletions(-)
+
+commit 200d33e2bbcaa86d0ec227a3c9465aee26712417
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 20:41:01 2016 -0500
+
+    Fourrooms
+
+ client/controller.ml | 2 +-
+ server/controller.ml | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+commit 929f8cc02084f53166295ded011d23b2d44732f7
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 20:11:12 2016 -0500
+
+    remove server comments and disable beast attacking and fix dimensions of world
+
+ client/controller.ml  |  9 +++---
+ client/model.ml       | 36 +-----------------------
+ client/model.mli      |  3 --
+ server/controller.ml  | 39 ++++++++++++++++++--------
+ server/model.ml       | 78 +++++++++++++++++----------------------------------
+ server/model.mli      |  5 ++--
+ server/serverhttp.ml  |  8 ++----
+ worlds/testworld.json |  6 ++--
+ 8 files changed, 64 insertions(+), 120 deletions(-)
+
+commit 0dff6bb2958547ea29d8f41943a1aff00de129d2
+Merge: f124965 9e1baa5
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 17:48:25 2016 -0500
+
+    commit
+
+commit f124965c09f92e20806cf73faa953d6743e52c5e
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 17:45:23 2016 -0500
+
+    commit
+
+ server/controller.ml | 56 ++++++++++++++++++++++++++++------------------------
+ 1 file changed, 30 insertions(+), 26 deletions(-)
+
+commit 9e1baa5a622035487b9a76720df6acf18d2ad1e4
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 17:39:13 2016 -0500
+
+    test json fixed
+
+ client/controller.ml  |  4 ++--
+ client/testworld.json | 42 +++++++++++++++++++++---------------------
+ 2 files changed, 23 insertions(+), 23 deletions(-)
+
+commit 6a5a1c8a672ff0e8a8ff5deb799f405d44bd0edb
+Merge: 32978be cf1d6bb
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 17:29:17 2016 -0500
+
+    Merge branch 'bigworld' of https://github.coecis.cornell.edu/pt335/Fantastic into bigworld
+
+commit 32978beac8fa77c9c161cfda212548f151c0b84c
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 17:29:15 2016 -0500
+
+    as;lk
+
+ client/client_test.ml | 5 +++++
+ client/controller.ml  | 8 ++++----
+ client/testworld.json | 4 ++--
+ 3 files changed, 11 insertions(+), 6 deletions(-)
+
+commit cf1d6bb82b14eb38b72bbc5b4564699d4447d7ef
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 17:27:45 2016 -0500
+
+    Move testing out of make play
+
+ client/Makefile      | 5 +++--
+ client/controller.ml | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+commit 841f32636c7fd95d9c060c29d819b30a9b5a5d6a
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 17:25:22 2016 -0500
+
+    Use testworld.json
+
+ client/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 1cbf9e83635b6e42dd54539faee8844615ea425b
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 17:04:33 2016 -0500
+
+    Add items in init state
+
+ server/controller.ml  |  44 ++++----
+ server/main.ml        |   2 +
+ server/model.ml       |  87 +++++++++++++++
+ server/model.mli      |   2 +
+ server/testworld.json | 297 --------------------------------------------------
+ worlds/testworld.json | 297 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 413 insertions(+), 316 deletions(-)
+
+commit 52f30dfe25150ea362350cccf67b8b171b9a819c
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 16:55:59 2016 -0500
+
+    Create test file server
+
+ server/testworld.json | 297 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 297 insertions(+)
+
+commit c479f8fc2939a7931c37950ec2b91eee7ca2737b
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 16:46:55 2016 -0500
+
+    working world
+
+ client/testworld.json | 299 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 299 insertions(+)
+
+commit 3bb533265415bbbe6e1b072a51fc7a1455c1054a
+Merge: 250d6c0 8071705
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-3568.eduroam.cornell.edu>
+Date:   Sun Dec 4 15:39:03 2016 -0500
+
+    update shell to master but didnt merge shell in tho
+
+commit 8071705a12590462c01b69d5a1738d7e219c05d4
+Merge: 752d305 6825cee
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 15:33:55 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 752d3053b05ba115b76f53999c699d6332ec5f8b
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 15:33:14 2016 -0500
+
+    fixed random
+
+ server/controller.ml | 109 ++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 90 insertions(+), 19 deletions(-)
+
+commit 6e917379498ba43e91e1e6789434c3cd48527d87
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 15:31:44 2016 -0500
+
+    Basic repl integration
+
+ client/controller.mli |  2 ++
+ client/simplerepl.ml  | 18 +++++++++++-------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
+
+commit 6825cee8d22238f87f70d98782415afa4a6b4090
+Merge: afe1839 31f59ba
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 15:17:45 2016 -0500
+
+    testing
+
+commit afe1839c51788bc8371b50649758395990cfa717
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Dec 4 15:15:50 2016 -0500
+
+    testing
+
+ client/Makefile       |   6 +-
+ client/client_test.ml | 398 ++++++++++++++++++++++++++++++++++++++++----------
+ client/controller.mli |   5 +
+ 3 files changed, 331 insertions(+), 78 deletions(-)
+
+commit 31f59ba980b5ba9ccd7da9617bdd19f25adf5042
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Sun Dec 4 14:58:50 2016 -0500
+
+    updated tests
+
+ client/client_test.ml | 242 +++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 229 insertions(+), 13 deletions(-)
+
+commit 6cedb5521ba0a2657563c7d316a493a92074efff
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 14:52:39 2016 -0500
+
+    Some repl stuff again i guess
+
+ client/controller.ml  | 29 ++++++++++++++++++-----------
+ client/controller.mli |  2 +-
+ client/simplerepl.ml  | 11 ++++++++---
+ 3 files changed, 27 insertions(+), 15 deletions(-)
+
+commit b1a57bfde42d353f500a30eed64cf9ce41a9e841
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 14:34:08 2016 -0500
+
+    Small repl fix
+
+ client/simplerepl.ml | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
+
+commit 4eb521a5cd609b9245225b0d02c339b0b1b7ac9f
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 14:21:32 2016 -0500
+
+    Make simple pretty shell
+
+ client/.merlin       |   2 +-
+ client/Makefile      |   4 ++
+ client/shell.ml      |  29 +++++++------
+ client/simplerepl.ml | 120 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 140 insertions(+), 15 deletions(-)
+
+commit a8422f45767c1afdc17698d2406b78d227ee429d
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Sun Dec 4 14:07:03 2016 -0500
+
+    make test compiling fixed
+
+ client/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit bb9e24f533f3ef121f78d553b6800983a6e55e13
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Sun Dec 4 13:50:36 2016 -0500
+
+    some tests
+
+ client/client_test.ml | 180 ++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 107 insertions(+), 73 deletions(-)
+
+commit 250d6c0990488cf33332f6f7eed88d94600a6a3a
+Merge: eb3c09b f2efdae
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-3568.eduroam.cornell.edu>
+Date:   Sun Dec 4 13:49:21 2016 -0500
+
+    trying to work on shell
+
+commit 532b739d2cde71ceae42270db24e4e23c2d6af9f
+Merge: b2a5fd5 c93fde1
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 13:44:17 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit c93fde1fe402b308dda12e910c572e5ac9da92ab
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 13:43:50 2016 -0500
+
+    Up win threshold
+
+ server/controller.ml | 2 +-
+ server/model.ml      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit b2a5fd534d422c02c8606be6cb76cfe2f18e1e43
+Merge: c9b2e74 27e4f2d
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 13:43:04 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 27e4f2dfcece25a4394424badb278fcdf87b4b58
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 13:41:26 2016 -0500
+
+    Change return message of name
+
+ server/serverhttp.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 58d1a917f78cc3ae4b8955adbec0912749cbcffa
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Dec 4 13:40:09 2016 -0500
+
+    Prevent post requests from going through after game has won
+
+ server/controller.ml  | 28 +++++++++++++++++++++++++---
+ server/controller.mli |  1 +
+ server/model.ml       |  2 +-
+ server/serverhttp.ml  |  9 ++++++++-
+ 4 files changed, 35 insertions(+), 5 deletions(-)
+
+commit c9b2e74c3950d585d0a581bf1cb144393bb38591
+Merge: 81aca37 b5c5fc5
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Dec 4 13:19:36 2016 -0500
+
+    merged
+
+commit b5c5fc51bf2f4d6b92fed9ecba059b28cc56c808
+Author: liu15r <rll249@cornell.edu>
+Date:   Wed Nov 30 15:12:59 2016 -0500
+
+    testing
+
+ client/Makefile       |   7 ++-
+ client/client_test.ml | 141 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ client/controller.mli |   3 ++
+ 3 files changed, 150 insertions(+), 1 deletion(-)
+
+commit aef2d6c568cdc26961d1d79a342fd6d5aa8db859
+Author: Jane Du <zd53@cornell.edu>
+Date:   Wed Nov 30 10:47:30 2016 -0500
+
+    Block taken usernames
+
+ server/controller.ml | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+commit eb3c09bb33cd832451b52ba722ed8806e2a92368
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 21:51:59 2016 -0500
+
+    I dont know what i did
+
+ client/controller.ml | 6 ++++--
+ server/controller.ml | 8 ++++----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
+
+commit f2efdae0c18f712f1698c2d4512e39beb32dbae6
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 21:22:38 2016 -0500
+
+    Made ghostsgit add .git add .git add .git add .git add .git add .
+
+ server/controller.ml | 59 ++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 34 insertions(+), 25 deletions(-)
+
+commit f1448f1f27932d18aa3bceeff358c4afa830c0cb
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 21:08:12 2016 -0500
+
+    Tried to fix player death
+
+ server/controller.ml | 23 +++++++++++++++++++----
+ server/model.ml      | 28 +++++++++++++++++++++++++++-
+ 2 files changed, 46 insertions(+), 5 deletions(-)
+
+commit ea4a0d60ad92b98de167286487cc44be1c621474
+Merge: 6caa732 2e525bc
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-6204.eduroam.cornell.edu>
+Date:   Tue Nov 29 20:49:15 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 6caa73215aaa09bba26871f8815f5f629f71b0b3
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-6204.eduroam.cornell.edu>
+Date:   Tue Nov 29 20:49:10 2016 -0500
+
+    undo remove ai from libmap
+
+ client/controller.ml | 41 +++++++++++++++++++++++++++++++++++------
+ client/model.ml      |  2 +-
+ 2 files changed, 36 insertions(+), 7 deletions(-)
+
+commit 2e525bcb133d77eaa562c8386fe3fbda47fb0b2d
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 20:44:10 2016 -0500
+
+    Create random number generator
+
+ server/controller.ml | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+commit b7d9f2db0fc6e7fe335ce37ca08af2a1b0467b73
+Merge: c2aa247 8907f6c
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 20:23:43 2016 -0500
+
+    Fix bug with editing animals
+
+commit 8907f6c29cc17d7ed145b76d1e03cde53c76691c
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-6204.eduroam.cornell.edu>
+Date:   Tue Nov 29 20:16:39 2016 -0500
+
+    changed connection message
+
+ client/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit d5efd1385137a9ba9dc7d0f42d311a523d049434
+Merge: e419c28 bc003b1
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-6204.eduroam.cornell.edu>
+Date:   Tue Nov 29 20:12:54 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit e419c280ebf65b24ad5f6ddabd01257e4403d07a
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-6204.eduroam.cornell.edu>
+Date:   Tue Nov 29 20:12:50 2016 -0500
+
+    debugging attack ai
+
+ client/.ocamlinit    | 1 +
+ client/cli.ml        | 1 -
+ client/controller.ml | 5 ++++-
+ server/model.ml      | 6 ++----
+ 4 files changed, 7 insertions(+), 6 deletions(-)
+
+commit c2aa2479dd1b87a02b2ef0540e721886820801c2
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 20:11:53 2016 -0500
+
+    Stop change from removing item before adding it back
+
+ server/model.ml | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+commit bc003b11dfac8db5c339c0fbbd80cd7a556bebb0
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 19:45:14 2016 -0500
+
+    Edit beast id's
+
+ server/model.ml | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+commit 4b61c0b72743eb56240879605144335b647293a5
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 17:47:17 2016 -0500
+
+    client asks for ip
+
+ client/clienthttp.ml  | 21 +++++++++++----------
+ client/clienthttp.mli |  6 +++---
+ client/controller.ml  | 26 +++++++++++++++++---------
+ client/main.ml        |  7 +++----
+ 4 files changed, 34 insertions(+), 26 deletions(-)
+
+commit 248b03d6f8d8715e3fb81668a21f3d86c17e11ac
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 17:12:30 2016 -0500
+
+    fixed model inconsistency between client and server
+
+ client/controller.ml  | 11 +++++++----
+ server/model.ml       | 10 +++++-----
+ worlds/fourrooms.json | 12 ++++++++++--
+ 3 files changed, 22 insertions(+), 11 deletions(-)
+
+commit 978f5d76038d184d4ac103cde7e76eb49a81a961
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 16:18:25 2016 -0500
+
+    trying to solve merge conflict
+
+ client/controller.ml | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+commit 5783b84f17cbaaa4e437ac5477f996b5ffbbad8a
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 16:10:44 2016 -0500
+
+    changed localhost to number
+
+ client/clienthttp.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit f194688eadfd9d68ef066de7a0798875c8e59a43
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 16:05:52 2016 -0500
+
+    tryign to compile new changes
+
+ client/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 3236cbe4487c2c537d98b77263ecbfede1a28a67
+Merge: 0cddda0 bb17d78
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 16:00:08 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 0cddda009f6cfaf27c3c63009300cf6a5b61745c
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 16:00:03 2016 -0500
+
+    merge elle to master
+
+ client/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit d9e6ec5c658583367bfaf0cfe32659ffd6661c51
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 15:50:23 2016 -0500
+
+    fixed most of client commands bug
+
+ client/controller.ml | 26 +++++++++++++++++++-------
+ client/main.ml       |  4 +++-
+ client/model.ml      | 38 +++++++++++++++++++++-----------------
+ 3 files changed, 43 insertions(+), 25 deletions(-)
+
+commit bb17d785a699b1349739bdc4eb5920dc635a5a22
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 29 11:44:24 2016 -0500
+
+    Fix for poor jane on Linux
+
+ client/clienthttp.ml | 6 +++---
+ client/controller.ml | 7 +++++--
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+commit 39e039cf0410a8865b49c87d841f834e53a82d5a
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 09:51:08 2016 -0500
+
+    fixed spell and take
+
+ client/controller.ml | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
+
+commit 9d7e5570fc7b8ab951add6505eba8128dc57231e
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 09:27:57 2016 -0500
+
+    add hp after item name when printed
+
+ client/controller.ml | 31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
+
+commit b2179cc39bafeeac8b28a6d464a2ab43d30993f7
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 03:52:17 2016 -0500
+
+    nicer response for client to cli
+
+ client/controller.ml | 165 +++++++++++++++++++++++++++++++++++----------------
+ client/model.ml      |   2 +-
+ 2 files changed, 116 insertions(+), 51 deletions(-)
+
+commit aa3d569aa03c7606828d090fd29820c17edffbdb
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 02:25:43 2016 -0500
+
+    fix removing ai from libmap
+
+ client/model.ml | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+commit be8910f8f75f84d769cccea456870b532fa6de1f
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 02:16:34 2016 -0500
+
+    fixed incorrect command catch
+
+ client/controller.ml | 20 +++++++++++++-------
+ client/model.ml      |  8 +-------
+ 2 files changed, 14 insertions(+), 14 deletions(-)
+
+commit 88b95842e9a4658803a6b9ff4e13d4903bbb7dde
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 01:11:34 2016 -0500
+
+    fixed apply diff can use log in now
+
+ client/model.ml  | 19 +++++++++++--------
+ client/model.mli |  9 +++++++++
+ 2 files changed, 20 insertions(+), 8 deletions(-)
+
+commit 7500b1774f86075a7cb9b42d096dc7fe3851e45c
+Merge: 72d04b1 9f93a65
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 00:33:01 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 72d04b10365e08ad6f8fa5c48b6acf25d6baacdb
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 29 00:32:54 2016 -0500
+
+    implemented print rooms
+
+ client/model.ml  | 41 ++++++++++++++++++-----------------------
+ client/model.mli |  7 +++++++
+ 2 files changed, 25 insertions(+), 23 deletions(-)
+
+commit 9f93a65d6764d074891137bed0912f15517aa542
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 23:40:15 2016 -0500
+
+    Hotfix for illegal cid's
+
+ server/controller.ml | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+commit 26d2360eea202ecbfe4be78509f9ce52474c5ae9
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 23:29:57 2016 -0500
+
+    A few more debugging printouts
+
+ server/controller.ml | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+commit 28570cf7b6be5431965b54c7e4a56bfaacc3853e
+Merge: 45fe256 e7f5292
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Mon Nov 28 22:46:43 2016 -0500
+
+    merge master
+
+commit 45fe2564ad6c26479d0711ee441323b1e5555c01
+Merge: d958117 631977c
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Mon Nov 28 22:45:32 2016 -0500
+
+    merge master
+
+commit e7f529284c5f2f418156419a4cfc52b65ad28717
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 22:45:04 2016 -0500
+
+    Fix another parentheses oops i should check my work
+
+ client/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 631977cf2420dd85997b5a3e3173d305e4035ef0
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 22:44:15 2016 -0500
+
+    Make client build
+
+ client/controller.ml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit d9581171fe3d3b879dc783681525d7f1778c39c5
+Merge: a0985b5 a2d26ed
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Mon Nov 28 22:44:08 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit a0985b5aa2cdee7f5cce727e617c1f031f5863b7
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Mon Nov 28 22:44:02 2016 -0500
+
+    fixed client commands
+
+ client/controller.ml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit a2d26edfc3a3355287d2218980677bd008da8910
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Mon Nov 28 21:10:04 2016 -0500
+
+    target lowercase
+
+ client/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit f68c7fd84557250496f7d33dd69462518bcc6d45
+Merge: 9f44170 23ac023
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 21:08:22 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 9f4417067eb72210a6adccb602fdee2050304d9d
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 21:08:19 2016 -0500
+
+    merge liu
+
+ client/controller.ml | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+commit 23ac02390d3cf9b777e8db0b0426d8c3f9b7083e
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Mon Nov 28 21:08:02 2016 -0500
+
+    added print check
+
+ client/controller.ml | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 213b4bf86b7a1349a1f935b8cb4c57f6b30e7f20
+Merge: 125c994 631338c
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 21:05:44 2016 -0500
+
+    merge liu to master
+
+commit 125c9944bad55ce943b26a4d9c06947d32566d25
+Merge: 044774f 8915c1d
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 21:00:57 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 044774fa505cbfe4b8cc3b60dbd673ba0f02a987
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 21:00:52 2016 -0500
+
+    fixing spell
+
+ client/controller.ml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit 8915c1d2aafcfc56167dade611b14e4a8bfcf6c3
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Mon Nov 28 20:51:49 2016 -0500
+
+    jcheck
+
+ client/controller.ml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit e2baf97cb633176eee463f0a30ff669f61578e43
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 20:49:20 2016 -0500
+
+    fixing drink
+
+ client/controller.ml | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+commit cf93876d69c8164ed4c6cbac3a656c24047dfc2c
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 20:40:20 2016 -0500
+
+    add dim_x dim_y
+
+ client/controller.ml | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 265e138b099ee7435cdc24d1932170c817889f67
+Merge: 89e74a2 6addcf7
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 20:38:25 2016 -0500
+
+    merged elle to master
+
+commit 89e74a28ff32c722eca6da9245b6583b2974f92d
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-1261.eduroam.cornell.edu>
+Date:   Mon Nov 28 20:36:58 2016 -0500
+
+    fixed inv yay
+
+ client/cli.ml        | 21 ++++++-------
+ client/clienthttp.ml |  6 ++--
+ client/controller.ml | 87 ++++++++++++++++++++++++++--------------------------
+ 3 files changed, 57 insertions(+), 57 deletions(-)
+
+commit 6addcf751f34d5540b4fadcdf5113287c6983841
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Mon Nov 28 20:26:27 2016 -0500
+
+    targets for drinking and spells
+
+ client/controller.ml | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit c5acfeef62991ea9ee06f97dd58f3a8ec8a5e7ae
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Mon Nov 28 20:25:07 2016 -0500
+
+    targets for drinking and spells
+
+ client/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit fdd7326a040229a501467977e21743d5359bbd5e
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 20:21:33 2016 -0500
+
+    Add police killing
+
+ server/controller.ml | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+commit 631338ca9814079589499c4da3b08cc1af2fee0a
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 20:12:50 2016 -0500
+
+    wrapping
+
+ client/controller.ml   | 18 +++++++++++-------
+ client/test4rooms.json | 26 ++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 7 deletions(-)
+
+commit ad29acb566410975f8c35e28fc1b9dc67fe950f3
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:59:00 2016 -0500
+
+    localhost
+
+ client/clienthttp.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit c8e02b2636e9f3e99f1ba11644cbc3a1abba8387
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:49:48 2016 -0500
+
+    world wrapping
+
+ client/controller.ml | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+commit 220f40d3dd40dcfb3ae334d9362388f38033f9db
+Merge: b2f4648 b161f8d
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 19:34:40 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit b2f46480f8dca445391e3043468f1224650c3f8d
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 19:34:38 2016 -0500
+
+    Add beast testing
+
+ server/controller.ml |  8 ++------
+ server/model.ml      | 24 +++++++++++++++++++++---
+ 2 files changed, 23 insertions(+), 9 deletions(-)
+
+commit b161f8d850ad8b315f37489805d0423ab2869ba4
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:33:38 2016 -0500
+
+    cli
+
+ client/cli.ml | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 339a83783eaa05e2484b18dd63579d2c6fb28354
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:32:47 2016 -0500
+
+    controller client
+
+ client/controller.mli | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 57bf6685286108eeb602f68318d0f26b102807b6
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:32:00 2016 -0500
+
+    printcheck added for controller
+
+ client/controller.ml | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit bc93248033c5a5544c01fe8e03e71afa625e3690
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:29:14 2016 -0500
+
+    worlds
+
+ client/fourrooms.json | 24 +++++++++++++
+ client/world01.json   | 20 +++++++++++
+ client/world02.json   | 95 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 139 insertions(+)
+
+commit d6587e27ddaf2fad354621572aa57ccb3ad77b34
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 19:28:19 2016 -0500
+
+    cli and controller edits
+
+ client/cli.ml        | 73 +++++++++++++++++++++++++++++++---------------------
+ client/cli.mli       |  8 +-----
+ client/controller.ml | 15 +++++++++++
+ 3 files changed, 60 insertions(+), 36 deletions(-)
+
+commit dc7dacae956ad651a0088b6b6372d9f98564a8cc
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 18:57:20 2016 -0500
+
+    Change server logs
+
+ server/controller.ml | 4 +++-
+ server/model.ml      | 7 ++-----
+ server/serverhttp.ml | 4 ++--
+ 3 files changed, 7 insertions(+), 8 deletions(-)
+
+commit 82b0cf31c4f17d991c3370fce82842cb9714e321
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 17:22:30 2016 -0500
+
+    Comment out a line that makes life very difficult for the Ubuntu user. File finding difficulties~
+
+ client/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 702d5b0c9d1ec0c4b135a0f97fc9dc689038858c
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 17:21:44 2016 -0500
+
+    TOOK OUT random spawn for now since segfault
+
+ server/controller.ml  | 100 ++++++++++++++++++++++++++++++++++++++++++--------
+ server/controller.mli |   3 ++
+ server/model.ml       |  31 ++++++++++------
+ server/model.mli      |   2 +
+ server/serverhttp.ml  |   8 +++-
+ 5 files changed, 115 insertions(+), 29 deletions(-)
+
+commit 81aca3714a0f7e8ff1e40da6fe0e43edd4acab27
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Mon Nov 28 16:33:04 2016 -0500
+
+    beast killing
+
+ server/controller.ml | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 54 insertions(+), 1 deletion(-)
+
+commit b53f12ea74ad3605beb8b111cf00a3fe661432a8
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 28 15:51:10 2016 -0500
+
+    Addding item to room fix
+
+ client/clienthttp.ml |  6 +++---
+ server/controller.ml | 13 ++++++++++++-
+ 2 files changed, 15 insertions(+), 4 deletions(-)
+
+commit 647b713b9f8298ba126d05ce921381aad3512664
+Author: Paviya Tojaroon <EllesMacbook@dhcp-rhodes-958.eduroam.cornell.edu>
+Date:   Mon Nov 28 15:48:48 2016 -0500
+
+    fixed drop
+
+ client/controller.ml | 9 ++++++---
+ server/controller.ml | 1 +
+ server/serverhttp.ml | 4 ++--
+ 3 files changed, 9 insertions(+), 5 deletions(-)
+
+commit 7ecfae93dd2b5ff97132454165e138766be7c18d
+Merge: e5ee285 b7f10de
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Mon Nov 28 15:23:00 2016 -0500
+
+    u/pt335/Fantastic
+
+commit b7f10de2dd3685b0a7636e556ee21fdc2e4bd9e4
+Author: Paviya Tojaroon <EllesMacbook@dhcp-rhodes-958.eduroam.cornell.edu>
+Date:   Mon Nov 28 15:22:24 2016 -0500
+
+    fixed take command
+
+ client/controller.ml | 18 +++++++++-------
+ client/model.ml      | 33 ++++++++++++++++++++++++++++
+ client/model.mli     |  2 ++
+ client/world01.json  | 19 ----------------
+ client/world02.json  | 61 ----------------------------------------------------
+ worlds/world01.json  | 19 ++++++++++++++++
+ worlds/world02.json  | 61 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 125 insertions(+), 88 deletions(-)
+
+commit 4c8fe95b978821e05f5777b7edff66108dc4d6ac
+Author: Paviya Tojaroon <EllesMacbook@dhcp-rhodes-958.eduroam.cornell.edu>
+Date:   Mon Nov 28 14:56:43 2016 -0500
+
+    still trying to debug client
+
+ Makefile             | 1 -
+ client/.ocamlinit    | 2 ++
+ client/Makefile      | 2 +-
+ client/cli.ml        | 9 ++++-----
+ client/clienthttp.ml | 1 -
+ 5 files changed, 7 insertions(+), 8 deletions(-)
+
+commit e5ee28503c12e0f7749af751b9c207f7c706f790
+Merge: 682e8b0 8fe6971
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Mon Nov 28 14:46:43 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 54762258b73336a8f42b3478d9199cc55d659eb1
+Merge: 8fe6971 b61f4fe
+Author: Paviya Tojaroon <EllesMacbook@dhcp-uris-3595.eduroam.cornell.edu>
+Date:   Mon Nov 28 14:14:01 2016 -0500
+
+    Merge remote-tracking branch 'origin/Rebecca'
+
+commit 8fe6971f3e2f6c54c8db4bcc910e70aaf07d2214
+Author: Paviya Tojaroon <EllesMacbook@dhcp-uris-3595.eduroam.cornell.edu>
+Date:   Mon Nov 28 14:13:34 2016 -0500
+
+    still debuggin cli
+
+ client/clienthttp.ml | 1 +
+ server/controller.ml | 1 +
+ 2 files changed, 2 insertions(+)
+
+commit b61f4fe916dfb1d7b5bc4be6616f61465f67b57b
+Author: liu15r <rll249@cornell.edu>
+Date:   Mon Nov 28 12:29:24 2016 -0500
+
+    added spell targets
+
+ client/cli.ml        | 12 ++++++++++--
+ client/cli.mli       |  2 +-
+ client/controller.ml |  9 ++++++---
+ 3 files changed, 17 insertions(+), 6 deletions(-)
+
+commit 4038516fffb6bd2ef96b4807e5815e269b81c140
+Author: Paviya Tojaroon <EllesMacbook@dhcp-hol-4570.eduroam.cornell.edu>
+Date:   Mon Nov 28 11:51:16 2016 -0500
+
+    tryign to match with Janes
+
+ client/controller.ml | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+commit 9a2fa23fe37b863f30e40524fba7ab17b4bb8c77
+Author: Paviya Tojaroon <EllesMacbook@dhcp-hol-4570.eduroam.cornell.edu>
+Date:   Mon Nov 28 11:32:06 2016 -0500
+
+    client deleted loop
+
+ client/controller.ml  | 8 ++++----
+ server/model.ml       | 2 +-
+ worlds/fourrooms.json | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+commit 07a1fecc37c7c73d5ac47de0940cb9cc8f65313f
+Author: Paviya Tojaroon <EllesMacbook@dhcp-hol-4570.eduroam.cornell.edu>
+Date:   Mon Nov 28 11:16:33 2016 -0500
+
+    fixed bugs
+
+ client/controller.ml | 1 +
+ client/model.ml      | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+commit f8ebd2bf0201aeda2f4dc159750a542dd77e0b3a
+Author: Paviya Tojaroon <EllesMacbook@dhcp-hol-4570.eduroam.cornell.edu>
+Date:   Mon Nov 28 10:04:45 2016 -0500
+
+    add world files and fixed client bugs
+
+ Makefile              |   4 +-
+ client/Makefile       |   7 +-
+ client/cli.ml         |  46 ++++++-------
+ client/cli.mli        |   3 -
+ client/controller.ml  | 185 ++++++++++++++++++++++++++++++++------------------
+ client/model.mli      |   2 -
+ server/controller.ml  |   8 +--
+ worlds/fourrooms.json |  24 +++++++
+ worlds/oneroom.json   |  19 ++++++
+ 9 files changed, 191 insertions(+), 107 deletions(-)
+
+commit 016362cf4594a2655a1b11329136ca4afe6019fa
+Author: liu15r <rll249@cornell.edu>
+Date:   Sun Nov 27 22:34:06 2016 -0500
+
+    world jsons
+
+ client/world01.json | 19 +++++++++++++++++
+ client/world02.json | 61 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+)
+
+commit 245b157f3ab1c297397c553784bb9fd26f87dae9
+Merge: 4207247 b703264
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Sun Nov 27 21:41:41 2016 -0500
+
+    merge elle to master
+
+commit b7032642ac5c94df75b3c13fa41980d868ae82b9
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Sun Nov 27 21:16:00 2016 -0500
+
+    changed server to new_x
+
+ server/controller.ml | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+commit 42072473d77d54187056f1d9721343e2bf85cbe7
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Nov 27 20:40:00 2016 -0500
+
+    Fix json parsing for elle'stypo lelelelelelelelelllllllllll
+
+ server/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 7d541caeada7806cfcf8440e097a920cc37a7e89
+Merge: d613c44 c85e44e
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Sun Nov 27 20:25:56 2016 -0500
+
+    merge master to elle
+
+commit d613c44e1b7ff57493bad1be405d30a03815641b
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Sun Nov 27 20:24:46 2016 -0500
+
+    debugging move north
+
+ server/.ocamlinit     |  3 ---
+ server/model.ml       | 16 +++++++++-------
+ server/serverhttp.ml  |  2 +-
+ server/serverhttp.mli |  2 ++
+ 4 files changed, 12 insertions(+), 11 deletions(-)
+
+commit cf31b50444813e40dbd30a810d074141f86c5d45
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Sun Nov 27 20:24:04 2016 -0500
+
+    debugging client move north
+
+ client/clienthttp.ml |  6 ++---
+ client/controller.ml | 62 ++++++++++++++++++++++++----------------------------
+ client/model.ml      | 16 ++++++++------
+ 3 files changed, 40 insertions(+), 44 deletions(-)
+
+commit c85e44e377622ae5191783ce8bbb22ec8d425fd7
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Nov 27 19:37:30 2016 -0500
+
+    Make get request return message clearer
+
+ server/controller.ml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit c290de3a85e6b86f064108709906d8f47c00205d
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Nov 27 19:32:39 2016 -0500
+
+    More server log changes
+
+ server/controller.ml |  8 ++++----
+ server/model.ml      | 12 ++++++------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+commit 996b26a9416105024f5c4cdf4eeb50c8d8bb8945
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Nov 27 19:28:23 2016 -0500
+
+    Change server printout
+
+ server/serverhttp.ml | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+commit 9a437f55d6a0452ed6ed0461df968d77c8afcd60
+Merge: 35c8c01 0497efa
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sun Nov 27 01:13:12 2016 -0500
+
+    Merge branch 'Rebecca' into elle
+
+commit 35c8c019be641bcac8677793be7847836a8ba7ed
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sun Nov 27 01:12:17 2016 -0500
+
+    merge rebecca to elle
+
+ client/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 697bdb5adb76eefb33952dddce87af14438205c4
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sun Nov 27 01:08:53 2016 -0500
+
+    added quit
+
+ client/controller.ml | 10 ++++++++--
+ client/model.ml      |  2 +-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+commit 0497efad557d82b97659d869dbca75ba6ff5d5e7
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 23:54:05 2016 -0500
+
+    edited controller
+
+ client/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit a8353ec290b15f7ca5c29c9241a987dc65b83569
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 23:51:53 2016 -0500
+
+    world parsing
+
+ client/controller.ml | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 54 insertions(+), 2 deletions(-)
+
+commit 9bc034d586b09ec1d0c9af9f6c371ea81b70948e
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 23:09:03 2016 -0500
+
+    Implement quit
+
+ server/controller.ml |  9 ++++++---
+ server/serverhttp.ml | 11 ++++++++++-
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+commit c33481eff87bbd40836806a3b08ff1f47ed93020
+Merge: 30d4e25 1ece0d8
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 22:41:05 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit 30d4e25dbc4b25a9cb76df7f314f66454367f7c4
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 22:40:22 2016 -0500
+
+    Add react scoring
+
+ server/controller.ml | 88 +++++++++++++++++++++++++++++++++++++++++++++++-----
+ server/serverhttp.ml |  3 +-
+ 2 files changed, 82 insertions(+), 9 deletions(-)
+
+commit ef3f0002a7f41d704177c516f796eafc8e7bf57b
+Merge: b71e903 1ece0d8
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 21:46:58 2016 -0500
+
+    fix merge
+
+commit b71e903883c00be7d007cac2e592d07101d3d459
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 21:41:00 2016 -0500
+
+    ocamlinit
+
+ client/.ocamlinit | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 42d26d8d9bafe54f7aa200a6c0468daafaf9017f
+Merge: 200f40c 724ea23
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 21:40:27 2016 -0500
+
+    fixed merge errors
+
+commit 200f40c22e9d4501f0e0cb969452d5b5a0562227
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 21:26:20 2016 -0500
+
+    cli model
+
+ client/cli.ml   | 12 ++++++------
+ client/model.ml | 37 +++++++++++++++++++++----------------
+ 2 files changed, 27 insertions(+), 22 deletions(-)
+
+commit faafad7d22bb419a2438becd23643d0481a61e98
+Author: liu15r <rll249@cornell.edu>
+Date:   Sat Nov 26 21:23:40 2016 -0500
+
+    lots of stuff
+
+ client/clienthttp.ml  |  18 ++-
+ client/clienthttp.mli |   7 +-
+ client/controller.ml  | 302 +++++++++++++++++++++++++++++++-------------------
+ client/controller.mli |  20 +++-
+ client/model.mli      |   3 +-
+ 5 files changed, 228 insertions(+), 122 deletions(-)
+
+commit 1ece0d8ce2d8056a78d2986ba054c0e6f6ebc63b
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 21:20:30 2016 -0500
+
+    debug cli
+
+ server/controller.ml | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit 60ab1800f7bf981d5192c7f47b743eed0267767a
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 21:19:44 2016 -0500
+
+    debugging client
+
+ client/controller.ml | 3 +--
+ client/model.ml      | 2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+commit 38da0724e1f795a7aa2b8b0be249f4a69c054067
+Merge: 2088d0a bb2275e
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 20:55:39 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 2088d0af57610b502412aa3193f24d7714462b4d
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 20:55:31 2016 -0500
+
+    debuggin repl
+
+ client/.ocamlinit    |  4 +--
+ client/cli.ml        |  4 +--
+ client/controller.ml | 74 ++++++++++++++++++++++++++++------------------------
+ client/model.ml      |  2 +-
+ 4 files changed, 45 insertions(+), 39 deletions(-)
+
+commit bb2275eab390e97114cb886b9d0cce2cbdf69759
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 20:55:15 2016 -0500
+
+    Improve error printing in server
+
+ server/serverhttp.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit f3ef138e2020c2585229a03b61f18e6cd2ec4b3e
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 19:49:10 2016 -0500
+
+    Resolve mli controller issues
+
+ server/controller.mli | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit ce6c4c75a4c3a4c03668ed522f87c24fe5fbe5dd
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 19:44:06 2016 -0500
+
+    Clean up controller exceptions
+
+ server/controller.ml | 158 ++++++++++++++++++++++-----------------------------
+ 1 file changed, 68 insertions(+), 90 deletions(-)
+
+commit 682e8b0590f8b1f608d8131692c09440e4475694
+Merge: c9c5b04 7af56bc
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sat Nov 26 18:53:13 2016 -0500
+
+    Merge branch 'wed-server' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 7af56bc084c166859a8247ebe5e8b548f016b5f8
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 18:52:01 2016 -0500
+
+    Add cmdtype to react sig
+
+ server/controller.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 4404a5b62fb0712d13d0d15e9604129300f120f1
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 18:01:47 2016 -0500
+
+    Fix one raise error that was misplaced for illegal client
+
+ server/serverhttp.ml | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit 8c89af54e882c4925d0b5b4598ec9a42f666b4ce
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 17:56:59 2016 -0500
+
+    remove unneeded modules
+
+ server/concurrent.ml  | 51 ---------------------------------------------------
+ server/concurrent.mli |  7 -------
+ 2 files changed, 58 deletions(-)
+
+commit 99413f0931c37c8d0c8dd58561e1dcf2bf7e890b
+Merge: edb1988 13e4a52
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 17:56:22 2016 -0500
+
+    Merge branch 'wed-server'
+
+commit 13e4a525ca33f2cb7c5c8df8578452b01c2e1cff
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 17:55:24 2016 -0500
+
+    diffsl ol
+
+ server/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 2ba03c4cdf28ebda42039044603544f09b2bcdcb
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 17:42:50 2016 -0500
+
+    Just for you, Elle <3
+
+ server/Makefile      | 3 +++
+ server/controller.ml | 6 ++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+commit edb198883e0ac55daf81cdfe4f138f4eb71b5379
+Merge: 624dc2e 114577d
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 17:40:42 2016 -0500
+
+    merged wed-server to master
+
+commit 624dc2e5ade829b1a817f2a6b8c6020f0e0c409c
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 17:38:04 2016 -0500
+
+    testing client
+
+ server/model.ml       | 2 +-
+ server/serverhttp.mli | 2 --
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+commit 4dc83ea61cc00a361f4d799b3e06ee5de1b8cf26
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 17:36:54 2016 -0500
+
+    testing client
+
+ client/.ocamlinit    |  3 +++
+ client/clienthttp.ml | 12 +++++-------
+ client/controller.ml |  6 +++---
+ 3 files changed, 11 insertions(+), 10 deletions(-)
+
+commit 114577d2073d77d8c6558f74581a4d5537229a6d
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 17:35:44 2016 -0500
+
+    Fix diffs to diff in return body format
+
+ server/controller.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit fefd264fcc7df50dc3813af5b2e27f2c04e82f36
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 16:58:12 2016 -0500
+
+    add get request in the background
+
+ client/clienthttp.ml  |   6 +--
+ client/clienthttp.mli |   6 +--
+ client/concurrent.ml  |  51 --------------------
+ client/concurrent.mli |  12 -----
+ client/controller.ml  |  70 +++++++++++++++++++---------
+ client/controller.mli |   2 +-
+ client/model.ml       | 125 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ client/model.mli      |  14 ++++++
+ 8 files changed, 193 insertions(+), 93 deletions(-)
+
+commit bc1bd0ea02621454e524cf46e6e01c920365afaa
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 16:29:49 2016 -0500
+
+    Set up error ohandling
+
+ server/serverhttp.ml | 82 +++++++++++++++++++++++++++-------------------------
+ 1 file changed, 42 insertions(+), 40 deletions(-)
+
+commit 6f22167d17270e3fb8b2b4be9665d760cfa602fe
+Merge: b832a2d 09f03ac
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 16:00:07 2016 -0500
+
+    Merge conflict in serverhttp start
+
+commit b832a2df8e8fd6c2a990360b5247a7185555313b
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 15:59:05 2016 -0500
+
+    Repair json returns to have diff at front
+
+ server/controller.ml  | 62 +++++++++++++++++++++++++++++----------------------
+ server/serverhttp.ml  |  4 ++--
+ server/serverhttp.mli |  6 +++++
+ 3 files changed, 43 insertions(+), 29 deletions(-)
+
+commit 892f1aec9fa97bd32c11181570dd45dcf967a1a9
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 15:40:49 2016 -0500
+
+    Clean up server
+
+ server/serverhttp.ml  | 116 +++++++++++++++++++-------------------------------
+ server/serverhttp.mli |  15 -------
+ 2 files changed, 44 insertions(+), 87 deletions(-)
+
+commit 09f03acd353f0877e4417d871a08af16dd3392a5
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 15:40:49 2016 -0500
+
+    Clean up server
+
+ server/serverhttp.ml  | 116 +++++++++++++++++++-------------------------------
+ server/serverhttp.mli |  15 -------
+ 2 files changed, 44 insertions(+), 87 deletions(-)
+
+commit 3ffa51429e3ef3e5e2cb7a972af1bcff570cd0e0
+Merge: 0149783 a46cac6
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 15:15:11 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 014978385d1c34b1c8beed1cf7d127fb85bf54fc
+Merge: 589f65b f858949
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 15:15:00 2016 -0500
+
+    merged elle to master
+
+commit f85894943a5cbb4658e949e2c77f699726bebc57
+Merge: 724ea23 8378a91
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Sat Nov 26 15:12:32 2016 -0500
+
+    finished basic repl with post request
+
+commit a46cac6b4d5b824546ecdb182a52a973e55735e5
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 14:57:45 2016 -0500
+
+    Fix potion consumption
+
+ server/controller.ml | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit c9c5b040c221a5a4960947deed6fd421c44f3474
+Merge: 1f8305c 6727827
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sat Nov 26 14:17:46 2016 -0500
+
+    conflicts solved
+
+commit 6727827767f71aa953a1ce6cbd51441eec108d14
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 14:09:24 2016 -0500
+
+    Fix inventory drop with potion drining and spell casting
+
+ server/controller.ml | 20 +++++++++++++-------
+ server/model.ml      |  4 ++++
+ 2 files changed, 17 insertions(+), 7 deletions(-)
+
+commit 57d63e0cc3c10d94dfbe220fd9e4eac9bddc7a77
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 13:49:28 2016 -0500
+
+    Fix diff flushing in pushClientUpdate and add comments
+
+ server/controller.ml | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
+
+commit 3c1becc0f3d63936974e479a0a35651f201611ac
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 13:02:58 2016 -0500
+
+    Do not call react when a new player enters
+
+ server/controller.ml | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+commit bc8af2f05c8144bba841bc7f7b29fcc47d6a87e4
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 12:30:19 2016 -0500
+
+    Probably tested use and take, but honestly it was 5 am and I'm not sure what I was doing
+
+ .merlin              |  5 +++++
+ Makefile             | 10 +++++++---
+ example/.merlin      |  2 +-
+ server/controller.ml | 35 +++++++++++++++++++++++------------
+ server/model.ml      | 34 +++++++++++++++++++++++++++-------
+ server/serverhttp.ml | 16 ++++++++++++----
+ 6 files changed, 75 insertions(+), 27 deletions(-)
+
+commit b75257343f50bfe35a37c7b935b673dd13aee164
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 12:27:31 2016 -0500
+
+    Create concurrency modules with lwt condition vars
+
+ concurrent.ml  | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ concurrent.mli |  7 +++++++
+ 2 files changed, 58 insertions(+)
+
+commit 589f65b388deb584dbcfa94f0282ca56270f23a1
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sat Nov 26 01:27:03 2016 -0500
+
+    Complete rolling login. Login, update, and move are complete.
+
+ server/.ocamlinit     |  61 +++++++++++---
+ server/controller.ml  | 221 ++++++++++++++++++++++++++++++++------------------
+ server/controller.mli |   3 +
+ server/model.ml       |  91 +++++++++++++--------
+ server/model.mli      |   8 ++
+ server/serverhttp.ml  |  17 ++--
+ 6 files changed, 265 insertions(+), 136 deletions(-)
+
+commit 903fc5d2d9a4aa23ce430fce2547783f02586d32
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 21:58:50 2016 -0500
+
+    Fix some libmap references
+
+ server/controller.ml | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+commit 3c63dbddfa8b2d930e61141c38cc5b53344b4d38
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 21:55:52 2016 -0500
+
+    Add item unwrap, Chau's fix
+
+ server/concurrent.mli |  4 +--
+ server/controller.ml  | 97 +++++++++++++++++++++++++++------------------------
+ server/model.ml       | 82 ++++++++++++++++++++++++++++++++++++++++++-
+ server/model.mli      |  3 ++
+ server/serverhttp.ml  | 17 +++++----
+ 5 files changed, 146 insertions(+), 57 deletions(-)
+
+commit 509e44793a03d5b5f7e5a7b8c2643e43792d2164
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 14:47:53 2016 -0500
+
+    Add scaffolding to handle regular requests
+
+ server/serverhttp.ml | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
+
+commit c68a912823ff9fc26542e74ec032917d9747d43f
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 14:44:16 2016 -0500
+
+    Create hook for world reaction code
+
+ server/.merlin        |   3 +-
+ server/Makefile       |   4 +-
+ server/_tags          |   1 +
+ server/controller.ml  |  67 ++++++++++++++++++++++++----
+ server/controller.mli |   4 ++
+ server/model.ml       |  27 ++++++-----
+ server/model.mli      |   6 ++-
+ server/serverhttp.ml  | 121 +++++++++++++++++++++++++-------------------------
+ 8 files changed, 144 insertions(+), 89 deletions(-)
+
+commit 46c904dc3cbe8ea7c279b04575e495bb8bed9fd9
+Merge: 724ea23 e7fbdb8
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 13:07:21 2016 -0500
+
+    Resolve merge conflict
+
+commit e7fbdb8854e645b8dc39678ba48a2d203167bfc5
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 13:03:35 2016 -0500
+
+    Add diff list updating in serverstate
+
+ server/controller.ml | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+commit 36f04de02a3cbac8b1abb7e867081838dd34b573
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 12:53:35 2016 -0500
+
+    Implement getClientUpdate
+
+ server/controller.ml  | 26 ++++++++++++--------------
+ server/controller.mli |  7 +++----
+ 2 files changed, 15 insertions(+), 18 deletions(-)
+
+commit d577aeb1fb5d8e6bdadb65528e8e457e6fb04255
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 12:34:55 2016 -0500
+
+    Add concurrency
+
+ server/concurrent.ml  | 80 ++++++++++++++++++++-------------------------------
+ server/concurrent.mli |  8 ------
+ server/controller.ml  | 10 ++++---
+ 3 files changed, 37 insertions(+), 61 deletions(-)
+
+commit 710a70398dd638dafb15b322a2608e8da2dafbfc
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 12:18:04 2016 -0500
+
+    Begin concurrency programming
+
+ server/.merlin        |  3 ++-
+ server/.ocamlinit     | 12 +++++++++
+ server/Makefile       |  4 +--
+ server/concurrent.ml  | 69 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ server/concurrent.mli | 15 +++++++++++
+ server/controller.ml  | 37 +++++++++++++--------------
+ server/controller.mli |  4 ---
+ 7 files changed, 117 insertions(+), 27 deletions(-)
+
+commit 8378a917e9270aaabddfb5fa3677d424fe57a562
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 11:44:41 2016 -0500
+
+    stuff
+
+ client/clienthttp.ml  |  33 ++++++----------
+ client/clienthttp.mli |   5 +--
+ client/controller.ml  | 102 ++++++++++++++++++++++++++++++++++++++++++--------
+ client/controller.mli |   5 +--
+ 4 files changed, 103 insertions(+), 42 deletions(-)
+
+commit 76719d32c8c90f5cab558f6c0b52b4335f639912
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 10:47:22 2016 -0500
+
+    Resolve type checking
+
+ server/controller.ml | 117 ++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 64 insertions(+), 53 deletions(-)
+
+commit 1f8305c87f8c63c5f65eca95b4623d43bb0fe29a
+Merge: edcd149 fa3030b
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Fri Nov 25 09:50:53 2016 -0500
+
+    merged
+
+commit edcd149d9de1753128f81eaf0313f792afd791ee
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Fri Nov 25 09:40:37 2016 -0500
+
+    fixed translate
+
+ example/client_example.ml |  4 ++--
+ example/server_example.ml | 58 +++++++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 56 insertions(+), 6 deletions(-)
+
+commit fa3030b7041a7d25c1d9449293af687900ddf2b5
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 03:56:09 2016 -0500
+
+    Begin snapshot and mutexes
+
+ server/controller.ml  | 15 +++++++++------
+ server/controller.mli |  3 ---
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+commit db477bffb8ad01580ae4622e21d71f9dbb5021c5
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 03:39:48 2016 -0500
+
+    Receive response from server
+
+ server/Makefile      |  3 +++
+ server/controller.ml |  6 +++++-
+ server/model.ml      | 19 ++++++++++++++-----
+ server/serverhttp.ml | 17 +++++++++++------
+ 4 files changed, 33 insertions(+), 12 deletions(-)
+
+commit 724ea23f8b3ded79d465f730af7489fe007fef7b
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Fri Nov 25 03:21:32 2016 -0500
+
+    finished send_get/post_request methods
+
+ client/.ocamlinit     | 10 +++++-----
+ client/cli.ml         |  2 +-
+ client/clienthttp.ml  | 33 ++++++++++++---------------------
+ client/clienthttp.mli |  5 ++---
+ client/controller.ml  | 34 +++++++++++++++++++++-------------
+ client/controller.mli | 10 ++++------
+ 6 files changed, 45 insertions(+), 49 deletions(-)
+
+commit ee1eab703b6dfc6a717e0b3599cdec80a8442c5c
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 03:02:09 2016 -0500
+
+    Begin testin gserver
+
+ example/.merlin           |  3 +++
+ example/server_example.ml |  2 +-
+ server/controller.ml      |  8 +++-----
+ server/model.ml           | 19 +++++++++++++++++++
+ server/model.mli          | 19 +++++++++++++++----
+ server/serverhttp.ml      | 27 ++++++++++++++++++++-------
+ 6 files changed, 61 insertions(+), 17 deletions(-)
+
+commit 8c946b658153e52cd3f35510666291cf14b9aaa3
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 02:32:07 2016 -0500
+
+    Update model
+
+ server/model.ml | 194 +++++++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 156 insertions(+), 38 deletions(-)
+
+commit a2a97f1c861a166c81d9a7f91e640339c4ea58ea
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 02:30:05 2016 -0500
+
+    Everything compiles now
+
+ server/controller.ml  | 25 ++++++++-----------------
+ server/controller.mli |  3 +++
+ server/serverhttp.ml  |  7 +++----
+ 3 files changed, 14 insertions(+), 21 deletions(-)
+
+commit 0d37505f6c6facaaec1d1b6e185bbfb736b92851
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 02:05:12 2016 -0500
+
+    Make server compile
+
+ server/controller.ml  | 50 ++++++++++++++++++++++++++------------------------
+ server/controller.mli |  2 +-
+ server/model.ml       | 15 +++++++++------
+ server/model.mli      |  6 +++---
+ server/serverhttp.ml  |  4 ++--
+ 5 files changed, 41 insertions(+), 36 deletions(-)
+
+commit 2e168773ecf5597b705f1ef8e6518a63c66bfde9
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:59:21 2016 -0500
+
+    controller mli
+
+ client/controller.mli | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit eaaddb6cc440f9e640f1c6ab6bcfd69f4d6b9337
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:58:34 2016 -0500
+
+    controller
+
+ client/controller.ml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit e0fdb61feefe881c6b0645afe6a3b5a0ae47000c
+Merge: 89e2ece 2bdd75e
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Fri Nov 25 01:41:23 2016 -0500
+
+    merge rebecca to elle
+
+commit 89e2eceabbac8fd9c9826c8e1d04aa829b61000c
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Fri Nov 25 01:32:59 2016 -0500
+
+    trying to compile
+
+ client/cli.mli        |  2 +-
+ client/controller.ml  | 20 ++++++++++----------
+ client/controller.mli |  1 -
+ 3 files changed, 11 insertions(+), 12 deletions(-)
+
+commit 2bdd75ea71781d7ffca38bf5b3f626aafe476253
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:32:33 2016 -0500
+
+    fixed it
+
+ client/clienthttp.ml  | 2 +-
+ client/controller.ml  | 5 +++--
+ client/controller.mli | 2 +-
+ 3 files changed, 5 insertions(+), 4 deletions(-)
+
+commit 4e7f8b312e08c80a7646164516381f0ba7f2eb2e
+Merge: ab3b85b 7067a97
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:27:13 2016 -0500
+
+    more stuff
+
+commit ab3b85bd08f512615bbf87eb37a645cc962fd493
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:18:51 2016 -0500
+
+    more stuff
+
+ client/.ocamlinit     |  8 ++++++--
+ client/Makefile       |  2 +-
+ client/cli.mli        | 17 ++++++++++++++---
+ client/clienthttp.mli |  1 -
+ 4 files changed, 21 insertions(+), 7 deletions(-)
+
+commit 6ea24ca3b79fcafd8b3c1db3edeca60326f6978e
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:18:04 2016 -0500
+
+    stuff
+
+ client/controller.ml | 168 +++------------------------------------------------
+ 1 file changed, 10 insertions(+), 158 deletions(-)
+
+commit a6115692ef72ed673d5926d683e26395257adbbe
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 01:16:35 2016 -0500
+
+    stuff
+
+ client/controller.mli | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+commit 7067a97504614cba497a21560ff7b47190de5820
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Fri Nov 25 01:15:45 2016 -0500
+
+    delete jstr from send_Get_request
+
+ client/clienthttp.ml  | 4 ++--
+ client/clienthttp.mli | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 1628972117cbb97912c939fe6f77bb9a6c61a312
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Fri Nov 25 01:09:29 2016 -0500
+
+    fixed makefile
+
+ client/.ocamlinit     |  7 ++++---
+ client/Makefile       |  2 +-
+ client/cli.mli        |  2 +-
+ client/clienthttp.ml  |  4 ++--
+ client/clienthttp.mli |  2 +-
+ client/controller.ml  | 19 +++++++++----------
+ client/controller.mli | 19 +++++++++++++++----
+ 7 files changed, 33 insertions(+), 22 deletions(-)
+
+commit f39429059209872426a56a064a4c87cbc283d61f
+Author: Jane Du <zd53@cornell.edu>
+Date:   Fri Nov 25 01:09:25 2016 -0500
+
+    Fix some more controller
+
+ client/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit ccddca5ef7889658a150307c6f667af825f0e66a
+Merge: 5d146ea 26ebbf2
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 00:18:57 2016 -0500
+
+    stuff
+
+commit 5d146ea9c137973ca03dea1e907d86544395e903
+Author: liu15r <rll249@cornell.edu>
+Date:   Fri Nov 25 00:13:48 2016 -0500
+
+    stuff
+
+ client/cli.ml         |  54 +++++------
+ client/clienthttp.ml  | 131 ++++++---------------------
+ client/clienthttp.mli |  18 ++--
+ client/controller.ml  | 241 +++++++++++++++++++++++++++++++++++++-------------
+ client/controller.mli |   6 +-
+ client/model.mli      |  22 ++---
+ 6 files changed, 248 insertions(+), 224 deletions(-)
+
+commit c6834f346040fca699ca7ad49ab21c9a8ab9bdb2
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 23:35:58 2016 -0500
+
+    cleaned up merged rebecca to elle
+
+ client/cli.ml         |  6 +-----
+ client/cli.mli        | 16 +++++++++++++---
+ client/controller.ml  |  2 +-
+ client/controller.mli | 12 ++++--------
+ 4 files changed, 19 insertions(+), 17 deletions(-)
+
+commit 47b88ca897aac4cfced5a727ed617b68f71c47fb
+Merge: 26ebbf2 618aae3
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 23:20:00 2016 -0500
+
+    merged rebecca to elle
+
+commit 618aae3900c9907ff7e185010b1f4671374f88a5
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 22:37:51 2016 -0500
+
+    controller
+
+ client/controller.ml | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+commit 19dc1c3d0fca1145c45b3ae72864bd80937721c3
+Merge: a6854c5 db873fd
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 22:27:49 2016 -0500
+
+    model mli
+
+commit a6854c5039752b04cddd6815a7afc879d563b697
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 22:23:46 2016 -0500
+
+    stuff
+
+ client/cli.ml         |   7 ++-
+ client/controller.ml  |  87 +++++++++++++++-----------
+ client/controller.mli |   6 +-
+ client/model.mli      | 166 ++++++++++++++++++++++++++++++++++++++++++--------
+ 4 files changed, 203 insertions(+), 63 deletions(-)
+
+commit 26ebbf2b3aa4cafe41c177d6e7bfd0cd6270b287
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 22:22:55 2016 -0500
+
+    moved translation over to controller
+
+ client/clienthttp.ml  | 228 +++++---------------------------------------------
+ client/clienthttp.mli |  12 +--
+ client/controller.ml  | 120 +++++++++++++++++++++++++-
+ client/controller.mli |  12 ++-
+ 4 files changed, 149 insertions(+), 223 deletions(-)
+
+commit 5fe444b901c252d3215fb782ab2e5ad719a9416d
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 20:35:56 2016 -0500
+
+    add field name to player and potion in translate and apply diff
+
+ client/clienthttp.ml | 2 ++
+ client/model.ml      | 5 ++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+commit bb5875a6145ad761798693cb12c723c8775666ca
+Merge: 465a3dd 69d523d
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 20:31:01 2016 -0500
+
+    merge elle to master
+
+commit 465a3ddc0e026e808e71dcde648840ab65a58f2c
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 20:29:12 2016 -0500
+
+    fixed model.mli
+
+ client/model.mli | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 69d523de101f3620c1e2af4b89babd373ec72fa7
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 20:26:07 2016 -0500
+
+    cleaned up clienthttp and model
+
+ client/clienthttp.ml  | 40 +++++++++++++++++++++++------
+ client/clienthttp.mli | 13 ++++------
+ client/model.ml       | 70 ++++++++++++++++++++++++++++-----------------------
+ 3 files changed, 77 insertions(+), 46 deletions(-)
+
+commit db873fd9ffc6a954b872524428645362f01509e0
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Thu Nov 24 19:53:20 2016 -0500
+
+    model updated
+
+ client/model.mli | 164 ++++++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 138 insertions(+), 26 deletions(-)
+
+commit 564f604aa289bf458f35e722b6edd8aeec7fdfc4
+Author: Jane Du <zd53@cornell.edu>
+Date:   Thu Nov 24 19:40:47 2016 -0500
+
+    Merlin shtufff
+
+ .gitignore            |   3 +-
+ .merlin               |   5 +++
+ client/.merlin        |   3 ++
+ interfaces.zip        | Bin 4833 -> 0 bytes
+ server/.merlin        |   3 ++
+ server/.ocamlinit     |   7 +++-
+ server/Makefile       |   2 +-
+ server/controller.ml  |  72 ++++++++++++++++++-----------------
+ server/controller.mli |   4 +-
+ server/model.ml       |   3 +-
+ server/serverhttp.ml  | 101 ++++++++++++++++++++++++--------------------------
+ server/serverhttp.mli |   2 -
+ 12 files changed, 108 insertions(+), 97 deletions(-)
+
+commit 8e68fd0a91ca8ac06cbb1077b3dbf34a239194ae
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 19:28:00 2016 -0500
+
+    finished and tested translate to diffs
+
+ client/.ocamlinit     |  15 ++++++++
+ client/clienthttp.ml  | 104 ++++++++++++++++++++++++++++++--------------------
+ client/clienthttp.mli |   5 ++-
+ client/model.ml       |  95 ++++++++++++++++++++++++++++++---------------
+ client/model.mli      |   6 +++
+ 5 files changed, 151 insertions(+), 74 deletions(-)
+
+commit 9bc99a4339780d25120868912b78d5668b82735e
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 16:29:28 2016 -0500
+
+    controller
+
+ client/controller.ml | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
+
+commit c8e7c5c1b772825f5324a5d876ceec32a6086478
+Merge: e9bf138 92ac21c
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 16:21:41 2016 -0500
+
+    controller
+
+commit e9bf138f7b12477f73e0938b5e78aa6ee6ea5dc8
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 16:20:42 2016 -0500
+
+    cli
+
+ client/cli.ml | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+commit 856928bae07efe424fdf1f1b5ba70c6a4fe14f86
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 16:19:45 2016 -0500
+
+    clienthttp
+
+ client/clienthttp.ml | 136 ++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 103 insertions(+), 33 deletions(-)
+
+commit 282104f95b139b41705d9d84dd24127626f72d49
+Author: liu15r <rll249@cornell.edu>
+Date:   Thu Nov 24 16:19:03 2016 -0500
+
+    contr
+
+ client/controller.ml | 146 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 144 insertions(+), 2 deletions(-)
+
+commit 92ac21c6a73059aece15cddce09ff28a70d449ca
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Thu Nov 24 16:14:08 2016 -0500
+
+    updated controller.ml
+
+ client/controller.ml | 149 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 147 insertions(+), 2 deletions(-)
+
+commit d8fd338e6d2fa25847541c7ceaf5a2d9bf2c5664
+Author: Rebecca Liangyan Liu <rll249@cornell.edu>
+Date:   Thu Nov 24 16:12:44 2016 -0500
+
+    update model.ml
+
+ client/model.ml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 43fde77704633e535ba9456c9e29e7da2d3e5564
+Author: Jane Du <zd53@cornell.edu>
+Date:   Thu Nov 24 15:54:26 2016 -0500
+
+    Complete the chain
+
+ server/controller.ml | 19 ++++++++++++++-----
+ server/model.ml      | 51 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ server/serverhttp.ml | 51 ++++++++++++++++++++++++++++++++++++++-------------
+ 3 files changed, 102 insertions(+), 19 deletions(-)
+
+commit e58ee94a4b54779cf51f119ae0a296f58d703967
+Author: Jane Du <zd53@cornell.edu>
+Date:   Thu Nov 24 15:08:07 2016 -0500
+
+    Update with step validate and translation to diff
+
+ .gitignore            |   1 +
+ server/.ocamlinit     |  15 ++++++
+ server/controller.ml  | 139 ++++++++++++++++++++++++++++++++++----------------
+ server/controller.mli |   6 ++-
+ server/serverhttp.mli |   2 -
+ 5 files changed, 115 insertions(+), 48 deletions(-)
+
+commit 4e4f44087c465bf6b947637954f0068c3af85406
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Thu Nov 24 04:33:42 2016 -0500
+
+    updating model and clienthttp
+
+ client/clienthttp.ml  |  96 +++++++++++++++++++++++-----------
+ client/clienthttp.mli |  10 ++--
+ client/controller.mli |   4 +-
+ client/model.ml       | 140 +++++++++++++++++++++++++++++++++++++-------------
+ client/model.mli      |   6 ++-
+ 5 files changed, 183 insertions(+), 73 deletions(-)
+
+commit f07cd65fc610249a0f58800c4fd46c2c4ad6413f
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Wed Nov 23 18:09:57 2016 -0500
+
+    fixed server/model
+
+ server/model.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 113912391b075f746aa820ce8fda319f7ea99795
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Wed Nov 23 18:04:08 2016 -0500
+
+    new server model
+
+ server/model.ml  | 12 +++++++-----
+ server/model.mli | 16 ++++++++++------
+ 2 files changed, 17 insertions(+), 11 deletions(-)
+
+commit 42ad49bf512c1ba10381b335c417f719d996e31d
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Wed Nov 23 18:02:44 2016 -0500
+
+    new client and model (but clienthttp is not done
+
+ client/clienthttp.ml  | 29 ++++++++++++++++++++++++-----
+ client/clienthttp.mli |  7 +++++--
+ client/model.ml       | 12 +++++++-----
+ client/model.mli      |  7 ++++---
+ 4 files changed, 40 insertions(+), 15 deletions(-)
+
+commit 6b1dec0c4e25226a7e23917bc027663abcdd106e
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Wed Nov 23 14:21:24 2016 -0500
+
+    debugged apply diff change
+
+ client/model.ml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit 4fbe21cce49d8c0c5d7555d767d4c31cd0991eba
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Wed Nov 23 14:02:13 2016 -0500
+
+    finished model in client and changed server/model.mli
+
+ client/clienthttp.ml  | 126 +++++++++++++++++++++++++++++++++++---------------
+ client/clienthttp.mli |   7 ++-
+ client/model.ml       |  78 +++++++++++++++++++++++++------
+ client/model.mli      |   8 ++--
+ 4 files changed, 159 insertions(+), 60 deletions(-)
+
+commit a6d3ea5fd013cea08e7456e0e277d8a4f1a9871f
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Tue Nov 22 20:23:18 2016 -0500
+
+    working model
+
+ client/clienthttp.ml  | 20 +++++++--------
+ client/clienthttp.mli |  4 +--
+ client/model.ml       |  7 +++---
+ server/controller.ml  | 56 +++++++++++++++++++++++-------------------
+ server/model.ml       |  6 ++++-
+ server/model.mli      | 68 ++++++++++++++++++++++++++++++++++++++++++++++++---
+ server/serverhttp.ml  | 18 +++++++++++---
+ 7 files changed, 131 insertions(+), 48 deletions(-)
+
+commit 3172b167503c48b61bcc31225b4c97387639d547
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Tue Nov 22 20:03:59 2016 -0500
+
+    make model.mli compile-able
+
+ client/model.ml  |  3 ---
+ client/model.mli | 67 +++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 64 insertions(+), 6 deletions(-)
+
+commit 1918f3ffb1adef5ecbe9374a8dfd84127b0e22ae
+Merge: 836fcd9 efb3d35
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Tue Nov 22 19:22:05 2016 -0500
+
+    merge chau to elle
+
+commit efb3d35e8fb56f2cb0251236f9c956c21e11e9a9
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Tue Nov 22 19:16:21 2016 -0500
+
+    trying to create branch elle
+
+ client/model.mli | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+commit 836fcd940d2506b4fae206b217e50f8239711879
+Author: Paviya Tojaroon <EllesMacbook@Paviyas-MacBook-Pro.local>
+Date:   Tue Nov 22 19:08:25 2016 -0500
+
+    changed apply diff in model and clienthttp
+
+ client/clienthttp.ml  |  9 ++++++---
+ client/clienthttp.mli |  2 +-
+ client/model.ml       | 12 +++++++++++-
+ 3 files changed, 18 insertions(+), 5 deletions(-)
+
+commit 5fda468fff300d397c9648e244f678b793828d32
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 22 14:01:19 2016 -0500
+
+    Redesign client diff
+
+ client/model.ml  |  44 +++++++++++++++---------
+ client/model.mli | 103 +++++++++++++++++++++++++++++++++++++++++--------------
+ server/model.ml  |   6 ++--
+ server/model.mli |  92 +++++++++++++++++++++++++++++++++----------------
+ 4 files changed, 170 insertions(+), 75 deletions(-)
+
+commit 365587de547eaf0240390f77995aa28443214acc
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Tue Nov 22 13:16:11 2016 -0500
+
+    some changes
+
+ example/adv.json     | 85 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ example/oneroom.json | 20 +++++++++++++
+ example/post.ml      | 33 ++++++++++++++++++++
+ server/controller.ml | 21 +++++++++----
+ server/model.ml      | 16 +++++-----
+ 5 files changed, 160 insertions(+), 15 deletions(-)
+
+commit fafbe9010e73b12ff16a3be241e720c4212be195
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-9615.eduroam.cornell.edu>
+Date:   Tue Nov 22 03:47:28 2016 -0500
+
+    first draft clienthttp and modified model
+
+ client/clienthttp.ml  | 39 +++++++++++++++++++++------------------
+ client/clienthttp.mli | 12 ++++++++++--
+ client/model.ml       |  4 +++-
+ client/model.mli      | 44 +++++++++++++++++++++++++++++++++++++++++---
+ 4 files changed, 75 insertions(+), 24 deletions(-)
+
+commit 2562cd7ad5c3faca7d774a8fecb465fb19401675
+Merge: 869259b e5eebd9
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Mon Nov 21 20:48:16 2016 -0500
+
+    Merge remote-tracking branch 'origin/jane' into chau
+
+commit e5eebd912b9c2d0c12d410e0dc4288fdd956a570
+Merge: 0ce26cd 9455a74
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 21 17:30:12 2016 -0500
+
+    merge
+
+commit 0ce26cd047be5544bd5b250266df55e166c6220a
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 21 17:27:50 2016 -0500
+
+    Resolve merge conflict
+
+ server/changer.ml     | 11 -----------
+ server/changer.mli    |  9 ---------
+ server/controller.ml  |  1 -
+ server/controller.mli |  5 +++--
+ server/model.ml       |  1 -
+ 5 files changed, 3 insertions(+), 24 deletions(-)
+
+commit 2649eb404de3c23e0643334e965a0a9558b96c4b
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 16:24:28 2016 -0500
+
+    Preliminary changes to model
+
+ server/controller.ml  | 15 ++++++++-
+ server/model.ml       | 91 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ server/model.mli      | 40 ++++++++++++++++++++++
+ server/serverhttp.ml  | 19 +++++++----
+ server/serverhttp.mli |  2 +-
+ 5 files changed, 159 insertions(+), 8 deletions(-)
+
+commit 52f814019b4f1145fdb36e7f7f92b0f4bd589e64
+Author: liu15r <liu15r@dhcp-ccc-6255.eduroam.cornell.edu>
+Date:   Mon Nov 21 17:12:59 2016 -0500
+
+    cli.ml
+
+ client/cli.ml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 50396e3fd0de8bbc9c914e5024decd30e39fd396
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 21 17:03:13 2016 -0500
+
+    Sketchy fix
+
+ server/controller.ml |  70 +++++++++++++++++-
+ server/model.ml      | 196 ---------------------------------------------------
+ server/model.mli     |  31 --------
+ 3 files changed, 67 insertions(+), 230 deletions(-)
+
+commit 869259bee91e55bb8e27cdc4640754af9d7b765b
+Author: Paviya Tojaroon <EllesMacbook@dhcp-rhodes-1373.eduroam.cornell.edu>
+Date:   Mon Nov 21 15:30:07 2016 -0500
+
+    updated model and clienthttp
+
+ client/cli.ml               |  45 +++++-----
+ client/clienthttp.ml        |  56 ++++++++-----
+ client/clienthttp.mli       |   2 +-
+ client/model.ml             | 199 ++++++++++----------------------------------
+ client/model.mli            |   2 -
+ client/model_complicated.ml | 195 +++++++++++++++++++++++++++++++++++++++++++
+ example/Code.code_of_status |   0
+ example/Response.status     |   0
+ 8 files changed, 297 insertions(+), 202 deletions(-)
+
+commit c88665c6d5e47a8471cbd31f3b092de5a0ef8c3c
+Merge: 0ff266a 65dd9eb
+Author: liu15r <liu15r@dhcp-rhodes-1799.eduroam.cornell.edu>
+Date:   Mon Nov 21 09:56:15 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 65dd9ebdba8ea8b8c2f4656b2f87e9eaa49ab6d7
+Author: Paviya Tojaroon <EllesMacbook@dhcp-rhodes-1373.eduroam.cornell.edu>
+Date:   Mon Nov 21 09:56:06 2016 -0500
+
+    half done client diff apply
+
+ client/clienthttp.ml  | 34 ++++++++++++++++++++++++++--------
+ client/clienthttp.mli |  4 ++--
+ client/model.ml       |  2 +-
+ client/model.mli      |  2 +-
+ 4 files changed, 30 insertions(+), 12 deletions(-)
+
+commit 0ff266af28f17f574e116184056cb4f61c1996a8
+Author: liu15r <liu15r@dhcp-rhodes-1799.eduroam.cornell.edu>
+Date:   Mon Nov 21 09:43:57 2016 -0500
+
+    cli
+
+ client/cli.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 12c013d3fcdfb31a464e519ded96e4fb1016372c
+Author: liu15r <liu15r@dhcp-rhodes-1799.eduroam.cornell.edu>
+Date:   Mon Nov 21 09:41:50 2016 -0500
+
+    more cli
+
+ client/cli.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 78ee9e905d72d0dcca382a18c8adf7c3bf7f6502
+Author: liu15r <liu15r@dhcp-rhodes-1799.eduroam.cornell.edu>
+Date:   Mon Nov 21 09:37:50 2016 -0500
+
+    cli
+
+ client/cli.ml | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 77 insertions(+), 1 deletion(-)
+
+commit b5cb54db851ce7cffc347546354fad4ad6841163
+Merge: d41abad a705858
+Author: liu15r <liu15r@dhcp-rhodes-1799.eduroam.cornell.edu>
+Date:   Mon Nov 21 09:11:16 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit a70585829f71d777419a6adfaebe6a59f31f9f18
+Author: Paviya Tojaroon <EllesMacbook@dhcp-rhodes-1445.eduroam.cornell.edu>
+Date:   Thu Nov 17 11:07:45 2016 -0500
+
+    finished post request
+
+ example/client_example.ml | 5 ++++-
+ example/server_example.ml | 3 ++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+commit 59091405ede628f6d3cbc78fb9224f0eceb366de
+Merge: da4fd04 ddfe707
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Tue Nov 15 12:14:36 2016 -0500
+
+    moved diff and its methods to model in cli and ser
+
+commit da4fd04d019bc70e9cc46149a7dad8ef2c74610d
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Tue Nov 15 12:05:27 2016 -0500
+
+    undo moving diff from controllers to models
+
+ client/controller.ml  | 8 ++++++++
+ client/controller.mli | 5 +++++
+ client/model.ml       | 7 -------
+ client/model.mli      | 5 -----
+ server/controller.ml  | 7 +++++++
+ server/controller.mli | 5 +++++
+ server/model.ml       | 3 ---
+ server/model.mli      | 7 +------
+ 8 files changed, 26 insertions(+), 21 deletions(-)
+
+commit ddfe7073526747c7fa59e9c4474ebe7e16f8ed99
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 15 10:20:31 2016 -0500
+
+    Final merge
+
+ client/model.ml       | 2 --
+ server/controller.mli | 1 +
+ server/model.ml       | 6 ------
+ 3 files changed, 1 insertion(+), 8 deletions(-)
+
+commit b098d19ad0b951f0a253dd3079a17a54959909bc
+Merge: a93f7a6 32185f9
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 15 10:19:17 2016 -0500
+
+    Resolve conflict
+
+commit a93f7a6d6040f57cdd59e3271c1b1a2605332bee
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 15 10:17:16 2016 -0500
+
+    Move diff back into model
+
+ client/controller.ml  | 12 ++----------
+ client/controller.mli |  8 +-------
+ client/model.ml       |  9 +++++++++
+ client/model.mli      | 13 +++++++++++++
+ server/controller.ml  |  6 +-----
+ server/model.ml       |  8 ++++++++
+ server/model.mli      | 12 ++++++++++++
+ 7 files changed, 46 insertions(+), 22 deletions(-)
+
+commit 32185f9a2f9c910d2587040d36018d95697fb78f
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-5990.eduroam.cornell.edu>
+Date:   Tue Nov 15 09:56:00 2016 -0500
+
+    moved diff back to model client
+
+ client/controller.ml  |  8 --------
+ client/controller.mli |  5 -----
+ client/model.ml       | 19 +++++++++++++------
+ client/model.mli      |  7 ++++++-
+ 4 files changed, 19 insertions(+), 20 deletions(-)
+
+commit 643870869b123464cc9b335fcd1705259393a50e
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-5990.eduroam.cornell.edu>
+Date:   Tue Nov 15 09:54:39 2016 -0500
+
+    moved diff back to model server
+
+ server/controller.ml  |  8 +-------
+ server/controller.mli |  5 -----
+ server/model.ml       | 16 ++++++++++------
+ server/model.mli      |  6 +++++-
+ 4 files changed, 16 insertions(+), 19 deletions(-)
+
+commit 9455a74c8e56ded4b0f76bb0ccbd9597ceac8b0b
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 15 09:51:42 2016 -0500
+
+    testing
+
+ server/controller.mli | 4 ----
+ 1 file changed, 4 deletions(-)
+
+commit d41abaddc88e41beac2e077a4f666ba81122b17e
+Merge: 008468c 5589a9f
+Author: liu15r <liu15r@dhcp-gs-773.eduroam.cornell.edu>
+Date:   Tue Nov 15 09:45:37 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 008468c16ba382bad5d3fe010fa48f7c9ffe1ac6
+Merge: 23cbe0b 5cb36cd
+Author: liu15r <liu15r@dhcp-gs-773.eduroam.cornell.edu>
+Date:   Tue Nov 15 09:45:31 2016 -0500
+
+    stuff
+
+commit d6ed19be5cb9c4d3c538ff97639ce56084ac8118
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 16:56:17 2016 -0500
+
+    Trying to move diff
+
+ server/changer.ml     | 11 -----------
+ server/changer.mli    |  9 ---------
+ server/controller.ml  |  6 ------
+ server/controller.mli | 11 +++++------
+ server/model.ml       |  8 +++++---
+ 5 files changed, 10 insertions(+), 35 deletions(-)
+
+commit 180af2851bbe1bf60433221196d8dd6f8887267f
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 16:24:28 2016 -0500
+
+    Preliminary changes to model
+
+ server/model.ml  | 5 +++++
+ server/model.mli | 6 ++++++
+ 2 files changed, 11 insertions(+)
+
+commit 5589a9f5a840657603c26187080b274e431bffdc
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 16:14:38 2016 -0500
+
+    Make running clienthttp.ml work by removing faulty world declaration in controller
+
+ client/clienthttp.ml  | 34 +++++++++++++++++++++++++++++++---
+ client/controller.ml  |  2 --
+ client/controller.mli |  1 -
+ 3 files changed, 31 insertions(+), 6 deletions(-)
+
+commit c2b34719b42314b6b0e393f220f65626c4b47c0f
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 15:56:37 2016 -0500
+
+    Add targets so that we can run the compiled files after building
+
+ Makefile  | 6 ++++++
+ README.md | 4 +++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+commit 21340e48f2bc098eb421c14fb53699a431825dfa
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 15:52:21 2016 -0500
+
+    Update readme
+
+ README.md | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit c8790f839466c27e10005cfeadb829b4b5c7edb4
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 14 15:50:03 2016 -0500
+
+    Create makefile and ensure compilable
+
+ Makefile              |  14 ++--
+ client/Makefile       |   5 ++
+ client/cli.ml         |  20 ++++++
+ client/cli.mli        |  24 +------
+ client/clienthttp.ml  |  14 ++++
+ client/clienthttp.mli |  11 +--
+ client/controller.ml  |  19 +++++
+ client/controller.mli |  10 ++-
+ client/model.ml       | 188 ++++++++++++++++++++++++++++++++++++++++++++++++
+ client/model.mli      |  20 ++++++
+ model.mli             | 195 --------------------------------------------------
+ server/Makefile       |   5 ++
+ server/changer.ml     |  11 +++
+ server/changer.mli    |   3 +-
+ server/controller.ml  |  26 +++++++
+ server/controller.mli |  17 +++--
+ server/model.ml       | 190 ++++++++++++++++++++++++++++++++++++++++++++++++
+ server/model.mli      |  20 ++++++
+ server/serverhttp.ml  |  53 ++++++++++++++
+ server/serverhttp.mli |  14 ++--
+ 20 files changed, 606 insertions(+), 253 deletions(-)
+
+commit c835e37a2ac72a5e149fa47557a866d26d5a0c5a
+Author: Jane Du <zd53@cornell.edu>
+Date:   Sun Nov 13 13:56:10 2016 -0500
+
+    Make makefile
+
+ Makefile       |  11 +++++++++++
+ interfaces.zip | Bin 0 -> 4833 bytes
+ 2 files changed, 11 insertions(+)
+
+commit 23cbe0bee78ae8ba9776356a26e1ae349c4513be
+Author: liu15r <liu15r@dhcp-rhodes-110.eduroam.cornell.edu>
+Date:   Sun Nov 13 13:33:07 2016 -0500
+
+    why
+
+ client/controller.mli | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit 5cb36cd4862d255300ff42dc669c72505db98f28
+Author: Chau Bui <chaukbui@gmail.com>
+Date:   Sun Nov 13 13:30:12 2016 -0500
+
+    modified dependency and fixed typos
+
+ client/clienthttp.mli | 3 +--
+ model.mli             | 6 +++---
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
+commit 112e1a3f63fa014d0ba21d7d6adb0f9b8e38c1ce
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Tue Nov 8 16:35:43 2016 -0500
+
+    corrected typos in design.pdf
+
+ MS1/Design.pdf | Bin 155879 -> 158595 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+commit b6d334d5b468586e6b036ab21f0eb58f72ba2e51
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Tue Nov 8 16:15:43 2016 -0500
+
+    moved model.mli to outside of client and server
+
+ model.mli        | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ server/model.mli | 195 -------------------------------------------------------
+ 2 files changed, 195 insertions(+), 195 deletions(-)
+
+commit 35d30eb64bb0fdc60b7f49ae6004eb3de6328a7b
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 8 14:37:14 2016 -0500
+
+    Restructure folders to be more scalable for when we add .ml files
+
+ MS1/client/cli.mli        |  28 -------
+ MS1/client/clienthttp.mli |  18 -----
+ MS1/client/controller.mli |   8 --
+ MS1/interfaces.zip        | Bin 6479 -> 0 bytes
+ MS1/server/changer.mli    |   8 --
+ MS1/server/controller.mli |  31 --------
+ MS1/server/model.mli      | 195 ----------------------------------------------
+ MS1/server/serverhttp.mli |  23 ------
+ client/cli.mli            |  28 +++++++
+ client/clienthttp.mli     |  18 +++++
+ client/controller.mli     |   8 ++
+ server/changer.mli        |   8 ++
+ server/controller.mli     |  31 ++++++++
+ server/model.mli          | 195 ++++++++++++++++++++++++++++++++++++++++++++++
+ server/serverhttp.mli     |  23 ++++++
+ 15 files changed, 311 insertions(+), 311 deletions(-)
+
+commit dd735218fabbdf79759a7eebe4e63e622ecf26fc
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 8 14:35:57 2016 -0500
+
+    Add comments to clarify static and dynamic elements of items
+
+ MS1/server/model.mli | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+commit 17045eb043394cea699d3fa8e61b9bdfe3e5c5c4
+Author: Jane Du <zd53@cornell.edu>
+Date:   Tue Nov 8 14:35:31 2016 -0500
+
+    Re-write mli to reflect new model/diff structure with lists of diffs for each client
+
+ MS1/server/changer.mli    |  5 ++---
+ MS1/server/controller.mli | 17 ++++-------------
+ MS1/server/serverhttp.mli | 16 ++++++++++++----
+ 3 files changed, 18 insertions(+), 20 deletions(-)
+
+commit 5a236fe046ccea77437d185acfe1f5130a37063d
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-2544.eduroam.cornell.edu>
+Date:   Tue Nov 8 12:33:37 2016 -0500
+
+    added design.pdf and interfaces.zip
+
+ MS1/Design.pdf     | Bin 0 -> 155879 bytes
+ MS1/interfaces.zip | Bin 0 -> 6479 bytes
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+
+commit 78188e52168f1522664fe45cbef97f5668b7bd94
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-2544.eduroam.cornell.edu>
+Date:   Tue Nov 8 12:27:36 2016 -0500
+
+    added comments to model.mli and made minor changes to clienthttp, changer, model, and serverhttp
+
+ MS1/client/clienthttp.mli |  8 ++++----
+ MS1/server/changer.mli    |  6 +++++-
+ MS1/server/model.mli      | 16 +++++++++-------
+ MS1/server/serverhttp.mli |  8 ++++----
+ 4 files changed, 22 insertions(+), 16 deletions(-)
+
+commit 5fa1c3fc60efbd14e177815309e770c39f681905
+Merge: 01f64ca 0cdc227
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-2544.eduroam.cornell.edu>
+Date:   Tue Nov 8 10:04:46 2016 -0500
+
+    merged clienthttp
+
+commit 01f64ca1e308b1ec63fe4454054dc2897edaa6c6
+Author: Paviya Tojaroon <EllesMacbook@dhcp-gs-2544.eduroam.cornell.edu>
+Date:   Tue Nov 8 10:03:18 2016 -0500
+
+    rearranged files and updated
+
+ MS1/client/cli.mli        |  28 +++++++
+ MS1/client/clienthttp.mli |  11 +++
+ MS1/client/controller.mli |   8 ++
+ MS1/server/changer.mli    |   5 ++
+ MS1/server/controller.mli |  40 ++++++++++
+ MS1/server/model.mli      | 184 ++++++++++++++++++++++++++++++++++++++++++++++
+ MS1/server/serverhttp.mli |  15 ++++
+ client/cli.mli            |  28 -------
+ client/clienthttp.mli     |  12 ---
+ client/controller.mli     |   9 ---
+ controller.mli            |  10 ---
+ model.mli                 | 182 ---------------------------------------------
+ server/JSON/JSON-ex       |  17 -----
+ server/changer.mli        |   6 --
+ server/controller.mli     |  40 ----------
+ server/serverhttp.mli     |   4 -
+ server/viewer.mli         |   0
+ 17 files changed, 291 insertions(+), 308 deletions(-)
+
+commit 0cdc22708092701327837b52e6c7a68dae42d64c
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Tue Nov 8 10:02:47 2016 -0500
+
+    clienthttp
+
+ client/clienthttp.mli | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+commit 8d9035643cade4a9e3362251be12f967a771a0e4
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Mon Nov 7 23:43:11 2016 -0500
+
+    modified cli.mli and delted client.mli
+
+ client/cli.mli    | 21 ++++++++++++++-------
+ client/client.mli | 12 ------------
+ 2 files changed, 14 insertions(+), 19 deletions(-)
+
+commit 4c10cbce9999f287b6b89f65d32aa3955095f7b8
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 20:27:28 2016 -0500
+
+    clienthttp
+
+ client/clienthttp.mli | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b1d0a144c78adf3b26c9942831ede36920b95e64
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 20:22:47 2016 -0500
+
+    clienthttp
+
+ client/clienthttp.mli | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+commit 8c54e987fa4a6857f66a791c19c54b8abdb02709
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 20:20:41 2016 -0500
+
+    controller
+
+ controller.mli | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+commit 52858488c75b160660e494f41940f484145d372b
+Merge: 01e9992 3933515
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 20:19:08 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit 01e99926e198eca1367de89db54ad79f19854911
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 20:19:04 2016 -0500
+
+    More file restructuring
+
+ .gitignore                   |  22 +++++-
+ cli.mli                      |  15 ----
+ client.mli                   |   7 --
+ client/cli.mli               |  15 ++++
+ client/client.mli            |   7 ++
+ client/controller.mli        |   4 +
+ controller.mli               |   4 -
+ model.mli                    | 182 +++++++++++++++++++++++++++++++++++++++++++
+ server/client_example.native |   1 -
+ server/controller.mli        |   4 +-
+ server/model.mli             | 182 -------------------------------------------
+ server/server_example.native |   1 -
+ server/serverhttp.mli        |   2 +-
+ 13 files changed, 233 insertions(+), 213 deletions(-)
+
+commit 393351552dd5f301ee50379090add19126fa08d2
+Merge: a6c3a76 d33a3ee
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 20:18:53 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit a6c3a76cccac05ee8a740e42a00373f70f4122b1
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 20:18:41 2016 -0500
+
+    client stuff
+
+ cli.mli        | 10 ++++++++--
+ client.mli     |  5 +++++
+ controller.mli |  5 +++++
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+
+commit d33a3eeece192f866c3ce0a52d2386d4d22cfbe1
+Merge: 87d101c f1f22ad
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Mon Nov 7 20:00:44 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 87d101c805b379fd04a7068179b7608659c5d59b
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Mon Nov 7 19:59:25 2016 -0500
+
+    updated model
+
+ server/model.mli | 97 ++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 49 insertions(+), 48 deletions(-)
+
+commit f1f22ad63af9ff1d63b96bec5793c639a090786c
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 19:36:48 2016 -0500
+
+    Edit syntax gitignore
+
+ .gitignore | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 90736595d362ebdadd3c0edfa1b79400bef802ef
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 19:36:27 2016 -0500
+
+    Delete build files
+
+ server/_build/_digests                  |  10 ----------
+ server/_build/_log                      |  10 ----------
+ server/_build/client_example.cmi        | Bin 1550 -> 0 bytes
+ server/_build/client_example.cmo        | Bin 5538 -> 0 bytes
+ server/_build/client_example.cmx        | Bin 1670 -> 0 bytes
+ server/_build/client_example.ml         |  31 -------------------------------
+ server/_build/client_example.ml.depends |   1 -
+ server/_build/client_example.native     | Bin 3188836 -> 0 bytes
+ server/_build/client_example.o          | Bin 4740 -> 0 bytes
+ server/_build/ocamlc.where              |   1 -
+ server/_build/server_example.cmi        | Bin 1550 -> 0 bytes
+ server/_build/server_example.cmo        | Bin 5846 -> 0 bytes
+ server/_build/server_example.cmx        | Bin 1649 -> 0 bytes
+ server/_build/server_example.ml         |  21 ---------------------
+ server/_build/server_example.ml.depends |   1 -
+ server/_build/server_example.native     | Bin 3188916 -> 0 bytes
+ server/_build/server_example.o          | Bin 4656 -> 0 bytes
+ 17 files changed, 75 deletions(-)
+
+commit f45f2736fccf855707ac21b9a23d4343064a6035
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 19:36:08 2016 -0500
+
+    Add gitignore
+
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit c8ef04c0666054da1abf29708c385c433feb733f
+Merge: 0da745c bb1e7a0
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 19:35:08 2016 -0500
+
+    Merge branch 'master' of github.coecis.cornell.edu:pt335/Fantastic
+
+commit 0da745c4785faf87c08db73981110534772618d2
+Author: Jane Du <zd53@cornell.edu>
+Date:   Mon Nov 7 19:35:03 2016 -0500
+
+    Edit update to have list of diffs
+
+ server/controller.mli | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit bb1e7a04b802dfa16580fbe6f6b54c25ee06dbc8
+Merge: 4106333 8284e05
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 19:34:40 2016 -0500
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 4106333d9a55943a7fd4bac382abfba99803d20e
+Author: liu15r <liu15r@dhcp-gs-6685.eduroam.cornell.edu>
+Date:   Mon Nov 7 19:33:37 2016 -0500
+
+    stuff
+
+ cli.mli                                 |  15 +++++++++++++++
+ client.mli                              |   7 +++++++
+ controller.mli                          |   4 ++++
+ server/_build/_digests                  |  10 ++++++++++
+ server/_build/_log                      |  10 ++++++++++
+ server/_build/client_example.cmi        | Bin 0 -> 1550 bytes
+ server/_build/client_example.cmo        | Bin 0 -> 5538 bytes
+ server/_build/client_example.cmx        | Bin 0 -> 1670 bytes
+ server/_build/client_example.ml         |  31 +++++++++++++++++++++++++++++++
+ server/_build/client_example.ml.depends |   1 +
+ server/_build/client_example.native     | Bin 0 -> 3188836 bytes
+ server/_build/client_example.o          | Bin 0 -> 4740 bytes
+ server/_build/ocamlc.where              |   1 +
+ server/_build/server_example.cmi        | Bin 0 -> 1550 bytes
+ server/_build/server_example.cmo        | Bin 0 -> 5846 bytes
+ server/_build/server_example.cmx        | Bin 0 -> 1649 bytes
+ server/_build/server_example.ml         |  21 +++++++++++++++++++++
+ server/_build/server_example.ml.depends |   1 +
+ server/_build/server_example.native     | Bin 0 -> 3188916 bytes
+ server/_build/server_example.o          | Bin 0 -> 4656 bytes
+ server/client_example.ml                |   2 +-
+ server/client_example.native            |   1 +
+ server/server_example.native            |   1 +
+ 23 files changed, 104 insertions(+), 1 deletion(-)
+
+commit 8284e055edb45e4d4869fdfb30f1191d319713ea
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Sat Nov 5 15:30:25 2016 -0400
+
+    added item_id to model and JSON example
+
+ server/JSON/JSON-ex | 17 +++++++++++++++++
+ server/model.mli    | 22 +++++++++++++++++-----
+ 2 files changed, 34 insertions(+), 5 deletions(-)
+
+commit 5bedcd43427e9c402b77605ca4d3d59bedfad304
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Sat Nov 5 15:09:35 2016 -0400
+
+    cleaned up model and controller
+
+ server/controller.mli | 34 +++++++++++++++-------------------
+ server/model.mli      | 43 +++++++++++++++++++++++++++----------------
+ 2 files changed, 42 insertions(+), 35 deletions(-)
+
+commit 055d71c8d139d25556325d971966d5007cf3d798
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Fri Nov 4 23:24:26 2016 -0400
+
+    first draft model.mli
+
+ server/model.mli | 159 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 152 insertions(+), 7 deletions(-)
+
+commit 39dd911b47d6e9e00323f0865b6d16bcba2c3a2e
+Merge: 03a8c1a 7872b80
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Fri Nov 4 00:56:31 2016 -0400
+
+    Merge branch 'master' of https://github.coecis.cornell.edu/pt335/Fantastic
+
+commit 03a8c1a45295b402d889f8a20d06f158d66e9068
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Fri Nov 4 00:56:27 2016 -0400
+
+    ran client on Jane's server
+
+ server/client_example.ml | 4 +++-
+ server/server_example.ml | 7 ++++---
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+commit 7872b807d9751d21d649482e26ab470f3e20f219
+Author: Zhuangjin Du <zd53@cornell.edu>
+Date:   Thu Nov 3 16:29:14 2016 -0400
+
+    Create README.md
+
+ README.md | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 87a427648550a06a960698e6d5d0cb532a530fb4
+Author: Jane Du <zd53@cornell.edu>
+Date:   Thu Nov 3 14:35:24 2016 -0400
+
+    Basic scaffold for server
+
+ server/changer.mli    |  6 ++++++
+ server/clienthttp.mli |  0
+ server/controller.mli | 42 ++++++++++++++++++++++++++++++++++++++++++
+ server/model.mli      | 13 +++++++++++++
+ server/serverhttp.mli |  4 ++++
+ 5 files changed, 65 insertions(+)
+
+commit 999adfce497df9c4fdb9f000722b9f87025e0a34
+Author: Jane Du <zd53@cornell.edu>
+Date:   Thu Nov 3 13:47:08 2016 -0400
+
+    Add empty server modules
+
+ server/changer.mli    | 0
+ server/clienthttp.mli | 0
+ server/controller.mli | 0
+ server/model.mli      | 0
+ server/viewer.mli     | 0
+ 5 files changed, 0 insertions(+), 0 deletions(-)
+
+commit 698a616e4e68ee6e8d522e884ec502083b02f554
+Author: Jane Du <zd53@cornell.edu>
+Date:   Thu Nov 3 13:32:40 2016 -0400
+
+    Rename example files
+
+ example/client_example.ml | 31 +++++++++++++++++++++++++++++++
+ example/server_example.ml | 21 +++++++++++++++++++++
+ server/client_example.ml  | 31 -------------------------------
+ server/server_example.ml  | 21 ---------------------
+ 4 files changed, 52 insertions(+), 52 deletions(-)
+
+commit ed785c4185927848c2a2da3b0e5b52446dd4bb6c
+Author: Paviya Tojaroon <EllesMacbook@dhcp-mcfad-12485.eduroam.cornell.edu>
+Date:   Mon Oct 24 23:30:26 2016 -0400
+
+    initial commit
+
+ MS0/charter.gdoc         |  1 +
+ MS0/ideas .gdoc          |  1 +
+ server/client_example.ml | 31 +++++++++++++++++++++++++++++++
+ server/server_example.ml | 21 +++++++++++++++++++++
+ 4 files changed, 54 insertions(+)
